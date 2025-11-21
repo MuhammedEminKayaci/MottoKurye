@@ -1,0 +1,191 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { BusinessRegistration } from "../../../types/registration";
+
+const businessSchema = z.object({
+  businessName: z.string().min(2, "Firma adı gerekli"),
+  businessSector: z.string().min(1, "Firma sektörü seçin"),
+  managerName: z.string().min(2, "Yetkili adı soyadı gerekli"),
+  managerContact: z.string().min(10, "Yetkili iletişim gerekli"),
+  province: z.string().min(1, "İl seçin"),
+  district: z.string().min(1, "İlçe seçin"),
+  workingType: z.enum(["Full Time", "Part Time"]),
+  earningModel: z.enum(["Saat+Paket Başı", "Paket Başı", "Aylık Sabit"]),
+  workingDays: z.array(z.string()).min(1, "En az bir gün seçin"),
+  dailyPackageEstimate: z.enum(["0-15 PAKET", "15-25 PAKET", "25-40 PAKET", "40 VE ÜZERİ"]),
+  avatarFile: z.any().optional(),
+});
+
+export interface BusinessFormProps {
+  onSubmit: (data: BusinessRegistration) => void;
+  disabled?: boolean;
+}
+
+const businessSectors = [
+  "E-Ticaret ve Online Satış Firmaları",
+  "Moda, Tekstil ve Aksesuar",
+  "Kurumsal ve Ofis Hizmetleri",
+  "Finans - Bankacılık - Sigorta",
+  "Yeme-İçme",
+  "Sağlık ve Medikal",
+  "Teknoloji ve Elektronik",
+  "Lojistik ve Depolama",
+  "Çiçek & Hediyeli Eşya",
+  "Otomotiv ve Yedek Parça",
+];
+
+const provinces: Record<string, string[]> = {
+  İstanbul: ["Kadıköy", "Beşiktaş", "Üsküdar", "Şişli", "Fatih"],
+  Ankara: ["Çankaya", "Keçiören", "Yenimahalle", "Mamak"],
+  İzmir: ["Konak", "Bornova", "Karşıyaka", "Buca"],
+  Antalya: ["Muratpaşa", "Kepez", "Konyaaltı"],
+};
+
+const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+
+export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<BusinessRegistration>({
+    resolver: zodResolver(businessSchema),
+    defaultValues: {
+      workingType: "Full Time",
+      earningModel: "Saat+Paket Başı",
+      dailyPackageEstimate: "15-25 PAKET",
+      workingDays: ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"],
+      businessSector: "",
+    } as any,
+  });
+
+  const selectedProvince = watch("province");
+  const districts = selectedProvince ? provinces[selectedProvince] || [] : [];
+  const avatarDynamic = watch("avatarFile");
+  const [preview, setPreview] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const list: FileList | undefined = avatarDynamic as any;
+    if (list && list.length > 0) {
+      const url = URL.createObjectURL(list[0]);
+      setPreview(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreview(null);
+    }
+  }, [avatarDynamic]);
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Profil Fotoğrafı */}
+      <div className="flex items-center gap-4">
+        <div className="w-20 h-20 rounded-full overflow-hidden bg-white/40 flex items-center justify-center border">
+          {preview ? (
+            <img src={preview} alt="Önizleme" className="object-cover w-full h-full" />
+          ) : (
+            <span className="text-3xl">🏢</span>
+          )}
+        </div>
+        <div className="flex-1">
+          <label className="block text-xs font-medium text-white mb-1">Firma Logosu (Opsiyonel)</label>
+          <input type="file" accept="image/*" className="input-field text-xs" {...register("avatarFile")}/>
+        </div>
+      </div>
+
+      {/* FİRMA BİLGİLER */}
+      <div className="space-y-3">
+        <h3 className="text-white font-bold text-sm border-b border-white/30 pb-1">FİRMA BİLGİLER</h3>
+        <div className="grid grid-cols-1 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Firma Adı *</label>
+            <input className="input-field text-sm" {...register("businessName")} placeholder="Firma adınız" />
+            {errors.businessName && <p className="text-[10px] text-red-200 mt-1">{errors.businessName.message}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Firma Sektörü *</label>
+            <select className="input-field text-sm" {...register("businessSector")}>
+              <option value="">Sektör Seçin</option>
+              {businessSectors.map(sector => (
+                <option key={sector} value={sector}>{sector}</option>
+              ))}
+            </select>
+            {errors.businessSector && <p className="text-[10px] text-red-200 mt-1">{errors.businessSector.message}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Yetkili Adı Soyadı *</label>
+            <input className="input-field text-sm" {...register("managerName")} placeholder="Ad Soyad" />
+            {errors.managerName && <p className="text-[10px] text-red-200 mt-1">{errors.managerName.message}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim *</label>
+            <input className="input-field text-sm" {...register("managerContact")} placeholder="05XXXXXXXXX" />
+            {errors.managerContact && <p className="text-[10px] text-red-200 mt-1">{errors.managerContact.message}</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* ÇALIŞMA KOŞULLARI */}
+      <div className="space-y-3">
+        <h3 className="text-white font-bold text-sm border-b border-white/30 pb-1">ÇALIŞMA KOŞULLARI</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Çalışılacak İl *</label>
+            <select className="input-field text-sm" {...register("province")}>
+              <option value="">İl Seçin</option>
+              {Object.keys(provinces).map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+            {errors.province && <p className="text-[10px] text-red-200 mt-1">{errors.province.message}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Çalışılacak İlçe *</label>
+            <select className="input-field text-sm" {...register("district")}>
+              <option value="">İlçe Seçin</option>
+              {districts.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+            {errors.district && <p className="text-[10px] text-red-200 mt-1">{errors.district.message}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Çalışma Tipi *</label>
+            <select className="input-field text-sm" {...register("workingType")}>
+              <option value="Full Time">Full Time</option>
+              <option value="Part Time">Part Time</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Kazanç Modeli *</label>
+            <select className="input-field text-sm" {...register("earningModel")}>
+              <option value="Saat+Paket Başı">Saat + Paket Başı</option>
+              <option value="Paket Başı">Paket Başı</option>
+              <option value="Aylık Sabit">Aylık Sabit</option>
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-medium text-white mb-1">Tahmini Günlük Paket *</label>
+            <select className="input-field text-sm" {...register("dailyPackageEstimate")}>
+              <option value="0-15 PAKET">0-15 PAKET</option>
+              <option value="15-25 PAKET">15-25 PAKET</option>
+              <option value="25-40 PAKET">25-40 PAKET</option>
+              <option value="40 VE ÜZERİ">40 VE ÜZERİ</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-medium text-white mb-2">Çalışma Günleri *</label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {days.map(day => (
+              <label key={day} className="flex items-center gap-1.5 text-xs text-white bg-white/10 rounded px-2 py-1.5">
+                <input type="checkbox" value={day} {...register("workingDays")} className="accent-[#ff7a00]" />
+                <span>{day}</span>
+              </label>
+            ))}
+          </div>
+          {errors.workingDays && <p className="text-[10px] text-red-200 mt-1">{errors.workingDays.message}</p>}
+        </div>
+      </div>
+
+      <button type="submit" disabled={disabled} className="primary-btn w-full">
+        {disabled ? "Kaydediliyor..." : "İşletme Kaydını Tamamla"}
+      </button>
+    </form>
+  );
+}
