@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { Header } from "../_components/Header";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { FilterPanel, Role } from "../_components/ModernFilterPanel";
 import { ListingCard } from "../hosgeldiniz/_components/ListingCard";
 import { Pagination } from "../hosgeldiniz/_components/Pagination";
 
-export default function IlanlarPage() {
+function IlanlarContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const viewParam = searchParams.get('view'); // 'kurye' or 'isletme'
@@ -215,5 +215,20 @@ export default function IlanlarPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function IlanlarPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-dvh w-full bg-gradient-to-b from-white to-neutral-100 flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-[#ff7a00] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </main>
+    }>
+      <IlanlarContent />
+    </Suspense>
   );
 }
