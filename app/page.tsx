@@ -101,7 +101,7 @@ export default function Page() {
         <div className="max-w-6xl mx-auto"> {/* yeniden içeriği devam ettirmek için container açılıyor */}
 
           {/* NASIL ÇALIŞIR */}
-          <h2 className="mt-12 text-center text-3xl font-extrabold text-black">NASIL ÇALIŞIR ?</h2>
+          <h2 id="nasil-calisir" className="mt-12 text-center text-3xl font-extrabold text-black">NASIL ÇALIŞIR ?</h2>
 
           <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
             {[

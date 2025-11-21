@@ -15,6 +15,17 @@ export function PublicHeader() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setIsMenuOpen(false);
+      }
+    }
+  };
+
   const navItems = [
     { label: "Ana Sayfa", href: "/" },
     { label: "İletişim", href: "#iletisim" },
@@ -77,7 +88,7 @@ export function PublicHeader() {
                 key={item.label}
                 href={item.href}
                 className="text-xl font-bold hover:text-white/80"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={(e) => handleNavClick(e, item.href)}
               >
                 {item.label}
               </Link>
@@ -100,6 +111,7 @@ export function PublicHeader() {
               <Link
                 href={item.href}
                 className={`${sharedNavLink} ${idx === 0 ? "text-black/80" : ""} hover:text-white/80`}
+                onClick={(e) => handleNavClick(e, item.href)}
               >
                 {item.label}
               </Link>

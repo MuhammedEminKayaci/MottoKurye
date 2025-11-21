@@ -85,7 +85,6 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100 pb-12">
-      <PublicHeader />
       {/* Header with back button */}
       <div className="bg-white border-b border-neutral-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
@@ -98,7 +97,7 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
             </svg>
             Geri
           </Link>
-          <h1 className="text-xl sm:text-2xl font-bold text-neutral-800">Kurye Profili</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#ff7a00]">Kurye Profili</h1>
         </div>
       </div>
 
