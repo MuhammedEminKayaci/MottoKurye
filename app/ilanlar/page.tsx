@@ -93,7 +93,7 @@ export default function IlanlarPage() {
           
           // Get business info for each ad if user_id exists
           const adsWithBusinessInfo = await Promise.all(
-            (data || []).map(async (ad) => {
+            (data || []).map(async (ad: any) => {
               if (!ad.user_id) return ad;
               const { data: business } = await supabase
                 .from("businesses")
