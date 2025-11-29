@@ -9,7 +9,6 @@ export default function ProfilPage() {
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<string|null>(null);
   const fileInputId = "avatar-upload-input";
-  const coverInputId = "cover-upload-input";
 
   useEffect(() => {
     const run = async () => {
@@ -48,34 +47,6 @@ export default function ProfilPage() {
       }
       setProfile((p:any)=>({...p, avatar_url: url }));
       setMsg('✓ Profil görseli güncellendi.');
-    } catch (err:any) {
-      setMsg('✗ ' + (err?.message ?? 'Yükleme başarısız'));
-    }
-  };
-
-  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      setMsg(null);
-      const { data: auth } = await supabase.auth.getSession();
-      const uid = auth.session?.user?.id;
-      if (!uid) throw new Error("Oturum bulunamadı");
-      const ext = file.name.split('.').pop();
-      const path = `covers/${uid}/${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from('avatars').getPublicUrl(path);
-      const url = pub?.publicUrl;
-      if (!url) throw new Error('Görsel URL üretilemedi');
-      // Update table
-      if (role === 'kurye') {
-        await supabase.from('couriers').update({ cover_photo_url: url }).eq('id', profile.id);
-      } else if (role === 'isletme') {
-        await supabase.from('businesses').update({ cover_photo_url: url }).eq('id', profile.id);
-      }
-      setProfile((p:any)=>({...p, cover_photo_url: url }));
-      setMsg('✓ Kapak fotoğrafı güncellendi.');
     } catch (err:any) {
       setMsg('✗ ' + (err?.message ?? 'Yükleme başarısız'));
     }
@@ -125,18 +96,6 @@ export default function ProfilPage() {
         {/* Cover overlay */}
         <div className="absolute inset-0 bg-black/10" />
         
-        {/* Cover Edit Button */}
-        <button
-          onClick={() => document.getElementById(coverInputId)?.click()}
-          className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white px-4 py-2 rounded-lg text-sm font-medium transition opacity-0 group-hover:opacity-100"
-        >
-          <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          Kapak Düzenle
-        </button>
-        
         {/* Avatar positioned at bottom */}
         <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0">
           <div className="relative group">
@@ -157,9 +116,6 @@ export default function ProfilPage() {
             <input id={fileInputId} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
           </div>
         </div>
-        
-        {/* Hidden cover input */}
-        <input id={coverInputId} type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} />
       </div>
 
       {/* Profile Info Section */}

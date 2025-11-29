@@ -27,10 +27,14 @@ const DISTRICTS: Record<string, string[]> = {
   "İzmir": ["Aliağa", "Balçova", "Bayındır", "Bayraklı", "Bergama", "Beydağ", "Bornova", "Buca", "Çeşme", "Çiğli", "Dikili", "Foça", "Gaziemir", "Güzelbahçe", "Karabağlar", "Karaburun", "Karşıyaka", "Kemalpaşa", "Kınık", "Kiraz", "Konak", "Menderes", "Menemen", "Narlıdere", "Ödemiş", "Seferihisar", "Selçuk", "Tire", "Torbalı", "Urla"]
 };
 
+// Çalışma günleri
+const WORKING_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+
 export function FilterPanel({ role, onChange }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedWorkingDays, setSelectedWorkingDays] = useState<string[]>([]);
 
   const handleFilterChange = (key: string, value: string) => {
     const newFilters = { ...filters, [key]: value };
@@ -38,6 +42,21 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
       setSelectedProvince(value);
       // İl değiştiğinde ilçeyi sıfırla
       delete newFilters.district;
+    }
+    setFilters(newFilters);
+  };
+
+  const handleWorkingDayToggle = (day: string) => {
+    const newDays = selectedWorkingDays.includes(day)
+      ? selectedWorkingDays.filter(d => d !== day)
+      : [...selectedWorkingDays, day];
+    setSelectedWorkingDays(newDays);
+    
+    const newFilters = { ...filters };
+    if (newDays.length > 0) {
+      newFilters.working_days = newDays.join(',');
+    } else {
+      delete newFilters.working_days;
     }
     setFilters(newFilters);
   };
@@ -50,6 +69,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
   const handleClear = () => {
     setFilters({});
     setSelectedProvince("");
+    setSelectedWorkingDays([]);
     onChange({});
   };
 
@@ -130,20 +150,6 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
               {role === "isletme" && (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold text-black mb-2">Ehliyet Türü</label>
-                    <select
-                      value={filters.license_type || ""}
-                      onChange={(e) => handleFilterChange("license_type", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
-                    >
-                      <option value="" className="text-black">Tümü</option>
-                      <option value="A1" className="text-black">A1</option>
-                      <option value="A" className="text-black">A</option>
-                      <option value="A2" className="text-black">A2</option>
-                    </select>
-                  </div>
-
-                  <div>
                     <label className="block text-sm font-semibold text-black mb-2">Çalışma Tipi</label>
                     <select
                       value={filters.working_type || ""}
@@ -153,22 +159,6 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       <option value="" className="text-black">Tümü</option>
                       <option value="Full Time" className="text-black">Full Time</option>
                       <option value="Part Time" className="text-black">Part Time</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-black mb-2">İş Tecrübesi</label>
-                    <select
-                      value={filters.experience || ""}
-                      onChange={(e) => handleFilterChange("experience", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
-                    >
-                      <option value="" className="text-black">Tümü</option>
-                      <option value="0-1" className="text-black">0-1 Yıl</option>
-                      <option value="1-3" className="text-black">1-3 Yıl</option>
-                      <option value="3-5" className="text-black">3-5 Yıl</option>
-                      <option value="5-10" className="text-black">5-10 Yıl</option>
-                      <option value="10+" className="text-black">10+ Yıl</option>
                     </select>
                   </div>
 
@@ -183,6 +173,68 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
                       <option value="Paket Başı" className="text-black">Paket Başı</option>
                       <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Çalışma Günleri</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {WORKING_DAYS.map((day, index) => (
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => handleWorkingDayToggle(day)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                            index === 6 ? 'col-span-2' : ''
+                          } ${
+                            selectedWorkingDays.includes(day)
+                              ? 'bg-[#ff7a00] text-white border-2 border-[#ff7a00]'
+                              : 'bg-white text-black border-2 border-neutral-300 hover:border-[#ff7a00]'
+                          }`}
+                        >
+                          {day}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Ehliyet Türü</label>
+                    <select
+                      value={filters.license_type || ""}
+                      onChange={(e) => handleFilterChange("license_type", e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      <option value="A1" className="text-black">A1</option>
+                      <option value="A" className="text-black">A</option>
+                      <option value="A2" className="text-black">A2</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Motosiklet Durumu</label>
+                    <select
+                      value={filters.has_motorcycle || ""}
+                      onChange={(e) => handleFilterChange("has_motorcycle", e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      <option value="VAR" className="text-black">Var</option>
+                      <option value="YOK" className="text-black">Yok</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Taşıma Çantası</label>
+                    <select
+                      value={filters.has_bag || ""}
+                      onChange={(e) => handleFilterChange("has_bag", e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      <option value="VAR" className="text-black">Var</option>
+                      <option value="YOK" className="text-black">Yok</option>
                     </select>
                   </div>
                 </>
@@ -201,6 +253,57 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       <option value="" className="text-black">Tümü</option>
                       <option value="Full Time" className="text-black">Full Time</option>
                       <option value="Part Time" className="text-black">Part Time</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Kazanç Modeli</label>
+                    <select
+                      value={filters.earning_model || ""}
+                      onChange={(e) => handleFilterChange("earning_model", e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      <option value="Saat Başı" className="text-black">Saat Başı</option>
+                      <option value="Paket Başı" className="text-black">Paket Başı</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Çalışma Günleri</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {WORKING_DAYS.map((day, index) => (
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => handleWorkingDayToggle(day)}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                            index === 6 ? 'col-span-2' : ''
+                          } ${
+                            selectedWorkingDays.includes(day)
+                              ? 'bg-[#ff7a00] text-white border-2 border-[#ff7a00]'
+                              : 'bg-white text-black border-2 border-neutral-300 hover:border-[#ff7a00]'
+                          }`}
+                        >
+                          {day}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Günlük Paket Tahmini</label>
+                    <select
+                      value={filters.daily_package_estimate || ""}
+                      onChange={(e) => handleFilterChange("daily_package_estimate", e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      <option value="0-25 PAKET" className="text-black">0-25 Paket</option>
+                      <option value="25-50 PAKET" className="text-black">25-50 Paket</option>
+                      <option value="50-75 PAKET" className="text-black">50-75 Paket</option>
+                      <option value="75-100 PAKET" className="text-black">75-100 Paket</option>
+                      <option value="100+ PAKET" className="text-black">100+ Paket</option>
                     </select>
                   </div>
                 </>
@@ -284,23 +387,6 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
             {role === "isletme" && (
               <>
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Ehliyet Türü</label>
-                  <select
-                    value={filters.license_type || ""}
-                    onChange={(e) => {
-                      handleFilterChange("license_type", e.target.value);
-                      onChange({ ...filters, license_type: e.target.value });
-                    }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
-                  >
-                    <option value="" className="text-black">Tümü</option>
-                    <option value="A1" className="text-black">A1</option>
-                    <option value="A" className="text-black">A</option>
-                    <option value="A2" className="text-black">A2</option>
-                  </select>
-                </div>
-
-                <div>
                   <label className="block text-sm font-semibold text-white mb-2">Çalışma Tipi</label>
                   <select
                     value={filters.working_type || ""}
@@ -313,25 +399,6 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <option value="" className="text-black">Tümü</option>
                     <option value="Full Time" className="text-black">Full Time</option>
                     <option value="Part Time" className="text-black">Part Time</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-white mb-2">İş Tecrübesi</label>
-                  <select
-                    value={filters.experience || ""}
-                    onChange={(e) => {
-                      handleFilterChange("experience", e.target.value);
-                      onChange({ ...filters, experience: e.target.value });
-                    }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
-                  >
-                    <option value="" className="text-black">Tümü</option>
-                    <option value="0-1" className="text-black">0-1 Yıl</option>
-                    <option value="1-3" className="text-black">1-3 Yıl</option>
-                    <option value="3-5" className="text-black">3-5 Yıl</option>
-                    <option value="5-10" className="text-black">5-10 Yıl</option>
-                    <option value="10+" className="text-black">10+ Yıl</option>
                   </select>
                 </div>
 
@@ -351,26 +418,180 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
                   </select>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Çalışma Günleri</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {WORKING_DAYS.map((day, index) => (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => {
+                          handleWorkingDayToggle(day);
+                          const newDays = selectedWorkingDays.includes(day)
+                            ? selectedWorkingDays.filter(d => d !== day)
+                            : [...selectedWorkingDays, day];
+                          const newFilters = { ...filters };
+                          if (newDays.length > 0) {
+                            newFilters.working_days = newDays.join(',');
+                          } else {
+                            delete newFilters.working_days;
+                          }
+                          onChange(newFilters);
+                        }}
+                        className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                          index === 6 ? 'col-span-2' : ''
+                        } ${
+                          selectedWorkingDays.includes(day)
+                            ? 'bg-[#ff7a00] text-white border-2 border-[#ff7a00]'
+                            : 'bg-white text-black border-2 border-neutral-300 hover:border-[#ff7a00]'
+                        }`}
+                      >
+                        {day.slice(0, 3)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Ehliyet Türü</label>
+                  <select
+                    value={filters.license_type || ""}
+                    onChange={(e) => {
+                      handleFilterChange("license_type", e.target.value);
+                      onChange({ ...filters, license_type: e.target.value });
+                    }}
+                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="A1" className="text-black">A1</option>
+                    <option value="A" className="text-black">A</option>
+                    <option value="A2" className="text-black">A2</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Motosiklet Durumu</label>
+                  <select
+                    value={filters.has_motorcycle || ""}
+                    onChange={(e) => {
+                      handleFilterChange("has_motorcycle", e.target.value);
+                      onChange({ ...filters, has_motorcycle: e.target.value });
+                    }}
+                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="VAR" className="text-black">Var</option>
+                    <option value="YOK" className="text-black">Yok</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Taşıma Çantası</label>
+                  <select
+                    value={filters.has_bag || ""}
+                    onChange={(e) => {
+                      handleFilterChange("has_bag", e.target.value);
+                      onChange({ ...filters, has_bag: e.target.value });
+                    }}
+                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="VAR" className="text-black">Var</option>
+                    <option value="YOK" className="text-black">Yok</option>
+                  </select>
+                </div>
               </>
             )}
 
             {/* İşletme ilanları için */}
             {role === "kurye" && (
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">Çalışma Tipi</label>
-                <select
-                  value={filters.working_type || ""}
-                  onChange={(e) => {
-                    handleFilterChange("working_type", e.target.value);
-                    onChange({ ...filters, working_type: e.target.value });
-                  }}
-                  className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
-                >
-                  <option value="" className="text-black">Tümü</option>
-                  <option value="Full Time" className="text-black">Full Time</option>
-                  <option value="Part Time" className="text-black">Part Time</option>
-                </select>
-              </div>
+              <>
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Çalışma Tipi</label>
+                  <select
+                    value={filters.working_type || ""}
+                    onChange={(e) => {
+                      handleFilterChange("working_type", e.target.value);
+                      onChange({ ...filters, working_type: e.target.value });
+                    }}
+                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="Full Time" className="text-black">Full Time</option>
+                    <option value="Part Time" className="text-black">Part Time</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Kazanç Modeli</label>
+                  <select
+                    value={filters.earning_model || ""}
+                    onChange={(e) => {
+                      handleFilterChange("earning_model", e.target.value);
+                      onChange({ ...filters, earning_model: e.target.value });
+                    }}
+                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="Saat Başı" className="text-black">Saat Başı</option>
+                    <option value="Paket Başı" className="text-black">Paket Başı</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Çalışma Günleri</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {WORKING_DAYS.map((day, index) => (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => {
+                          handleWorkingDayToggle(day);
+                          const newDays = selectedWorkingDays.includes(day)
+                            ? selectedWorkingDays.filter(d => d !== day)
+                            : [...selectedWorkingDays, day];
+                          const newFilters = { ...filters };
+                          if (newDays.length > 0) {
+                            newFilters.working_days = newDays.join(',');
+                          } else {
+                            delete newFilters.working_days;
+                          }
+                          onChange(newFilters);
+                        }}
+                        className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                          index === 6 ? 'col-span-2' : ''
+                        } ${
+                          selectedWorkingDays.includes(day)
+                            ? 'bg-[#ff7a00] text-white border-2 border-[#ff7a00]'
+                            : 'bg-white text-black border-2 border-neutral-300 hover:border-[#ff7a00]'
+                        }`}
+                      >
+                        {day.slice(0, 3)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Günlük Paket Tahmini</label>
+                  <select
+                    value={filters.daily_package_estimate || ""}
+                    onChange={(e) => {
+                      handleFilterChange("daily_package_estimate", e.target.value);
+                      onChange({ ...filters, daily_package_estimate: e.target.value });
+                    }}
+                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="0-25 PAKET" className="text-black">0-25 Paket</option>
+                    <option value="25-50 PAKET" className="text-black">25-50 Paket</option>
+                    <option value="50-75 PAKET" className="text-black">50-75 Paket</option>
+                    <option value="75-100 PAKET" className="text-black">75-100 Paket</option>
+                    <option value="100+ PAKET" className="text-black">100+ Paket</option>
+                  </select>
+                </div>
+              </>
             )}
           </div>
         </div>
