@@ -186,10 +186,10 @@ export default function Page() {
 
             {/* Footer Navigation Sağ Üstte */}
             <div className="flex gap-8">
-              <Link href="#" className="text-white hover:text-white/80">
+              <Link href="#nasil-calisir" className="text-white hover:text-white/80">
                 Nasıl Çalışır
               </Link>
-              <Link href="#" className="text-white hover:text-white/80">
+              <Link href="/ucret-planlari" className="text-white hover:text-white/80">
                 Ücret Planları
               </Link>
               <Link href="#" className="text-white hover:text-white/80">

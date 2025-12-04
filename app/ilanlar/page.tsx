@@ -12,6 +12,7 @@ function IlanlarContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const viewParam = searchParams.get('view'); // 'kurye' or 'isletme'
+  const typeParam = searchParams.get('type'); // 'kurye' or 'isletme' from redirect
   
   const [role, setRole] = useState<Role | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -60,12 +61,13 @@ function IlanlarContent() {
       } else {
         // User is not authenticated - show guest view based on URL param
         setIsAuthenticated(false);
-        setRole((viewParam as Role) || "kurye"); // Default to kurye view (business ads)
+        // Check type param first (from redirect), then view param, default to kurye
+        setRole((typeParam as Role) || (viewParam as Role) || "kurye");
         setLoading(false);
       }
     };
     init();
-  }, [viewParam]);
+  }, [viewParam, typeParam]);
 
   // Fetch content - allow guest access
   useEffect(() => {
