@@ -2,8 +2,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export function PublicHeader() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Close mobile menu on ESC for accessibility
@@ -16,6 +18,12 @@ export function PublicHeader() {
   }, []);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href === "/") {
+      e.preventDefault();
+      router.push("/");
+      setIsMenuOpen(false);
+      return;
+    }
     if (href.startsWith('#')) {
       e.preventDefault();
       const element = document.querySelector(href);
@@ -31,7 +39,6 @@ export function PublicHeader() {
     { label: "İletişim", href: "#iletisim" },
     { label: "Nasıl Çalışır", href: "#nasil-calisir" },
     { label: "Ücretler", href: "/ucret-planlari" },
-    { label: "Daha Fazla", href: "#daha-fazla" },
   ];
 
   const sharedNavLink =

@@ -24,13 +24,11 @@ function IlanlarContent() {
   const pageSize = 6;
 
   const handleGuestClick = () => {
-    // Kullanıcı hangi ilanları görüyorsa, o rolde kayıt olmalı
-    // role === "kurye" -> Kurye ilanlarına bakıyor -> Kurye arıyor -> İşletme olarak kayıt olmalı
-    // role === "isletme" -> İşletme ilanlarına bakıyor -> İşletme arıyor -> Kurye olarak kayıt olmalı
+    // Ön izleme mantığı: işletme ilanı ön izlemesinde kurye kaydı, kurye ilanı ön izlemesinde işletme kaydı
     if (role === "kurye") {
-      router.push("/kayit-ol?role=isletme"); // Kurye arayan → İşletme kayıt
+      router.push("/kayit-ol?role=kurye");
     } else if (role === "isletme") {
-      router.push("/kayit-ol?role=kurye"); // İşletme arayan → Kurye kayıt
+      router.push("/kayit-ol?role=isletme");
     } else {
       router.push("/kayit-ol");
     }
@@ -181,7 +179,7 @@ function IlanlarContent() {
             {!isAuthenticated && (
               <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
                 <p className="text-sm text-orange-800">
-                  <strong>Ön İzleme Modu:</strong> {role === "isletme" ? "Kurye ilanlarını görüntüleyebilirsiniz. Kurye aramak için işletme olarak" : "İşletme ilanlarını görüntüleyebilirsiniz. İş aramak için kurye olarak"} kayıt olmanız gerekiyor.{" "}
+                  <strong>Ön İzleme Modu:</strong> {role === "isletme" ? "Kurye ilanlarını görüntülüyorsunuz. Kayıt olmak için işletme kaydı yapın." : "İşletme ilanlarını görüntülüyorsunuz. Kayıt olmak için kurye kaydı yapın."}{" "}
                   <button 
                     onClick={handleGuestClick}
                     className="underline hover:text-orange-900 font-semibold"

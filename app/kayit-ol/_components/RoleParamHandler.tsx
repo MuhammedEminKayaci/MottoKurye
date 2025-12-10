@@ -14,10 +14,12 @@ export function RoleParamHandler({
 
   useEffect(() => {
     const roleParam = searchParams.get('role');
+    const typeParam = searchParams.get('type');
     const googleParam = searchParams.get('google');
     
-    if (roleParam === 'kurye' || roleParam === 'isletme') {
-      setRole(roleParam);
+    const incomingRole = roleParam || typeParam;
+    if (incomingRole === 'kurye' || incomingRole === 'isletme') {
+      setRole(incomingRole);
     }
     
     if (googleParam === 'true' && setIsGoogleUser) {

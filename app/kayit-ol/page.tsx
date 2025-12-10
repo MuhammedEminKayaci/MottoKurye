@@ -29,11 +29,13 @@ export default function KayitOlPage() {
       const { data } = await supabase.auth.getSession();
       const urlParams = new URLSearchParams(window.location.search);
       const roleParam = urlParams.get('role');
+      const typeParam = urlParams.get('type');
       const googleParam = urlParams.get('google');
       
       // Rol parametresi varsa hemen ayarla (auth veya profile aşamasında)
-      if (roleParam && (roleParam === 'kurye' || roleParam === 'isletme')) {
-        setRole(roleParam as RoleType);
+      const incomingRole = roleParam || typeParam;
+      if (incomingRole && (incomingRole === 'kurye' || incomingRole === 'isletme')) {
+        setRole(incomingRole as RoleType);
       }
       
       if (data.session?.user) {
