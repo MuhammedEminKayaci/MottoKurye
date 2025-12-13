@@ -36,7 +36,7 @@ export function PublicHeader() {
 
   const navItems = [
     { label: "Ana Sayfa", href: "/" },
-    { label: "İletişim", href: "#iletisim" },
+    { label: "İletişim", href: "/iletisim" },
     { label: "Nasıl Çalışır", href: "#nasil-calisir" },
     { label: "Ücretler", href: "/ucret-planlari" },
   ];

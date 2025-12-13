@@ -192,7 +192,7 @@ export default function Page() {
               <Link href="/ucret-planlari" className="text-white hover:text-white/80">
                 Ücret Planları
               </Link>
-              <Link href="#" className="text-white hover:text-white/80">
+              <Link href="/iletisim" className="text-white hover:text-white/80">
                 İletişim
               </Link>
             </div>
