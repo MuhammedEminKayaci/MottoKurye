@@ -237,6 +237,32 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       <option value="YOK" className="text-black">Yok</option>
                     </select>
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">P1 Yetki Belgesi</label>
+                    <select
+                      value={filters.p1_certificate || ""}
+                      onChange={(e) => handleFilterChange("p1_certificate", e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      <option value="VAR" className="text-black">Var</option>
+                      <option value="YOK" className="text-black">Yok</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Sabıka Kaydı</label>
+                    <select
+                      value={filters.criminal_record || ""}
+                      onChange={(e) => handleFilterChange("criminal_record", e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      <option value="VAR" className="text-black">Var</option>
+                      <option value="YOK" className="text-black">Yok</option>
+                    </select>
+                  </div>
                 </>
               )}
 
@@ -493,6 +519,38 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     onChange={(e) => {
                       handleFilterChange("has_bag", e.target.value);
                       onChange({ ...filters, has_bag: e.target.value });
+                    }}
+                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="VAR" className="text-black">Var</option>
+                    <option value="YOK" className="text-black">Yok</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">P1 Yetki Belgesi</label>
+                  <select
+                    value={filters.p1_certificate || ""}
+                    onChange={(e) => {
+                      handleFilterChange("p1_certificate", e.target.value);
+                      onChange({ ...filters, p1_certificate: e.target.value });
+                    }}
+                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="VAR" className="text-black">Var</option>
+                    <option value="YOK" className="text-black">Yok</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Sabıka Kaydı</label>
+                  <select
+                    value={filters.criminal_record || ""}
+                    onChange={(e) => {
+                      handleFilterChange("criminal_record", e.target.value);
+                      onChange({ ...filters, criminal_record: e.target.value });
                     }}
                     className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >

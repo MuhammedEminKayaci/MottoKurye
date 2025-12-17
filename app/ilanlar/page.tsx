@@ -131,6 +131,8 @@ function IlanlarContent() {
           if (filters.earning_model) query = query.eq("earning_model", filters.earning_model);
           if (filters.has_motorcycle) query = query.eq("has_motorcycle", filters.has_motorcycle);
           if (filters.has_bag) query = query.eq("has_bag", filters.has_bag);
+          if (filters.p1_certificate) query = query.eq("p1_certificate", filters.p1_certificate);
+          if (filters.criminal_record) query = query.eq("criminal_record", filters.criminal_record);
           if (filters.working_days) {
             // Çoklu seçim için her günü kontrol et
             const days = filters.working_days.split(',');

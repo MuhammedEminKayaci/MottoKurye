@@ -25,6 +25,21 @@ CREATE INDEX IF NOT EXISTS businesses_service_district_idx ON businesses(service
 CREATE INDEX IF NOT EXISTS businesses_working_days_idx ON businesses USING GIN(working_days);
 CREATE INDEX IF NOT EXISTS business_ads_image_idx ON business_ads(image_url);
 
+-- 8. ADD NEW FIELDS FOR LEGAL COMPLIANCE AND CERTIFICATES
+-- Couriers: P1 Yetki Belgesi & Sabıka Kaydı + consent flags
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS p1_certificate TEXT;
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS criminal_record TEXT;
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS accept_terms BOOLEAN DEFAULT FALSE;
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS accept_privacy BOOLEAN DEFAULT FALSE;
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS accept_kvkk BOOLEAN DEFAULT FALSE;
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS accept_commercial BOOLEAN DEFAULT FALSE;
+
+-- Businesses: consent flags
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS accept_terms BOOLEAN DEFAULT FALSE;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS accept_privacy BOOLEAN DEFAULT FALSE;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS accept_kvkk BOOLEAN DEFAULT FALSE;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS accept_commercial BOOLEAN DEFAULT FALSE;
+
 -- 4. UPDATE PUBLIC VIEW FOR COURIERS (IF EXISTS)
 -- Drop and recreate the view to include new fields
 DROP VIEW IF EXISTS couriers_public;
@@ -40,10 +55,8 @@ CREATE VIEW couriers_public AS
     province, 
     district, 
     license_type, 
-    working_type, 
-    working_hours,
+    working_type,
     moto_brand,
-    moto_model,
     moto_cc,
     cover_photo_url,
     created_at
@@ -87,12 +100,12 @@ END $$;
 SELECT column_name, data_type 
 FROM information_schema.columns 
 WHERE table_name = 'couriers' 
-  AND column_name IN ('moto_brand', 'cover_photo_url');
+  AND column_name IN ('moto_brand', 'cover_photo_url', 'p1_certificate', 'criminal_record', 'accept_terms', 'accept_privacy', 'accept_kvkk', 'accept_commercial');
 
 SELECT column_name, data_type 
 FROM information_schema.columns 
 WHERE table_name = 'businesses' 
-  AND column_name IN ('working_days', 'service_province', 'service_district', 'cover_photo_url');
+  AND column_name IN ('working_days', 'service_province', 'service_district', 'cover_photo_url', 'accept_terms', 'accept_privacy', 'accept_kvkk', 'accept_commercial');
 
 SELECT column_name, data_type 
 FROM information_schema.columns 

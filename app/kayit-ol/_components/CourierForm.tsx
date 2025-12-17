@@ -24,6 +24,12 @@ const courierSchema = z.object({
   motoBrand: z.string().optional(),
   motoCc: z.string().optional(),
   hasBag: z.enum(["VAR", "YOK"]),
+  p1Certificate: z.enum(["VAR", "YOK"], { required_error: "P1 yetki belgesi durumu gerekli" }),
+  criminalRecord: z.enum(["VAR", "YOK"], { required_error: "Sabıka kaydı durumu gerekli" }),
+  acceptTerms: z.literal(true, { errorMap: () => ({ message: "Kullanım şartlarını kabul etmelisiniz" }) }),
+  acceptPrivacy: z.literal(true, { errorMap: () => ({ message: "Gizlilik politikasını kabul etmelisiniz" }) }),
+  acceptKVKK: z.literal(true, { errorMap: () => ({ message: "KVKK aydınlatma metnini kabul etmelisiniz" }) }),
+  acceptCommercial: z.literal(true, { errorMap: () => ({ message: "Ticari ileti iznini onaylamalısınız" }) }),
   avatarFile: z.any().optional(),
 });
 
@@ -55,6 +61,12 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
       licenseType: "A",
       experience: "0-1",
       gender: "Erkek",
+      p1Certificate: "YOK",
+      criminalRecord: "YOK",
+      acceptTerms: false,
+      acceptPrivacy: false,
+      acceptKVKK: false,
+      acceptCommercial: false,
     } as any,
   });
 
@@ -250,6 +262,54 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
             </select>
           </div>
         </div>
+      </div>
+
+      {/* BELGELER */}
+      <div className="space-y-3">
+        <h3 className="text-white font-bold text-sm border-b border-white/30 pb-1">BELGELER</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">P1 Yetki Belgesi *</label>
+            <select className="input-field text-sm" {...register("p1Certificate")}>
+              <option value="VAR">VAR</option>
+              <option value="YOK">YOK</option>
+            </select>
+            {errors.p1Certificate && <p className="text-[10px] text-red-200 mt-1">{errors.p1Certificate.message as any}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Sabıka Kaydı *</label>
+            <select className="input-field text-sm" {...register("criminalRecord")}>
+              <option value="VAR">VAR</option>
+              <option value="YOK">YOK</option>
+            </select>
+            {errors.criminalRecord && <p className="text-[10px] text-red-200 mt-1">{errors.criminalRecord.message as any}</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* SÖZLEŞMELER VE İZİNLER */}
+      <div className="space-y-2">
+        <h3 className="text-white font-bold text-sm border-b border-white/30 pb-1">SÖZLEŞMELER VE İZİNLER</h3>
+        <label className="flex items-start gap-2 text-xs text-white">
+          <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptTerms")} />
+          <span>Kullanım Şartları'nı kabul ediyorum.</span>
+        </label>
+        {errors.acceptTerms && <p className="text-[10px] text-red-200">{errors.acceptTerms.message as any}</p>}
+        <label className="flex items-start gap-2 text-xs text-white">
+          <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptPrivacy")} />
+          <span>Gizlilik Politikası'nı kabul ediyorum.</span>
+        </label>
+        {errors.acceptPrivacy && <p className="text-[10px] text-red-200">{errors.acceptPrivacy.message as any}</p>}
+        <label className="flex items-start gap-2 text-xs text-white">
+          <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptKVKK")} />
+          <span>KVKK Aydınlatma Metni'ni kabul ediyorum.</span>
+        </label>
+        {errors.acceptKVKK && <p className="text-[10px] text-red-200">{errors.acceptKVKK.message as any}</p>}
+        <label className="flex items-start gap-2 text-xs text-white">
+          <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptCommercial")} />
+          <span>Ticari ileti gönderimine izin veriyorum.</span>
+        </label>
+        {errors.acceptCommercial && <p className="text-[10px] text-red-200">{errors.acceptCommercial.message as any}</p>}
       </div>
 
       <button type="submit" disabled={disabled} className="primary-btn w-full">

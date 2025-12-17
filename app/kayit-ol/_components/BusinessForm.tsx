@@ -16,6 +16,10 @@ const businessSchema = z.object({
   earningModel: z.enum(["Saat+Paket Başı", "Paket Başı", "Aylık Sabit"]),
   workingDays: z.array(z.string()).min(1, "En az bir gün seçin"),
   dailyPackageEstimate: z.enum(["0-15 PAKET", "15-25 PAKET", "25-40 PAKET", "40 VE ÜZERİ"]),
+  acceptTerms: z.literal(true, { errorMap: () => ({ message: "Kullanım şartlarını kabul etmelisiniz" }) }),
+  acceptPrivacy: z.literal(true, { errorMap: () => ({ message: "Gizlilik politikasını kabul etmelisiniz" }) }),
+  acceptKVKK: z.literal(true, { errorMap: () => ({ message: "KVKK aydınlatma metnini kabul etmelisiniz" }) }),
+  acceptCommercial: z.literal(true, { errorMap: () => ({ message: "Ticari ileti iznini onaylamalısınız" }) }),
   avatarFile: z.any().optional(),
 });
 
@@ -55,6 +59,10 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
       dailyPackageEstimate: "15-25 PAKET",
       workingDays: ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"],
       businessSector: "",
+      acceptTerms: false,
+      acceptPrivacy: false,
+      acceptKVKK: false,
+      acceptCommercial: false,
     } as any,
   });
 
@@ -181,6 +189,31 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
           </div>
           {errors.workingDays && <p className="text-[10px] text-red-200 mt-1">{errors.workingDays.message}</p>}
         </div>
+      </div>
+
+      {/* SÖZLEŞMELER VE İZİNLER */}
+      <div className="space-y-2">
+        <h3 className="text-white font-bold text-sm border-b border-white/30 pb-1">SÖZLEŞMELER VE İZİNLER</h3>
+        <label className="flex items-start gap-2 text-xs text-white">
+          <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptTerms")} />
+          <span>Kullanım Şartları'nı kabul ediyorum.</span>
+        </label>
+        {errors.acceptTerms && <p className="text-[10px] text-red-200">{errors.acceptTerms.message as any}</p>}
+        <label className="flex items-start gap-2 text-xs text-white">
+          <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptPrivacy")} />
+          <span>Gizlilik Politikası'nı kabul ediyorum.</span>
+        </label>
+        {errors.acceptPrivacy && <p className="text-[10px] text-red-200">{errors.acceptPrivacy.message as any}</p>}
+        <label className="flex items-start gap-2 text-xs text-white">
+          <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptKVKK")} />
+          <span>KVKK Aydınlatma Metni'ni kabul ediyorum.</span>
+        </label>
+        {errors.acceptKVKK && <p className="text-[10px] text-red-200">{errors.acceptKVKK.message as any}</p>}
+        <label className="flex items-start gap-2 text-xs text-white">
+          <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptCommercial")} />
+          <span>Ticari ileti gönderimine izin veriyorum.</span>
+        </label>
+        {errors.acceptCommercial && <p className="text-[10px] text-red-200">{errors.acceptCommercial.message as any}</p>}
       </div>
 
       <button type="submit" disabled={disabled} className="primary-btn w-full">

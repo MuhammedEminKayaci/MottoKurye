@@ -186,6 +186,12 @@ export default function KayitOlPage() {
         moto_brand: data.motoBrand || null,
         moto_cc: data.motoCc || null,
         has_bag: data.hasBag,
+        p1_certificate: data.p1Certificate,
+        criminal_record: data.criminalRecord,
+        accept_terms: data.acceptTerms,
+        accept_privacy: data.acceptPrivacy,
+        accept_kvkk: data.acceptKVKK,
+        accept_commercial: data.acceptCommercial,
         avatar_url: avatarUrl,
       };
       const { error } = await supabase.from("couriers").insert(insert);
@@ -214,6 +220,10 @@ export default function KayitOlPage() {
         earning_model: data.earningModel,
         working_days: data.workingDays,
         daily_package_estimate: data.dailyPackageEstimate,
+        accept_terms: data.acceptTerms,
+        accept_privacy: data.acceptPrivacy,
+        accept_kvkk: data.acceptKVKK,
+        accept_commercial: data.acceptCommercial,
         avatar_url: avatarUrl,
       };
       const { error } = await supabase.from("businesses").insert(insert);

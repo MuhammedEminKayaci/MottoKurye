@@ -25,6 +25,16 @@ export interface CourierRegistration {
   motoCc?: string;
   hasBag: string; // Var | Yok
   
+  // Belgeler
+  p1Certificate: string; // VAR | YOK
+  criminalRecord: string; // VAR | YOK
+  
+  // Onaylar
+  acceptTerms: boolean;
+  acceptPrivacy: boolean;
+  acceptKVKK: boolean;
+  acceptCommercial: boolean;
+  
   avatarFile?: FileList;
 }
 
@@ -43,6 +53,12 @@ export interface BusinessRegistration {
   workingDays: string[];
   dailyPackageEstimate: string; // 0-15 | 15-25 | 25-40 | 40+
   
+  // Onaylar
+  acceptTerms: boolean;
+  acceptPrivacy: boolean;
+  acceptKVKK: boolean;
+  acceptCommercial: boolean;
+
   avatarFile?: FileList;
 }
 
