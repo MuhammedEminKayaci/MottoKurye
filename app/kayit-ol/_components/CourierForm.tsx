@@ -292,24 +292,35 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
         <h3 className="text-white font-bold text-sm border-b border-white/30 pb-1">SÖZLEŞMELER VE İZİNLER</h3>
         <label className="flex items-start gap-2 text-xs text-white">
           <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptTerms")} />
-          <span>Kullanım Şartları'nı kabul ediyorum.</span>
+          <span>
+            <a href="/kullanim-sartlari" target="_blank" className="text-white underline hover:text-white/80">Kullanım Şartları</a>'nı okudum ve kabul ediyorum. *
+          </span>
         </label>
         {errors.acceptTerms && <p className="text-[10px] text-red-200">{errors.acceptTerms.message as any}</p>}
         <label className="flex items-start gap-2 text-xs text-white">
           <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptPrivacy")} />
-          <span>Gizlilik Politikası'nı kabul ediyorum.</span>
+          <span>
+            <a href="/gizlilik-politikasi" target="_blank" className="text-white underline hover:text-white/80">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum. *
+          </span>
         </label>
         {errors.acceptPrivacy && <p className="text-[10px] text-red-200">{errors.acceptPrivacy.message as any}</p>}
         <label className="flex items-start gap-2 text-xs text-white">
           <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptKVKK")} />
-          <span>KVKK Aydınlatma Metni'ni kabul ediyorum.</span>
+          <span>
+            <a href="/kvkk-aydinlatma" target="_blank" className="text-white underline hover:text-white/80">KVKK Aydınlatma Metni</a>'ni okudum ve kabul ediyorum. *
+          </span>
         </label>
         {errors.acceptKVKK && <p className="text-[10px] text-red-200">{errors.acceptKVKK.message as any}</p>}
         <label className="flex items-start gap-2 text-xs text-white">
           <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptCommercial")} />
-          <span>Ticari ileti gönderimine izin veriyorum.</span>
+          <span>
+            <a href="/ticari-ileti-izni" target="_blank" className="text-white underline hover:text-white/80">Ticari İleti İzni</a>'ni okudum ve ticari elektronik ileti almayı kabul ediyorum. *
+          </span>
         </label>
         {errors.acceptCommercial && <p className="text-[10px] text-red-200">{errors.acceptCommercial.message as any}</p>}
+        <p className="text-[10px] text-white/70 mt-2">
+          * Tüm onaylar zorunludur. Kişisel verilerinizin işlenmesi hakkında detaylı bilgi için lütfen ilgili metinleri okuyun.
+        </p>
       </div>
 
       <button type="submit" disabled={disabled} className="primary-btn w-full">

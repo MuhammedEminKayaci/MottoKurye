@@ -34,14 +34,35 @@ ALTER TABLE couriers ADD COLUMN IF NOT EXISTS accept_privacy BOOLEAN DEFAULT FAL
 ALTER TABLE couriers ADD COLUMN IF NOT EXISTS accept_kvkk BOOLEAN DEFAULT FALSE;
 ALTER TABLE couriers ADD COLUMN IF NOT EXISTS accept_commercial BOOLEAN DEFAULT FALSE;
 
+-- Consent metadata for KVKK compliance
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS consent_version TEXT DEFAULT '1.0';
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS consent_given_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS consent_ip_address TEXT;
+
+-- IYS (İleti Yönetim Sistemi) preparation fields
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS iys_status TEXT; -- 'PENDING', 'REGISTERED', 'FAILED'
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS iys_synced_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE couriers ADD COLUMN IF NOT EXISTS commercial_consent_revoked_at TIMESTAMP WITH TIME ZONE;
+
 -- Businesses: consent flags
 ALTER TABLE businesses ADD COLUMN IF NOT EXISTS accept_terms BOOLEAN DEFAULT FALSE;
 ALTER TABLE businesses ADD COLUMN IF NOT EXISTS accept_privacy BOOLEAN DEFAULT FALSE;
 ALTER TABLE businesses ADD COLUMN IF NOT EXISTS accept_kvkk BOOLEAN DEFAULT FALSE;
 ALTER TABLE businesses ADD COLUMN IF NOT EXISTS accept_commercial BOOLEAN DEFAULT FALSE;
 
+-- Consent metadata for KVKK compliance
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS consent_version TEXT DEFAULT '1.0';
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS consent_given_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS consent_ip_address TEXT;
+
+-- IYS (İleti Yönetim Sistemi) preparation fields
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS iys_status TEXT; -- 'PENDING', 'REGISTERED', 'FAILED'
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS iys_synced_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE businesses ADD COLUMN IF NOT EXISTS commercial_consent_revoked_at TIMESTAMP WITH TIME ZONE;
+
 -- 4. UPDATE PUBLIC VIEW FOR COURIERS (IF EXISTS)
 -- Drop and recreate the view to include new fields
+-- NOTE: Sensitive fields like p1_certificate, criminal_record, and consent data are EXCLUDED for privacy
 DROP VIEW IF EXISTS couriers_public;
 
 CREATE VIEW couriers_public AS
@@ -60,6 +81,7 @@ CREATE VIEW couriers_public AS
     moto_cc,
     cover_photo_url,
     created_at
+    -- EXCLUDED: p1_certificate, criminal_record, accept_*, consent_*, iys_*
   FROM couriers;
 
 -- Grant permissions to the updated view
@@ -100,12 +122,14 @@ END $$;
 SELECT column_name, data_type 
 FROM information_schema.columns 
 WHERE table_name = 'couriers' 
-  AND column_name IN ('moto_brand', 'cover_photo_url', 'p1_certificate', 'criminal_record', 'accept_terms', 'accept_privacy', 'accept_kvkk', 'accept_commercial');
+  AND column_name IN ('moto_brand', 'cover_photo_url', 'p1_certificate', 'criminal_record', 'accept_terms', 'accept_privacy', 'accept_kvkk', 'accept_commercial', 'consent_version', 'consent_given_at', 'consent_ip_address', 'iys_status', 'iys_synced_at', 'commercial_consent_revoked_at')
+ORDER BY column_name;
 
 SELECT column_name, data_type 
 FROM information_schema.columns 
 WHERE table_name = 'businesses' 
-  AND column_name IN ('working_days', 'service_province', 'service_district', 'cover_photo_url', 'accept_terms', 'accept_privacy', 'accept_kvkk', 'accept_commercial');
+  AND column_name IN ('working_days', 'service_province', 'service_district', 'cover_photo_url', 'accept_terms', 'accept_privacy', 'accept_kvkk', 'accept_commercial', 'consent_version', 'consent_given_at', 'consent_ip_address', 'iys_status', 'iys_synced_at', 'commercial_consent_revoked_at')
+ORDER BY column_name;
 
 SELECT column_name, data_type 
 FROM information_schema.columns 

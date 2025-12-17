@@ -165,6 +165,17 @@ export default function KayitOlPage() {
     setLoading(true); setMessage(null);
     try {
       const avatarUrl = await uploadAvatar(data.avatarFile);
+      
+      // Capture IP address for KVKK compliance
+      let ipAddress = null;
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        ipAddress = ipData.ip;
+      } catch (e) {
+        console.warn('IP capture failed:', e);
+      }
+      
       const insert = {
         user_id: sessionUserId,
         role: "kurye",
@@ -192,6 +203,10 @@ export default function KayitOlPage() {
         accept_privacy: data.acceptPrivacy,
         accept_kvkk: data.acceptKVKK,
         accept_commercial: data.acceptCommercial,
+        consent_version: '1.0',
+        consent_given_at: new Date().toISOString(),
+        consent_ip_address: ipAddress,
+        iys_status: data.acceptCommercial ? 'PENDING' : null,
         avatar_url: avatarUrl,
       };
       const { error } = await supabase.from("couriers").insert(insert);
@@ -207,6 +222,17 @@ export default function KayitOlPage() {
     setLoading(true); setMessage(null);
     try {
       const avatarUrl = await uploadAvatar(data.avatarFile);
+      
+      // Capture IP address for KVKK compliance
+      let ipAddress = null;
+      try {
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        ipAddress = ipData.ip;
+      } catch (e) {
+        console.warn('IP capture failed:', e);
+      }
+      
       const insert = {
         user_id: sessionUserId,
         role: "isletme",
@@ -224,6 +250,10 @@ export default function KayitOlPage() {
         accept_privacy: data.acceptPrivacy,
         accept_kvkk: data.acceptKVKK,
         accept_commercial: data.acceptCommercial,
+        consent_version: '1.0',
+        consent_given_at: new Date().toISOString(),
+        consent_ip_address: ipAddress,
+        iys_status: data.acceptCommercial ? 'PENDING' : null,
         avatar_url: avatarUrl,
       };
       const { error } = await supabase.from("businesses").insert(insert);

@@ -35,6 +35,10 @@ export interface CourierRegistration {
   acceptKVKK: boolean;
   acceptCommercial: boolean;
   
+  // Consent Metadata (KVKK uyumu)
+  consentVersion?: string;
+  consentIpAddress?: string;
+  
   avatarFile?: FileList;
 }
 
@@ -58,6 +62,10 @@ export interface BusinessRegistration {
   acceptPrivacy: boolean;
   acceptKVKK: boolean;
   acceptCommercial: boolean;
+  
+  // Consent Metadata (KVKK uyumu)
+  consentVersion?: string;
+  consentIpAddress?: string;
 
   avatarFile?: FileList;
 }
