@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { ISTANBUL_DISTRICTS } from "../../lib/istanbul-districts";
 
 export type Role = "kurye" | "isletme";
 
@@ -8,41 +9,18 @@ interface FilterPanelProps {
   onChange: (filters: Record<string, string>) => void;
 }
 
-// İl listesi
-const PROVINCES = [
-  "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin",
-  "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur",
-  "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan",
-  "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkâri", "Hatay", "Iğdır", "Isparta", "İstanbul",
-  "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir",
-  "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş",
-  "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas",
-  "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
-];
-
-// İlçe listeleri (basitleştirilmiş - en büyük illerin ilçeleri)
-const DISTRICTS: Record<string, string[]> = {
-  "İstanbul": ["Adalar", "Arnavutköy", "Ataşehir", "Avcılar", "Bağcılar", "Bahçelievler", "Bakırköy", "Başakşehir", "Bayrampaşa", "Beşiktaş", "Beykoz", "Beylikdüzü", "Beyoğlu", "Büyükçekmece", "Çatalca", "Çekmeköy", "Esenler", "Esenyurt", "Eyüpsultan", "Fatih", "Gaziosmanpaşa", "Güngören", "Kadıköy", "Kağıthane", "Kartal", "Küçükçekmece", "Maltepe", "Pendik", "Sancaktepe", "Sarıyer", "Silivri", "Sultanbeyli", "Sultangazi", "Şile", "Şişli", "Tuzla", "Ümraniye", "Üsküdar", "Zeytinburnu"],
-  "Ankara": ["Altındağ", "Ayaş", "Bala", "Beypazarı", "Çamlıdere", "Çankaya", "Çubuk", "Elmadağ", "Etimesgut", "Evren", "Gölbaşı", "Güdül", "Haymana", "Kalecik", "Kazan", "Keçiören", "Kızılcahamam", "Mamak", "Nallıhan", "Polatlı", "Pursaklar", "Sincan", "Şereflikoçhisar", "Yenimahalle"],
-  "İzmir": ["Aliağa", "Balçova", "Bayındır", "Bayraklı", "Bergama", "Beydağ", "Bornova", "Buca", "Çeşme", "Çiğli", "Dikili", "Foça", "Gaziemir", "Güzelbahçe", "Karabağlar", "Karaburun", "Karşıyaka", "Kemalpaşa", "Kınık", "Kiraz", "Konak", "Menderes", "Menemen", "Narlıdere", "Ödemiş", "Seferihisar", "Selçuk", "Tire", "Torbalı", "Urla"]
-};
+// İstanbul ilçeleri kullanılacak
 
 // Çalışma günleri
 const WORKING_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
 export function FilterPanel({ role, onChange }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState<Record<string, string>>({});
-  const [selectedProvince, setSelectedProvince] = useState("");
+  const [filters, setFilters] = useState<Record<string, string>>({ province: "İstanbul" });
   const [selectedWorkingDays, setSelectedWorkingDays] = useState<string[]>([]);
 
   const handleFilterChange = (key: string, value: string) => {
     const newFilters = { ...filters, [key]: value };
-    if (key === "province") {
-      setSelectedProvince(value);
-      // İl değiştiğinde ilçeyi sıfırla
-      delete newFilters.district;
-    }
     setFilters(newFilters);
   };
 
@@ -67,8 +45,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
   };
 
   const handleClear = () => {
-    setFilters({});
-    setSelectedProvince("");
+    setFilters({ province: "İstanbul" });
     setSelectedWorkingDays([]);
     onChange({});
   };
@@ -117,34 +94,28 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
               {/* İl */}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">İl</label>
-                <select
-                  value={filters.province || ""}
-                  onChange={(e) => handleFilterChange("province", e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
-                >
-                  <option value="" className="text-black">Tümü</option>
-                  {PROVINCES.map((p) => (
-                    <option key={p} value={p} className="text-black">{p}</option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  value="İstanbul"
+                  disabled
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-100 text-gray-600 text-base"
+                />
               </div>
 
               {/* İlçe */}
-              {selectedProvince && DISTRICTS[selectedProvince] && (
-                <div>
-                  <label className="block text-sm font-semibold text-black mb-2">İlçe</label>
-                  <select
-                    value={filters.district || ""}
-                    onChange={(e) => handleFilterChange("district", e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
-                  >
-                    <option value="" className="text-black">Tümü</option>
-                    {DISTRICTS[selectedProvince].map((d) => (
-                      <option key={d} value={d} className="text-black">{d}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-semibold text-black mb-2">İlçe</label>
+                <select
+                  value={filters.district || ""}
+                  onChange={(e) => handleFilterChange("district", e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                >
+                  <option value="" className="text-black">Tüm İlçeler</option>
+                  {ISTANBUL_DISTRICTS.map((d) => (
+                    <option key={d} value={d} className="text-black">{d}</option>
+                  ))}
+                </select>
+              </div>
 
               {/* Kurye için filtreler */}
               {role === "isletme" && (
@@ -374,40 +345,31 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
             {/* İl */}
             <div>
               <label className="block text-sm font-semibold text-white mb-2">İl</label>
-              <select
-                value={filters.province || ""}
-                onChange={(e) => {
-                  handleFilterChange("province", e.target.value);
-                  onChange({ ...filters, province: e.target.value, district: "" });
-                }}
-                className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
-              >
-                <option value="" className="text-black">Tüm İller</option>
-                {PROVINCES.map((p) => (
-                  <option key={p} value={p} className="text-black">{p}</option>
-                ))}
-              </select>
+              <input
+                type="text"
+                value="İstanbul"
+                disabled
+                className="w-full px-3 py-2.5 border-2 border-gray-600 rounded-lg bg-gray-800 text-gray-400 text-sm"
+              />
             </div>
 
             {/* İlçe */}
-            {selectedProvince && DISTRICTS[selectedProvince] && (
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">İlçe</label>
-                <select
-                  value={filters.district || ""}
-                  onChange={(e) => {
-                    handleFilterChange("district", e.target.value);
-                    onChange({ ...filters, district: e.target.value });
-                  }}
-                  className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
-                >
-                  <option value="" className="text-black">Tüm İlçeler</option>
-                  {DISTRICTS[selectedProvince].map((d) => (
-                    <option key={d} value={d} className="text-black">{d}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-semibold text-white mb-2">İlçe</label>
+              <select
+                value={filters.district || ""}
+                onChange={(e) => {
+                  handleFilterChange("district", e.target.value);
+                  onChange({ ...filters, district: e.target.value });
+                }}
+                className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+              >
+                <option value="" className="text-black">Tüm İlçeler</option>
+                {ISTANBUL_DISTRICTS.map((d) => (
+                  <option key={d} value={d} className="text-black">{d}</option>
+                ))}
+              </select>
+            </div>
 
             {/* Kurye filtreler */}
             {role === "isletme" && (

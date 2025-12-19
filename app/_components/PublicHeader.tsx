@@ -26,10 +26,16 @@ export function PublicHeader() {
     }
     if (href.startsWith('#')) {
       e.preventDefault();
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setIsMenuOpen(false);
+      setIsMenuOpen(false);
+      // Check if we're already on the home page
+      if (window.location.pathname === '/') {
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        // Navigate to home page with hash
+        router.push('/' + href);
       }
     }
   };

@@ -72,14 +72,16 @@ export default function GirisPage() {
       <div className="relative z-10 flex min-h-dvh items-center justify-center px-6 py-12">
         <div className="w-full max-w-md glass-card rounded-3xl p-8 shadow-2xl fade-up">
           <div className="flex flex-col items-center gap-2 mb-6">
-            <Image
-              src="/images/headerlogo.png"
-              alt="Motto Kurye Logo"
-              width={200}
-              height={60}
-              priority
-              className="drop-shadow-lg"
-            />
+            <Link href="/" className="cursor-pointer">
+              <Image
+                src="/images/headerlogo.png"
+                alt="Motto Kurye Logo"
+                width={200}
+                height={60}
+                priority
+                className="drop-shadow-lg hover:opacity-90 transition-opacity"
+              />
+            </Link>
             <h1 className="text-2xl font-extrabold text-white">Giriş Yap</h1>
             <p className="text-sm text-white/85 text-center">Hesabınla devam et.</p>
           </div>

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { BusinessRegistration } from "../../../types/registration";
+import { ISTANBUL_DISTRICTS } from "../../../lib/istanbul-districts";
 
 const businessSchema = z.object({
   businessName: z.string().min(2, "Firma adı gerekli"),
@@ -41,19 +42,13 @@ const businessSectors = [
   "Otomotiv ve Yedek Parça",
 ];
 
-const provinces: Record<string, string[]> = {
-  İstanbul: ["Kadıköy", "Beşiktaş", "Üsküdar", "Şişli", "Fatih"],
-  Ankara: ["Çankaya", "Keçiören", "Yenimahalle", "Mamak"],
-  İzmir: ["Konak", "Bornova", "Karşıyaka", "Buca"],
-  Antalya: ["Muratpaşa", "Kepez", "Konyaaltı"],
-};
-
 const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
 export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<BusinessRegistration>({
+  const { register, handleSubmit, watch, formState: { errors }, setValue } = useForm<BusinessRegistration>({
     resolver: zodResolver(businessSchema),
     defaultValues: {
+      province: "İstanbul",
       workingType: "Full Time",
       earningModel: "Saat+Paket Başı",
       dailyPackageEstimate: "15-25 PAKET",
@@ -66,8 +61,8 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
     } as any,
   });
 
-  const selectedProvince = watch("province");
-  const districts = selectedProvince ? provinces[selectedProvince] || [] : [];
+  // Always use Istanbul districts
+  const districts = ISTANBUL_DISTRICTS;
   const avatarDynamic = watch("avatarFile");
   const [preview, setPreview] = useState<string | null>(null);
   
@@ -137,10 +132,7 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-white mb-1">Çalışılacak İl *</label>
-            <select className="input-field text-sm" {...register("province")}>
-              <option value="">İl Seçin</option>
-              {Object.keys(provinces).map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
+            <input type="text" className="input-field text-sm bg-white/20" value="İstanbul" disabled {...register("province")} />
             {errors.province && <p className="text-[10px] text-red-200 mt-1">{errors.province.message}</p>}
           </div>
           <div>

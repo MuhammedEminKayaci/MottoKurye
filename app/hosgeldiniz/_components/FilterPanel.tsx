@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { ISTANBUL_DISTRICTS } from "../../../lib/istanbul-districts";
 
 export type Role = "kurye" | "isletme";
 
@@ -30,8 +31,15 @@ export function FilterPanel({ role, onChange }: { role: Role; onChange: (filters
           <SectionToggle label="Konum" open={sections.temel} onClick={()=>setSections(s=>({...s,temel:!s.temel}))} />
           {sections.temel && (
             <div className="space-y-3">
-              <Field label="İl"><input className="w-full rounded-lg bg-white/10 px-3 py-2 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30" placeholder="İl" onChange={(e)=>set("province", e.target.value)} /></Field>
-              <Field label="İlçe"><input className="w-full rounded-lg bg-white/10 px-3 py-2 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30" placeholder="İlçe" onChange={(e)=>set("district", e.target.value)} /></Field>
+              <Field label="İl">
+                <input className="w-full rounded-lg bg-white/10 px-3 py-2 text-white/60" value="İstanbul" disabled />
+              </Field>
+              <Field label="İlçe">
+                <select className="w-full rounded-lg bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/30" onChange={(e)=>set("district", e.target.value)} value={filters["district"]||""}>
+                  <option value="">Tüm İlçeler</option>
+                  {ISTANBUL_DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </Field>
             </div>
           )}
           <SectionToggle label="Çalışma" open={sections.calisma} onClick={()=>setSections(s=>({...s,calisma:!s.calisma}))} />
@@ -51,8 +59,15 @@ export function FilterPanel({ role, onChange }: { role: Role; onChange: (filters
           <SectionToggle label="Konum" open={sections.temel} onClick={()=>setSections(s=>({...s,temel:!s.temel}))} />
           {sections.temel && (
             <div className="space-y-3">
-              <Field label="İl"><input className="w-full rounded-lg bg-white/10 px-3 py-2 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30" placeholder="İl" onChange={(e)=>set("province", e.target.value)} /></Field>
-              <Field label="İlçe"><input className="w-full rounded-lg bg-white/10 px-3 py-2 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30" placeholder="İlçe" onChange={(e)=>set("district", e.target.value)} /></Field>
+              <Field label="İl">
+                <input className="w-full rounded-lg bg-white/10 px-3 py-2 text-white/60" value="İstanbul" disabled />
+              </Field>
+              <Field label="İlçe">
+                <select className="w-full rounded-lg bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/30" onChange={(e)=>set("district", e.target.value)} value={filters["district"]||""}>
+                  <option value="">Tüm İlçeler</option>
+                  {ISTANBUL_DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </Field>
             </div>
           )}
           <SectionToggle label="Kurye Özellikleri" open={sections.calisma} onClick={()=>setSections(s=>({...s,calisma:!s.calisma}))} />

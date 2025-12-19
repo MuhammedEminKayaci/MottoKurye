@@ -190,7 +190,7 @@ export default function Page() {
               <div>
                 <h3 className="font-bold mb-2">Hızlı Linkler</h3>
                 <div className="flex flex-col gap-2">
-                  <Link href="#nasil-calisir" className="text-white/90 hover:text-white">
+                  <Link href="/#nasil-calisir" className="text-white/90 hover:text-white">
                     Nasıl Çalışır
                   </Link>
                   <Link href="/ucret-planlari" className="text-white/90 hover:text-white">

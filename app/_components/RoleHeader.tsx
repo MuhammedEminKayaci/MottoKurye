@@ -33,7 +33,7 @@ export function RoleHeader({ accent = "#ff7a00" }: RoleHeaderProps) {
     return () => window.removeEventListener("keydown", esc);
   }, []);
 
-  const logoTarget = role ? "/ilanlar" : "/"; // role yoksa ana sayfa
+  const logoTarget = "/ilanlar"; // Her zaman ilanlar sayfası
   const courierNav = [
     { label: "Profilim", href: "/profil" },
     { label: "İlanlar", href: "/ilanlar" }, // işletme ilanları
@@ -45,7 +45,7 @@ export function RoleHeader({ accent = "#ff7a00" }: RoleHeaderProps) {
   ];
   const guestNav = [
     { label: "Ana Sayfa", href: "/" },
-    { label: "Nasıl Çalışır", href: "#" },
+    { label: "Nasıl Çalışır", href: "/#nasil-calisir" },
   ];
   const nav = role === "kurye" ? courierNav : role === "isletme" ? businessNav : guestNav;
 
