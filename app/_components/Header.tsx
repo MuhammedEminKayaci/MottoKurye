@@ -20,7 +20,7 @@ export function Header() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/giris");
+    router.push("/");
   };
 
   const navItems = [
@@ -36,7 +36,7 @@ export function Header() {
   return (
     <header className="bg-[#ff7a00] text-white py-3 px-6 flex items-center justify-between shadow relative">
       <div className="flex items-center gap-2">
-        <Link href="/ilanlar" aria-label="Ana Sayfa" className="flex items-center">
+        <Link href="/" aria-label="Ana Sayfa" className="flex items-center">
           <Image
             src="/images/headerlogo.png"
             alt="Motto Kurye Logo"

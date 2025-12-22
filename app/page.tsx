@@ -2,12 +2,67 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { PublicHeader } from "./_components/PublicHeader";
+import { Footer } from "./_components/Footer";
+
+type UserRole = "kurye" | "isletme" | null;
 
 export default function Page() {
   const router = useRouter();
+  const [userRole, setUserRole] = useState<UserRole>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const userId = data?.session?.user?.id;
+        
+        if (!userId) {
+          setUserRole(null);
+          setIsLoading(false);
+          return;
+        }
+
+        // Check if courier
+        const { data: courierData } = await supabase
+          .from("couriers")
+          .select("id")
+          .eq("user_id", userId)
+          .limit(1);
+
+        if (courierData && courierData.length > 0) {
+          setUserRole("kurye");
+          setIsLoading(false);
+          return;
+        }
+
+        // Check if business
+        const { data: businessData } = await supabase
+          .from("businesses")
+          .select("id")
+          .eq("user_id", userId)
+          .limit(1);
+
+        if (businessData && businessData.length > 0) {
+          setUserRole("isletme");
+          setIsLoading(false);
+          return;
+        }
+
+        setUserRole(null);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error checking user role:", error);
+        setIsLoading(false);
+      }
+    };
+
+    checkUserRole();
+  }, []);
 
   return (
     <div className="min-h-screen w-full bg-white flex flex-col font-sans">
@@ -27,10 +82,23 @@ export default function Page() {
                 priority
               />
               <button 
-                onClick={() => router.push("/ilanlar?view=isletme")}
-                className="bg-white text-[#ff7a00] border-2 border-[#ff7a00] px-30 py-3 rounded-full font-semibold transition-colors transition-transform hover:bg-[#ff7a00] hover:text-white hover:translate-y-[1px] hover:shadow-md"
+                onClick={() => {
+                  if (userRole === "kurye") {
+                    router.push("/ilanlar?view=kurye");
+                  } else if (userRole === "isletme") {
+                    router.push("/ilanlar?view=isletme");
+                  } else {
+                    router.push("/kurye-bul");
+                  }
+                }}
+                disabled={isLoading}
+                className="bg-white text-[#ff7a00] border-2 border-[#ff7a00] px-30 py-3 rounded-full font-semibold transition-colors transition-transform hover:bg-[#ff7a00] hover:text-white hover:translate-y-[1px] hover:shadow-md disabled:opacity-50"
               >
-                Kurye Bul
+                {userRole === "kurye" 
+                  ? "İşletmelere Gözat" 
+                  : userRole === "isletme"
+                  ? "Kuryelere Gözat"
+                  : "Kurye Bul"}
               </button>
             </div>
 
@@ -44,10 +112,23 @@ export default function Page() {
                 priority
               />
               <button 
-                onClick={() => router.push("/ilanlar?view=kurye")}
-                className="bg-white text-black border-2 border-[#00000] px-30 py-3 rounded-full font-semibold transition-colors transition-transform hover:bg-black hover:text-white hover:translate-y-[1px] hover:shadow-md"
+                onClick={() => {
+                  if (userRole === "kurye") {
+                    router.push("/ilanlar?view=kurye");
+                  } else if (userRole === "isletme") {
+                    router.push("/ilanlar?view=isletme");
+                  } else {
+                    router.push("/isletme-bul");
+                  }
+                }}
+                disabled={isLoading}
+                className="bg-white text-black border-2 border-[#00000] px-30 py-3 rounded-full font-semibold transition-colors transition-transform hover:bg-black hover:text-white hover:translate-y-[1px] hover:shadow-md disabled:opacity-50"
               >
-                İşletme Bul
+                {userRole === "kurye" 
+                  ? "İşletmelere Gözat"
+                  : userRole === "isletme"
+                  ? "Kuryelere Gözat"
+                  : "İşletme Bul"}
               </button>
             </div>
           </div>
@@ -169,73 +250,7 @@ export default function Page() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-[#ff7a00] text-white p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-            {/* Logo Sol Üstte */}
-            <div className="flex items-center mb-4 md:mb-0">
-              <Image
-                src="/images/headerlogo.png"
-                alt="Motto Kurye Logo"
-                width={300}
-                height={80}
-                className="object-contain"
-              />
-            </div>
-
-            {/* Footer Navigation Grid */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-              {/* Hızlı Linkler */}
-              <div>
-                <h3 className="font-bold mb-2">Hızlı Linkler</h3>
-                <div className="flex flex-col gap-2">
-                  <Link href="/#nasil-calisir" className="text-white/90 hover:text-white">
-                    Nasıl Çalışır
-                  </Link>
-                  <Link href="/ucret-planlari" className="text-white/90 hover:text-white">
-                    Ücret Planları
-                  </Link>
-                  <Link href="/iletisim" className="text-white/90 hover:text-white">
-                    İletişim
-                  </Link>
-                </div>
-              </div>
-
-              {/* Yasal */}
-              <div>
-                <h3 className="font-bold mb-2">Yasal</h3>
-                <div className="flex flex-col gap-2">
-                  <Link href="/kullanim-sartlari" className="text-white/90 hover:text-white">
-                    Kullanım Şartları
-                  </Link>
-                  <Link href="/gizlilik-politikasi" className="text-white/90 hover:text-white">
-                    Gizlilik Politikası
-                  </Link>
-                  <Link href="/kvkk-aydinlatma" className="text-white/90 hover:text-white">
-                    KVKK Aydınlatma
-                  </Link>
-                  <Link href="/ticari-ileti-izni" className="text-white/90 hover:text-white">
-                    Ticari İleti İzni
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Açıklama Metni */}
-          <div className="mt-6 text-xs opacity-80 text-center md:text-left max-w-3xl">
-            MottoKurye olarak çıktığımız bu yolda kuryelerin yaşadığı teslimat sorununu çözmek
-            ve işletmelerin güvenilir kurye bulma gibi problemlerine çözüm düşünerek geliştirdiğimiz bu
-            yenilikçi bakış uygulamalarla artık çok daha kolay.
-          </div>
-
-          {/* Copyright */}
-          <div className="mt-4 pt-4 border-t border-white/20 text-xs text-center">
-            © 2025 MottoKurye - Tüm haklar saklıdır.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

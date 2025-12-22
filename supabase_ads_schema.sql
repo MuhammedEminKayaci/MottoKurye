@@ -8,6 +8,9 @@ create table if not exists business_ads (
   district text,
   working_type text,
   working_hours text,
+  earning_model text check (earning_model in ('Saat+Paket Başı','Paket Başı','Aylık Sabit')),
+  working_days text[],
+  daily_package_estimate text check (daily_package_estimate in ('0-15 PAKET','15-25 PAKET','25-40 PAKET','40 VE ÜZERİ')),
   created_at timestamptz default now()
 );
 

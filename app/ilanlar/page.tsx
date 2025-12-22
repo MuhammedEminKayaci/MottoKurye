@@ -76,7 +76,7 @@ function IlanlarContent() {
         if (role === "kurye") {
           // Show business ads (both for logged-in couriers and guests)
           let query = supabase.from("business_ads")
-            .select("id,title,description,province,district,working_type,working_hours,created_at,image_url,user_id")
+            .select("id,title,description,province,district,working_type,working_hours,earning_model,working_days,daily_package_estimate,created_at,image_url,user_id")
             .order("created_at", { ascending: false }).limit(60);
           
           // Apply filters
@@ -86,18 +86,28 @@ function IlanlarContent() {
           if (filters.earning_model) query = query.eq("earning_model", filters.earning_model);
           if (filters.daily_package_estimate) query = query.eq("daily_package_estimate", filters.daily_package_estimate);
           if (filters.working_days) {
-            // Çoklu seçim için her günü kontrol et
             const days = filters.working_days.split(',');
-            days.forEach(day => {
-              query = query.contains("working_days", [day.trim()]);
-            });
+            days.forEach(day => { query = query.contains("working_days", [day.trim()]); });
           }
           
-          const { data, error } = await query;
+          let { data, error } = await query;
           if (error) {
-            console.error('Business ads fetch error:', error);
-            throw error;
+            // Fallback: if new columns aren't in DB yet, retry with minimal select/filters
+            const msg = String(error.message || '').toLowerCase();
+            const hasMissingColumn = msg.includes('column') && msg.includes('does not exist');
+            if (hasMissingColumn) {
+              let q2 = supabase.from("business_ads")
+                .select("id,title,description,province,district,working_type,working_hours,created_at,image_url,user_id")
+                .order("created_at", { ascending: false }).limit(60);
+              if (filters.province) q2 = q2.eq("province", filters.province);
+              if (filters.district) q2 = q2.eq("district", filters.district);
+              if (filters.working_type) q2 = q2.eq("working_type", filters.working_type);
+              const res2 = await q2;
+              data = res2.data || [];
+              error = res2.error || null;
+            }
           }
+          if (error) throw error;
           console.log('Business ads fetched:', data?.length || 0, 'items');
           
           // Get business info for each ad if user_id exists

@@ -33,7 +33,7 @@ export function RoleHeader({ accent = "#ff7a00" }: RoleHeaderProps) {
     return () => window.removeEventListener("keydown", esc);
   }, []);
 
-  const logoTarget = "/ilanlar"; // Her zaman ilanlar sayfası
+  const logoTarget = "/"; // Logo her zaman ana sayfaya gider
   const courierNav = [
     { label: "Profilim", href: "/profil" },
     { label: "İlanlar", href: "/ilanlar" }, // işletme ilanları

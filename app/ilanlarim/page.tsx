@@ -30,7 +30,9 @@ export default function IlanlarimPage() {
   }, []);
 
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ title:"", description:"", province:"", district:"", working_type:"", working_hours:"" });
+  const [form, setForm] = useState({ title:"", description:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
+  const WORKING_DAYS = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"];
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [adImage, setAdImage] = useState<File | null>(null);
   const [adImagePreview, setAdImagePreview] = useState<string | null>(null);
   const uploadAdImage = async (file: File): Promise<string | null> => {
@@ -73,6 +75,7 @@ export default function IlanlarimPage() {
     }
     
     const payload = { ...form, user_id: uid, image_url: imageUrl };
+    if (selectedDays.length) payload.working_days = selectedDays;
     const { data, error } = await supabase.from("business_ads").insert(payload).select().single();
     if (error) {
       setErrorMsg(error.message.includes("relation \"business_ads\" does not exist")
@@ -81,7 +84,8 @@ export default function IlanlarimPage() {
     }
     if (!error && data) setItems(prev => [data, ...prev]);
     setCreating(false);
-    setForm({ title:"", description:"", province:"", district:"", working_type:"", working_hours:"" });
+    setForm({ title:"", description:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
+    setSelectedDays([]);
     setAdImage(null);
     setAdImagePreview(null);
   };
@@ -109,8 +113,26 @@ export default function IlanlarimPage() {
             <LabeledInput label="İl" value={form.province} onChange={v=>setForm(f=>({...f,province:v}))} placeholder="İstanbul" />
             <LabeledInput label="İlçe" value={form.district} onChange={v=>setForm(f=>({...f,district:v}))} placeholder="Kadıköy" />
             <LabeledTextArea className="md:col-span-3" label="Açıklama" value={form.description} onChange={v=>setForm(f=>({...f,description:v}))} placeholder="İşin detaylarını yazın" />
-            <LabeledInput label="Çalışma Tipi" value={form.working_type} onChange={v=>setForm(f=>({...f,working_type:v}))} placeholder="tam / yari / serbest" />
-            <LabeledInput label="Çalışma Saatleri" value={form.working_hours} onChange={v=>setForm(f=>({...f,working_hours:v}))} placeholder="gunduz / gece / 24" />
+            <LabeledInput label="Çalışma Tipi" value={form.working_type} onChange={v=>setForm(f=>({...f,working_type:v}))} placeholder="Full Time / Part Time" />
+            <LabeledInput label="Çalışma Saatleri" value={form.working_hours} onChange={v=>setForm(f=>({...f,working_hours:v}))} placeholder="Gündüz / Gece / 24" />
+            <LabeledSelect label="Kazanç Modeli" value={form.earning_model} onChange={v=>setForm(f=>({...f,earning_model:v}))} options={["Saat+Paket Başı","Paket Başı","Aylık Sabit"]} />
+            <LabeledSelect label="Günlük Paket Tahmini" value={form.daily_package_estimate} onChange={v=>setForm(f=>({...f,daily_package_estimate:v}))} options={["0-15 PAKET","15-25 PAKET","25-40 PAKET","40 VE ÜZERİ"]} />
+            <div className="md:col-span-3">
+              <span className="block text-[11px] font-semibold text-neutral-600 mb-2 uppercase tracking-wide">Çalışma Günleri</span>
+              <div className="flex flex-wrap gap-2">
+                {WORKING_DAYS.map((day, idx)=>{
+                  const active = selectedDays.includes(day);
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={()=>setSelectedDays(s=> active ? s.filter(d=>d!==day) : [...s, day])}
+                      className={`px-2 py-1 rounded-full border text-sm ${active?"bg-orange-500 border-orange-500 text-white":"bg-neutral-100 border-neutral-300 text-black"}`}
+                    >{day}</button>
+                  );
+                })}
+              </div>
+            </div>
             
             {/* Image Upload Section */}
             <div className="md:col-span-3">
@@ -176,7 +198,7 @@ export default function IlanlarimPage() {
                   <div className="font-semibold text-black text-lg mb-1">{it.title}</div>
                   <div className="text-sm text-black/70 line-clamp-3">{it.description}</div>
                   <div className="text-xs text-black/50 mt-2 flex gap-2 flex-wrap">
-                    {[it.province, it.district, it.working_type, it.working_hours].filter(Boolean).map((m:string,idx:number)=>(
+                    {[it.province, it.district, it.working_type, it.working_hours, it.earning_model, it.daily_package_estimate].filter(Boolean).map((m:string,idx:number)=>(
                       <span key={idx} className="px-2 py-0.5 rounded-full bg-neutral-100 border border-neutral-200 text-black/70">{m}</span>
                     ))}
                   </div>
@@ -206,6 +228,19 @@ function LabeledTextArea({ label, value, onChange, placeholder, className }:{ la
       <span className="block text-[11px] font-semibold text-neutral-600 mb-1 uppercase tracking-wide">{label}</span>
       <textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
         className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-black placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-black/20 h-24" />
+    </label>
+  );
+}
+
+function LabeledSelect({ label, value, onChange, options, className }:{ label:string; value:string; onChange:(v:string)=>void; options:string[]; className?:string }){
+  return (
+    <label className={`block ${className||""}`}>
+      <span className="block text-[11px] font-semibold text-neutral-600 mb-1 uppercase tracking-wide">{label}</span>
+      <select value={value} onChange={e=>onChange(e.target.value)}
+        className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20">
+        <option value="">Seçin</option>
+        {options.map(opt => (<option key={opt} value={opt}>{opt}</option>))}
+      </select>
     </label>
   );
 }

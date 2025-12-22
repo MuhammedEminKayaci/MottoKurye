@@ -51,9 +51,11 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       onGuestClick();
       return;
     }
-    // Navigate to profile page
+    // Navigate to profile page only if userId exists
     if (userId && userRole) {
       window.location.href = `/profil/${userRole}/${userId}`;
+    } else {
+      console.warn('Cannot navigate to profile: userId is missing');
     }
   };
 

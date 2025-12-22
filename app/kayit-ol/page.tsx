@@ -101,11 +101,10 @@ export default function KayitOlPage() {
         setStage("profile");
         setMessage("Hesap oluşturuldu. Profil bilgilerinizi tamamlayın.");
       } else {
-        setMessage("E-posta doğrulaması gerekiyor, lütfen gelen kutunuzu kontrol edin.");
+        setMessage("Bir hata oluştu. Lütfen tekrar deneyin.");
       }
     } catch (err: any) {
-      // eslint-disable-next-line no-console
-      console.warn("signup error", err);
+      console.error("Signup error:", err);
       setMessage(toTrError(err));
     } finally {
       setLoading(false);
@@ -203,10 +202,6 @@ export default function KayitOlPage() {
         accept_privacy: data.acceptPrivacy,
         accept_kvkk: data.acceptKVKK,
         accept_commercial: data.acceptCommercial,
-        consent_version: '1.0',
-        consent_given_at: new Date().toISOString(),
-        consent_ip_address: ipAddress,
-        iys_status: data.acceptCommercial ? 'PENDING' : null,
         avatar_url: avatarUrl,
       };
       const { error } = await supabase.from("couriers").insert(insert);
@@ -250,14 +245,32 @@ export default function KayitOlPage() {
         accept_privacy: data.acceptPrivacy,
         accept_kvkk: data.acceptKVKK,
         accept_commercial: data.acceptCommercial,
-        consent_version: '1.0',
-        consent_given_at: new Date().toISOString(),
-        consent_ip_address: ipAddress,
-        iys_status: data.acceptCommercial ? 'PENDING' : null,
         avatar_url: avatarUrl,
       };
       const { error } = await supabase.from("businesses").insert(insert);
       if (error) throw error;
+      
+      // İşletme için otomatik bir başlangıç ilanı oluştur
+      console.log('Creating auto ad for user_id:', sessionUserId);
+      const adInsert = {
+        user_id: sessionUserId,
+        title: `${data.businessName} - Kurye Aranıyor`,
+        description: `${data.businessSector} sektöründe çalışacak kurye aranıyor. Detaylar için iletişime geçin.`,
+        province: data.province,
+        district: data.district,
+        working_type: data.workingType,
+        earning_model: data.earningModel,
+        working_days: data.workingDays,
+        daily_package_estimate: data.dailyPackageEstimate,
+        working_hours: data.workingType === "Full Time" ? "08:00-17:00" : "Esnek",
+      };
+      const { data: adData, error: adError } = await supabase.from("business_ads").insert(adInsert).select();
+      if (adError) {
+        console.error('Otomatik ilan oluşturulamadı:', adError);
+      } else {
+        console.log('Otomatik ilan oluşturuldu:', adData);
+      }
+      
       router.push("/hosgeldiniz");
     } catch (err: any) {
       setMessage("İşletme kaydı başarısız: " + (err.message || ""));

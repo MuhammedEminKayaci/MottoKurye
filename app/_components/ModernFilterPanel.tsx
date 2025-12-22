@@ -235,6 +235,21 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       <option value="YOK" className="text-black">Yok</option>
                     </select>
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Günlük Paket Tahmini</label>
+                    <select
+                      value={filters.daily_package_estimate || ""}
+                      onChange={(e) => handleFilterChange("daily_package_estimate", e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      <option value="0-15 PAKET" className="text-black">0-15 Paket</option>
+                      <option value="15-25 PAKET" className="text-black">15-25 Paket</option>
+                      <option value="25-40 PAKET" className="text-black">25-40 Paket</option>
+                      <option value="40 VE ÜZERİ" className="text-black">40 ve üzeri</option>
+                    </select>
+                  </div>
                 </>
               )}
 
@@ -262,8 +277,9 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
-                      <option value="Saat Başı" className="text-black">Saat Başı</option>
+                      <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
                       <option value="Paket Başı" className="text-black">Paket Başı</option>
+                      <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
                     </select>
                   </div>
 
@@ -300,7 +316,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       <option value="0-15 PAKET" className="text-black">0-15 Paket</option>
                       <option value="15-25 PAKET" className="text-black">15-25 Paket</option>
                       <option value="25-40 PAKET" className="text-black">25-40 Paket</option>
-                      <option value="40+ PAKET" className="text-black">40+ Paket</option>
+                      <option value="40 VE ÜZERİ" className="text-black">40 ve üzeri</option>
                     </select>
                   </div>
                 </>
@@ -521,6 +537,24 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <option value="YOK" className="text-black">Yok</option>
                   </select>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Günlük Paket Tahmini</label>
+                  <select
+                    value={filters.daily_package_estimate || ""}
+                    onChange={(e) => {
+                      handleFilterChange("daily_package_estimate", e.target.value);
+                      onChange({ ...filters, daily_package_estimate: e.target.value });
+                    }}
+                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="0-15 PAKET" className="text-black">0-15 Paket</option>
+                    <option value="15-25 PAKET" className="text-black">15-25 Paket</option>
+                    <option value="25-40 PAKET" className="text-black">25-40 Paket</option>
+                    <option value="40 VE ÜZERİ" className="text-black">40 ve üzeri</option>
+                  </select>
+                </div>
               </>
             )}
 
@@ -555,8 +589,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
-                    <option value="Saat Başı" className="text-black">Saat Başı</option>
                     <option value="Paket Başı" className="text-black">Paket Başı</option>
+                    <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
                   </select>
                 </div>
 
@@ -608,7 +642,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <option value="0-15 PAKET" className="text-black">0-15 Paket</option>
                     <option value="15-25 PAKET" className="text-black">15-25 Paket</option>
                     <option value="25-40 PAKET" className="text-black">25-40 Paket</option>
-                    <option value="40+ PAKET" className="text-black">40+ Paket</option>
+                    <option value="40 VE ÜZERİ" className="text-black">40 ve üzeri</option>
                   </select>
                 </div>
               </>

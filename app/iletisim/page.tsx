@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { PublicHeader } from "../_components/PublicHeader";
+import { Footer } from "../_components/Footer";
 
 export default function IletisimPage() {
   const whatsappNumber = "905551234567"; // Numaranızı buraya ekleyin (ülke kodu dahil, + işareti olmadan)
@@ -270,43 +271,7 @@ export default function IletisimPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#ff7a00] text-white p-6 md:p-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
-            <div className="flex items-center">
-              <Image
-                src="/images/headerlogo.png"
-                alt="Motto Kurye Logo"
-                width={250}
-                height={70}
-                className="object-contain w-48 md:w-64 lg:w-72"
-              />
-            </div>
-
-            <div className="flex gap-6 md:gap-8 text-sm md:text-base">
-              <Link href="/#nasil-calisir" className="text-white hover:text-white/80 transition-colors">
-                Nasıl Çalışır
-              </Link>
-              <Link href="/ucret-planlari" className="text-white hover:text-white/80 transition-colors">
-                Ücret Planları
-              </Link>
-              <Link href="/iletisim" className="text-white hover:text-white/80 transition-colors">
-                İletişim
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-6 text-xs md:text-sm opacity-80 text-center md:text-right max-w-lg ml-auto leading-relaxed">
-            MottoKurye olarak çıktığımız bu yolda kuryelerin yaşadığı teslimat sorununu çözmek
-            ve işletmelerin güvenilir kurye bulma gibi problemlerine çözüm düşünerek geliştirdiğimiz bu
-            yenilikçi bakış uygulamalarla artık çok daha kolay.
-          </div>
-
-          <div className="mt-4 md:mt-6 text-xs md:text-sm text-center md:text-right">
-            2025 - Tüm haklar saklıdır.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { PublicHeader } from "../_components/PublicHeader";
+import { Footer } from "../_components/Footer";
 
 export default function KVKKAydinlatmaPage() {
   return (
@@ -335,13 +336,7 @@ export default function KVKKAydinlatmaPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#ff7a00] text-white p-6 mt-12">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-sm">
-            © 2025 MottoKurye - Tüm haklar saklıdır.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

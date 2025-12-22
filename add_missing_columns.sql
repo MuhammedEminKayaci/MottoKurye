@@ -5,9 +5,11 @@
 ALTER TABLE public.couriers ADD COLUMN IF NOT EXISTS cover_photo_url TEXT;
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS cover_photo_url TEXT;
 
--- 2. Add other missing columns from your forms
 ALTER TABLE public.couriers ADD COLUMN IF NOT EXISTS moto_brand TEXT;
-ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS working_days TEXT[];
+-- Align business_ads with registration filters
+ALTER TABLE public.business_ads ADD COLUMN IF NOT EXISTS earning_model TEXT CHECK (earning_model IN ('Saat+Paket Başı','Paket Başı','Aylık Sabit'));
+ALTER TABLE public.business_ads ADD COLUMN IF NOT EXISTS working_days TEXT[];
+ALTER TABLE public.business_ads ADD COLUMN IF NOT EXISTS daily_package_estimate TEXT CHECK (daily_package_estimate IN ('0-15 PAKET','15-25 PAKET','25-40 PAKET','40 VE ÜZERİ'));
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS service_province TEXT;
 ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS service_district TEXT;
 ALTER TABLE public.business_ads ADD COLUMN IF NOT EXISTS image_url TEXT;

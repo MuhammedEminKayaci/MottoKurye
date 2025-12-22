@@ -3,10 +3,21 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/supabase";
 
 export function PublicHeader() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check if user is logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      setIsLoggedIn(!!data?.session?.user);
+    };
+    checkAuth();
+  }, []);
 
   // Close mobile menu on ESC for accessibility
   useEffect(() => {
@@ -17,10 +28,18 @@ export function PublicHeader() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  const handleLogoClick = async () => {
+    if (isLoggedIn) {
+      await supabase.auth.signOut();
+      setIsLoggedIn(false);
+    }
+    router.push("/");
+  };
+
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href === "/") {
       e.preventDefault();
-      router.push("/");
+      handleLogoClick();
       setIsMenuOpen(false);
       return;
     }
@@ -55,16 +74,16 @@ export function PublicHeader() {
   return (
     <header className="bg-[#ff7a00] text-white py-3 px-6 flex items-center justify-between shadow relative">
       <div className="flex items-center gap-2">
-        <Link href="/" aria-label="Ana Sayfa" className="flex items-center">
+        <button onClick={handleLogoClick} aria-label="Ana Sayfa" className="flex items-center">
           <Image
             src="/images/headerlogo.png"
             alt="Motto Kurye Logo"
             width={300}
             height={80}
             priority
-            className="object-contain select-none"
+            className="object-contain select-none cursor-pointer"
           />
-        </Link>
+        </button>
       </div>
 
       {/* Hamburger Menu Button */}
