@@ -74,7 +74,7 @@ export default function IlanlarimPage() {
       imageUrl = await uploadAdImage(adImage);
     }
     
-    const payload = { ...form, user_id: uid, image_url: imageUrl };
+    const payload: any = { ...form, user_id: uid, image_url: imageUrl };
     if (selectedDays.length) payload.working_days = selectedDays;
     const { data, error } = await supabase.from("business_ads").insert(payload).select().single();
     if (error) {
