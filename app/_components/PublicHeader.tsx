@@ -17,6 +17,13 @@ export function PublicHeader() {
       setIsLoggedIn(!!data?.session?.user);
     };
     checkAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   // Close mobile menu on ESC for accessibility
@@ -28,18 +35,20 @@ export function PublicHeader() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const handleLogoClick = async () => {
-    if (isLoggedIn) {
-      await supabase.auth.signOut();
-      setIsLoggedIn(false);
-    }
+  const handleLogoClick = () => {
+    router.push("/");
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsLoggedIn(false);
     router.push("/");
   };
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href === "/") {
       e.preventDefault();
-      handleLogoClick();
+      router.push("/");
       setIsMenuOpen(false);
       return;
     }
@@ -126,12 +135,20 @@ export function PublicHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link href="/kayit-ol" className={authBtnBase} onClick={() => setIsMenuOpen(false)}>
-              Kayıt Ol
-            </Link>
-            <Link href="/giris" className={authBtnBase} onClick={() => setIsMenuOpen(false)}>
-              Giriş Yap
-            </Link>
+            {!isLoggedIn ? (
+              <>
+                <Link href="/kayit-ol" className={authBtnBase} onClick={() => setIsMenuOpen(false)}>
+                  Kayıt Ol
+                </Link>
+                <Link href="/giris" className={authBtnBase} onClick={() => setIsMenuOpen(false)}>
+                  Giriş Yap
+                </Link>
+              </>
+            ) : (
+              <button onClick={handleLogout} className={authBtnBase}>
+                Çıkış Yap
+              </button>
+            )}
           </nav>
         </div>
       )}
@@ -152,12 +169,20 @@ export function PublicHeader() {
             </React.Fragment>
           ))}
         </nav>
-        <Link href="/kayit-ol" className={authBtnBase}>
-          Kayıt Ol
-        </Link>
-        <Link href="/giris" className={authBtnBase}>
-          Giriş Yap
-        </Link>
+        {!isLoggedIn ? (
+          <>
+            <Link href="/kayit-ol" className={authBtnBase}>
+              Kayıt Ol
+            </Link>
+            <Link href="/giris" className={authBtnBase}>
+              Giriş Yap
+            </Link>
+          </>
+        ) : (
+          <button onClick={handleLogout} className={authBtnBase}>
+            Çıkış Yap
+          </button>
+        )}
       </div>
     </header>
   );
