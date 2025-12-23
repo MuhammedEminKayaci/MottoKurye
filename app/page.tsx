@@ -83,9 +83,7 @@ export default function Page() {
               />
               <button 
                 onClick={() => {
-                  if (userRole === "kurye") {
-                    router.push("/ilanlar?view=kurye");
-                  } else if (userRole === "isletme") {
+                  if (userRole === "isletme") {
                     router.push("/ilanlar?view=isletme");
                   } else {
                     router.push("/kurye-bul");
@@ -94,9 +92,7 @@ export default function Page() {
                 disabled={isLoading}
                 className="bg-white text-[#ff7a00] border-2 border-[#ff7a00] px-30 py-3 rounded-full font-semibold transition-colors transition-transform hover:bg-[#ff7a00] hover:text-white hover:translate-y-[1px] hover:shadow-md disabled:opacity-50"
               >
-                {userRole === "kurye" 
-                  ? "İşletmelere Gözat" 
-                  : userRole === "isletme"
+                {userRole === "isletme"
                   ? "Kuryelere Gözat"
                   : "Kurye Bul"}
               </button>
@@ -115,8 +111,6 @@ export default function Page() {
                 onClick={() => {
                   if (userRole === "kurye") {
                     router.push("/ilanlar?view=kurye");
-                  } else if (userRole === "isletme") {
-                    router.push("/ilanlar?view=isletme");
                   } else {
                     router.push("/isletme-bul");
                   }
@@ -126,8 +120,6 @@ export default function Page() {
               >
                 {userRole === "kurye" 
                   ? "İşletmelere Gözat"
-                  : userRole === "isletme"
-                  ? "Kuryelere Gözat"
                   : "İşletme Bul"}
               </button>
             </div>

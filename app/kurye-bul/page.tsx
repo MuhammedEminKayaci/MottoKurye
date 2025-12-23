@@ -6,7 +6,7 @@ export default function KuryeBulPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/ilanlar?type=kurye");
+    router.replace("/ilanlar?view=isletme");
   }, [router]);
 
   return null;

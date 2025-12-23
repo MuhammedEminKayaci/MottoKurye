@@ -15,6 +15,7 @@ function IlanlarContent() {
   const typeParam = searchParams.get('type'); // 'kurye' or 'isletme' from redirect
   
   const [role, setRole] = useState<Role | null>(null);
+  const [actualRole, setActualRole] = useState<Role | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Record<string, string>>({});
@@ -45,12 +46,14 @@ function IlanlarContent() {
         setIsAuthenticated(true);
         const { data: c } = await supabase.from("couriers").select("id").eq("user_id", uid).limit(1);
         if (c?.length) { 
+          setActualRole("kurye");
           setRole((viewParam as Role) || "kurye"); 
           setLoading(false); 
           return; 
         }
         const { data: b } = await supabase.from("businesses").select("id").eq("user_id", uid).limit(1);
         if (b?.length) { 
+          setActualRole("isletme");
           setRole((viewParam as Role) || "isletme"); 
           setLoading(false); 
           return; 
@@ -229,8 +232,21 @@ function IlanlarContent() {
                       fallbackImageUrl={role === 'kurye' ? (it.businesses?.[0]?.avatar_url ?? null) : null}
                       phone={role === 'isletme' ? (it.phone ?? null) : null}
                       showActions={role === 'isletme'}
-                      isGuest={!isAuthenticated}
-                      onGuestClick={handleGuestClick}
+                      isGuest={!isAuthenticated || (isAuthenticated && role !== actualRole)}
+                      onGuestClick={() => {
+                        if (!isAuthenticated) {
+                          handleGuestClick();
+                        } else {
+                          // Authenticated but viewing wrong role (preview mode)
+                          if (actualRole === "kurye" && role === "isletme") {
+                            alert("Kurye olduğunuz için kurye detaylarını görüntüleyemezsiniz.");
+                          } else if (actualRole === "isletme" && role === "kurye") {
+                            alert("İşletme olduğunuz için işletme ilan detaylarını görüntüleyemezsiniz.");
+                          } else {
+                            handleGuestClick();
+                          }
+                        }
+                      }}
                       time={it.created_at ? new Date(it.created_at).toLocaleDateString() : undefined}
                       userId={it.user_id}
                       userRole={role === 'kurye' ? 'isletme' : 'kurye'}

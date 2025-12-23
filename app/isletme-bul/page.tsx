@@ -6,7 +6,7 @@ export default function IsletmeBulPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/ilanlar?type=isletme");
+    router.replace("/ilanlar?view=kurye");
   }, [router]);
 
   return null;
