@@ -12,7 +12,7 @@ export interface CourierRegistration {
   
   // Çalışma Koşulları
   province: string;
-  district: string;
+  district: string[];
   workingType: string; // Full Time | Part Time
   earningModel: string; // Saat+Paket | Paket | Aylık Sabit
   workingDays: string[];
@@ -51,7 +51,7 @@ export interface BusinessRegistration {
   
   // Çalışma Koşulları
   province: string;
-  district: string;
+  district: string[];
   workingType: string; // Full Time | Part Time
   earningModel: string; // Saat+Paket | Paket | Aylık Sabit
   workingDays: string[];

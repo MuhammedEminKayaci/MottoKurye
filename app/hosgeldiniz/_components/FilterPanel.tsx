@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ISTANBUL_DISTRICTS } from "../../../lib/istanbul-districts";
+import { MultiSelect } from "../../_components/MultiSelect";
 
 export type Role = "kurye" | "isletme";
 
@@ -8,12 +9,31 @@ export function FilterPanel({ role, onChange }: { role: Role; onChange: (filters
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [open, setOpen] = useState<boolean>(false); // mobile collapse
   const [sections, setSections] = useState<{[k:string]:boolean}>({ temel:true, calisma:true, diger:false });
+  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
+
   const set = (k: string, v: string) => {
     const next = { ...filters, [k]: v };
     setFilters(next);
     onChange(next);
   };
-  const reset = () => { setFilters({}); onChange({}); };
+
+  const handleDistrictChange = (districts: string[]) => {
+    setSelectedDistricts(districts);
+    const next = { ...filters };
+    if (districts.length > 0) {
+      next.district = districts.join(',');
+    } else {
+      delete next.district;
+    }
+    setFilters(next);
+    onChange(next);
+  };
+
+  const reset = () => { 
+    setFilters({}); 
+    setSelectedDistricts([]);
+    onChange({}); 
+  };
   return (
     <aside className="bg-black text-white md:min-h-[calc(100vh-64px)] md:w-64 w-full md:rounded-none rounded-2xl md:py-8 md:px-6 p-4 flex flex-col md:sticky md:top-16">
       <div className="flex items-center justify-between md:block">
@@ -35,10 +55,13 @@ export function FilterPanel({ role, onChange }: { role: Role; onChange: (filters
                 <input className="w-full rounded-lg bg-white/10 px-3 py-2 text-white/60" value="İstanbul" disabled />
               </Field>
               <Field label="İlçe">
-                <select className="w-full rounded-lg bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/30" onChange={(e)=>set("district", e.target.value)} value={filters["district"]||""}>
-                  <option value="">Tüm İlçeler</option>
-                  {ISTANBUL_DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
+                <MultiSelect
+                  options={ISTANBUL_DISTRICTS}
+                  value={selectedDistricts}
+                  onChange={handleDistrictChange}
+                  placeholder="Tüm İlçeler"
+                  theme="dark"
+                />
               </Field>
             </div>
           )}
@@ -60,10 +83,13 @@ export function FilterPanel({ role, onChange }: { role: Role; onChange: (filters
           {sections.temel && (
             <div className="space-y-3">
               <Field label="İl">
-                <input className="w-full rounded-lg bg-white/10 px-3 py-2 text-white/60" value="İstanbul" disabled />
-              </Field>
-              <Field label="İlçe">
-                <select className="w-full rounded-lg bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/30" onChange={(e)=>set("district", e.target.value)} value={filters["district"]||""}>
+                <MultiSelect
+                  options={ISTANBUL_DISTRICTS}
+                  value={selectedDistricts}
+                  onChange={handleDistrictChange}
+                  placeholder="Tüm İlçeler"
+                  theme="dark"
+                /className="w-full rounded-lg bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/30" onChange={(e)=>set("district", e.target.value)} value={filters["district"]||""}>
                   <option value="">Tüm İlçeler</option>
                   {ISTANBUL_DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>

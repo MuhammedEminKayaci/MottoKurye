@@ -84,7 +84,10 @@ function IlanlarContent() {
           
           // Apply filters
           if (filters.province) query = query.eq("province", filters.province);
-          if (filters.district) query = query.eq("district", filters.district);
+          if (filters.district) {
+            const districts = filters.district.split(',').map(d => d.trim());
+            query = query.overlaps("district", districts);
+          }
           if (filters.working_type) query = query.eq("working_type", filters.working_type);
           if (filters.earning_model) query = query.eq("earning_model", filters.earning_model);
           if (filters.daily_package_estimate) query = query.eq("daily_package_estimate", filters.daily_package_estimate);
@@ -100,11 +103,10 @@ function IlanlarContent() {
             const hasMissingColumn = msg.includes('column') && msg.includes('does not exist');
             if (hasMissingColumn) {
               let q2 = supabase.from("business_ads")
-                .select("id,title,description,province,district,working_type,working_hours,created_at,image_url,user_id")
+                .select("id,title,description,working_hours,created_at,image_url,user_id")
                 .order("created_at", { ascending: false }).limit(60);
               if (filters.province) q2 = q2.eq("province", filters.province);
-              if (filters.district) q2 = q2.eq("district", filters.district);
-              if (filters.working_type) q2 = q2.eq("working_type", filters.working_type);
+              
               const res2 = await q2;
               data = res2.data || [];
               error = res2.error || null;
@@ -138,7 +140,10 @@ function IlanlarContent() {
           
           // Apply filters
           if (filters.province) query = query.eq("province", filters.province);
-          if (filters.district) query = query.eq("district", filters.district);
+          if (filters.district) {
+            const districts = filters.district.split(',').map(d => d.trim());
+            query = query.overlaps("district", districts);
+          }
           if (filters.license_type) query = query.eq("license_type", filters.license_type);
           if (filters.working_type) query = query.eq("working_type", filters.working_type);
           if (filters.earning_model) query = query.eq("earning_model", filters.earning_model);
@@ -224,7 +229,7 @@ function IlanlarContent() {
                       subtitle={role === 'kurye' ? (it.description ?? '') : ''}
                       metaParts={[
                         it.province,
-                        it.district,
+                        Array.isArray(it.district) ? it.district.join(', ') : it.district,
                         role === 'isletme' ? it.license_type : it.working_type,
                         role === 'isletme' ? it.working_type : null
                       ].filter(Boolean)}

@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { CourierRegistration } from "../../../types/registration";
 import { ISTANBUL_DISTRICTS } from "../../../lib/istanbul-districts";
+import { MultiSelect } from "../../_components/MultiSelect";
 
 const courierSchema = z.object({
   firstName: z.string().min(2, "Ad en az 2 karakter"),
@@ -15,7 +16,7 @@ const courierSchema = z.object({
   phone: z.string().min(10, "Telefon gerekli"),
   experience: z.enum(["0-1", "1-3", "3-5", "5-10", "10+"]),
   province: z.string().min(1, "İl seçin"),
-  district: z.string().min(1, "İlçe seçin"),
+  district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
   workingType: z.enum(["Full Time", "Part Time"]),
   earningModel: z.enum(["Saat+Paket Başı", "Paket Başı", "Aylık Sabit"]),
   workingDays: z.array(z.string()).min(1, "En az bir gün seçin"),
@@ -42,10 +43,17 @@ export interface CourierFormProps {
 const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
 export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<CourierRegistration>({
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<CourierRegistration>({
     resolver: zodResolver(courierSchema),
     defaultValues: {
       province: "İstanbul",
+      district: [],
       nationality: "Türkiye",
       workingType: "Full Time",
       earningModel: "Saat+Paket Başı",
@@ -62,7 +70,7 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
       acceptPrivacy: false,
       acceptKVKK: false,
       acceptCommercial: false,
-    } as any,
+    },
   });
 
   const hasMotorcycle = watch("hasMotorcycle");
@@ -169,10 +177,18 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
           </div>
           <div>
             <label className="block text-xs font-medium text-white mb-1">Çalışılacak İlçe *</label>
-            <select className="input-field text-sm" {...register("district")}>
-              <option value="">İlçe Seçin</option>
-              {districts.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
+            <Controller
+              name="district"
+              control={control}
+              render={({ field }) => (
+                <MultiSelect
+                  options={districts}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="İlçe Seçin"
+                />
+              )}
+            />
             {errors.district && <p className="text-[10px] text-red-200 mt-1">{errors.district.message}</p>}
           </div>
           <div>

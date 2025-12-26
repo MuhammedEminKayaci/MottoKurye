@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ISTANBUL_DISTRICTS } from "../../lib/istanbul-districts";
+import { MultiSelect } from "./MultiSelect";
 
 export type Role = "kurye" | "isletme";
 
@@ -18,9 +19,21 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<Record<string, string>>({ province: "İstanbul" });
   const [selectedWorkingDays, setSelectedWorkingDays] = useState<string[]>([]);
+  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
 
   const handleFilterChange = (key: string, value: string) => {
     const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+  };
+
+  const handleDistrictChange = (districts: string[]) => {
+    setSelectedDistricts(districts);
+    const newFilters = { ...filters };
+    if (districts.length > 0) {
+      newFilters.district = districts.join(',');
+    } else {
+      delete newFilters.district;
+    }
     setFilters(newFilters);
   };
 
@@ -34,6 +47,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
     if (newDays.length > 0) {
       newFilters.working_days = newDays.join(',');
     } else {
+    setSelectedDistricts([]);
       delete newFilters.working_days;
     }
     setFilters(newFilters);
@@ -105,16 +119,13 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
               {/* İlçe */}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">İlçe</label>
-                <select
-                  value={filters.district || ""}
-                  onChange={(e) => handleFilterChange("district", e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
-                >
-                  <option value="" className="text-black">Tüm İlçeler</option>
-                  {ISTANBUL_DISTRICTS.map((d) => (
-                    <option key={d} value={d} className="text-black">{d}</option>
-                  ))}
-                </select>
+                <MultiSelect
+                  options={ISTANBUL_DISTRICTS}
+                  value={selectedDistricts}
+                  onChange={handleDistrictChange}
+                  placeholder="Tüm İlçeler"
+                  theme="light"
+                />
               </div>
 
               {/* Kurye için filtreler */}
@@ -372,22 +383,23 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
             {/* İlçe */}
             <div>
               <label className="block text-sm font-semibold text-white mb-2">İlçe</label>
-              <select
-                value={filters.district || ""}
-                onChange={(e) => {
-                  handleFilterChange("district", e.target.value);
-                  onChange({ ...filters, district: e.target.value });
+              <MultiSelect
+                options={ISTANBUL_DISTRICTS}
+                value={selectedDistricts}
+                onChange={(val) => {
+                  handleDistrictChange(val);
+                  const newFilters = { ...filters };
+                  if (val.length > 0) {
+                    newFilters.district = val.join(',');
+                  } else {
+                    delete newFilters.district;
+                  }
+                  onChange(newFilters);
                 }}
-                className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
-              >
-                <option value="" className="text-black">Tüm İlçeler</option>
-                {ISTANBUL_DISTRICTS.map((d) => (
-                  <option key={d} value={d} className="text-black">{d}</option>
-                ))}
-              </select>
+                placeholder="Tüm İlçeler"
+                theme="dark"
+              />
             </div>
-
-            {/* Kurye filtreler */}
             {role === "isletme" && (
               <>
                 <div>

@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { BusinessRegistration } from "../../../types/registration";
 import { ISTANBUL_DISTRICTS } from "../../../lib/istanbul-districts";
+import { MultiSelect } from "../../_components/MultiSelect";
 
 const businessSchema = z.object({
   businessName: z.string().min(2, "Firma adı gerekli"),
@@ -12,7 +13,7 @@ const businessSchema = z.object({
   managerName: z.string().min(2, "Yetkili adı soyadı gerekli"),
   managerContact: z.string().min(10, "Yetkili iletişim gerekli"),
   province: z.string().min(1, "İl seçin"),
-  district: z.string().min(1, "İlçe seçin"),
+  district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
   workingType: z.enum(["Full Time", "Part Time"]),
   earningModel: z.enum(["Saat+Paket Başı", "Paket Başı", "Aylık Sabit"]),
   workingDays: z.array(z.string()).min(1, "En az bir gün seçin"),
@@ -45,10 +46,11 @@ const businessSectors = [
 const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
 export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
-  const { register, handleSubmit, watch, formState: { errors }, setValue } = useForm<BusinessRegistration>({
+  const { register, handleSubmit, watch, control, formState: { errors }, setValue } = useForm<BusinessRegistration>({
     resolver: zodResolver(businessSchema),
     defaultValues: {
       province: "İstanbul",
+      district: [],
       workingType: "Full Time",
       earningModel: "Saat+Paket Başı",
       dailyPackageEstimate: "15-25 PAKET",
@@ -137,10 +139,18 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
           </div>
           <div>
             <label className="block text-xs font-medium text-white mb-1">Çalışılacak İlçe *</label>
-            <select className="input-field text-sm" {...register("district")}>
-              <option value="">İlçe Seçin</option>
-              {districts.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
+            <Controller
+              name="district"
+              control={control}
+              render={({ field }) => (
+                <MultiSelect
+                  options={districts}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="İlçe Seçin"
+                />
+              )}
+            />
             {errors.district && <p className="text-[10px] text-red-200 mt-1">{errors.district.message}</p>}
           </div>
           <div>
