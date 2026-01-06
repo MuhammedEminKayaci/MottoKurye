@@ -80,6 +80,12 @@ export default function KayitOlPage() {
     return "Bir hata oluştu. Tekrar deneyin.";
   };
 
+  const ensureStringArray = (value: unknown): string[] => {
+    if (Array.isArray(value)) return value.map(String).filter(Boolean);
+    if (typeof value === "string" && value.trim() !== "") return [value.trim()];
+    return [];
+  };
+
   const handleAuthSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
@@ -186,7 +192,7 @@ export default function KayitOlPage() {
         phone: data.phone,
         experience: data.experience,
         province: data.province,
-        district: data.district,
+        district: ensureStringArray(data.district),
         working_type: data.workingType,
         earning_model: data.earningModel,
         working_days: data.workingDays,
@@ -236,10 +242,10 @@ export default function KayitOlPage() {
         manager_name: data.managerName,
         manager_contact: data.managerContact,
         province: data.province,
-        district: data.district,
+        district: ensureStringArray(data.district),
         working_type: data.workingType,
         earning_model: data.earningModel,
-        working_days: data.workingDays,
+        working_days: ensureStringArray(data.workingDays),
         daily_package_estimate: data.dailyPackageEstimate,
         accept_terms: data.acceptTerms,
         accept_privacy: data.acceptPrivacy,
@@ -257,10 +263,10 @@ export default function KayitOlPage() {
         title: `${data.businessName} - Kurye Aranıyor`,
         description: `${data.businessSector} sektöründe çalışacak kurye aranıyor. Detaylar için iletişime geçin.`,
         province: data.province,
-        district: data.district,
+        district: ensureStringArray(data.district),
         working_type: data.workingType,
         earning_model: data.earningModel,
-        working_days: data.workingDays,
+        working_days: ensureStringArray(data.workingDays),
         daily_package_estimate: data.dailyPackageEstimate,
         working_hours: data.workingType === "Full Time" ? "08:00-17:00" : "Esnek",
       };
