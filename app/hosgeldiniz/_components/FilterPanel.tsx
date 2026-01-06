@@ -82,17 +82,14 @@ export function FilterPanel({ role, onChange }: { role: Role; onChange: (filters
           <SectionToggle label="Konum" open={sections.temel} onClick={()=>setSections(s=>({...s,temel:!s.temel}))} />
           {sections.temel && (
             <div className="space-y-3">
-              <Field label="İl">
+              <Field label="İlçe">
                 <MultiSelect
                   options={ISTANBUL_DISTRICTS}
                   value={selectedDistricts}
                   onChange={handleDistrictChange}
                   placeholder="Tüm İlçeler"
                   theme="dark"
-                /className="w-full rounded-lg bg-white/10 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-white/30" onChange={(e)=>set("district", e.target.value)} value={filters["district"]||""}>
-                  <option value="">Tüm İlçeler</option>
-                  {ISTANBUL_DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
+                />
               </Field>
             </div>
           )}
