@@ -8,6 +8,19 @@ import { FilterPanel, Role } from "../_components/ModernFilterPanel";
 import { ListingCard } from "../hosgeldiniz/_components/ListingCard";
 import { Pagination } from "../hosgeldiniz/_components/Pagination";
 
+const maskCourierName = (first?: string | null, last?: string | null) => {
+  const f = (first || "").trim();
+  const l = (last || "").trim();
+  const initial = l ? `${l[0].toUpperCase()}.` : "";
+  return [f, initial].filter(Boolean).join(" ") || "Kurye";
+};
+
+const maskBusinessName = (name?: string | null) => {
+  const parts = (name || "").split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "İşletme";
+  return parts.map(p => `${p[0]?.toUpperCase() || ''}....`).join(' ');
+};
+
 function IlanlarContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,31 +51,53 @@ function IlanlarContent() {
   // Role detection - check auth status and determine role based on URL param or user role
   useEffect(() => {
     const init = async () => {
-      const { data: auth } = await supabase.auth.getSession();
-      const uid = auth.session?.user?.id;
-      
-      if (uid) {
-        // User is authenticated, check their role
-        setIsAuthenticated(true);
-        const { data: c } = await supabase.from("couriers").select("id").eq("user_id", uid).limit(1);
-        if (c?.length) { 
-          setActualRole("kurye");
-          setRole((viewParam as Role) || "kurye"); 
-          setLoading(false); 
-          return; 
+      try {
+        const { data: auth, error: authError } = await supabase.auth.getSession();
+        if (authError) {
+          console.error('Auth error:', authError);
+          setIsAuthenticated(false);
+          setRole((typeParam as Role) || (viewParam as Role) || "kurye");
+          setLoading(false);
+          return;
         }
-        const { data: b } = await supabase.from("businesses").select("id").eq("user_id", uid).limit(1);
-        if (b?.length) { 
-          setActualRole("isletme");
-          setRole((viewParam as Role) || "isletme"); 
-          setLoading(false); 
-          return; 
+        
+        const uid = auth.session?.user?.id;
+        console.log('Auth session uid:', uid);
+        
+        if (uid) {
+          // User is authenticated, check their role
+          setIsAuthenticated(true);
+          const { data: c, error: curierError } = await supabase.from("couriers").select("id").eq("user_id", uid).limit(1);
+          if (curierError) console.error('Courier check error:', curierError);
+          if (c?.length) { 
+            console.log('User is courier');
+            setActualRole("kurye");
+            setRole((viewParam as Role) || "kurye"); 
+            setLoading(false); 
+            return; 
+          }
+          const { data: b, error: businessError } = await supabase.from("businesses").select("id").eq("user_id", uid).limit(1);
+          if (businessError) console.error('Business check error:', businessError);
+          if (b?.length) { 
+            console.log('User is business');
+            setActualRole("isletme");
+            setRole((viewParam as Role) || "isletme"); 
+            setLoading(false); 
+            return; 
+          }
+          console.log('User is neither courier nor business');
+          setLoading(false);
+        } else {
+          // User is not authenticated - show guest view based on URL param
+          console.log('User not authenticated');
+          setIsAuthenticated(false);
+          // Check type param first (from redirect), then view param, default to kurye
+          setRole((typeParam as Role) || (viewParam as Role) || "kurye");
+          setLoading(false);
         }
-        setLoading(false);
-      } else {
-        // User is not authenticated - show guest view based on URL param
+      } catch (err) {
+        console.error('Init error:', err);
         setIsAuthenticated(false);
-        // Check type param first (from redirect), then view param, default to kurye
         setRole((typeParam as Role) || (viewParam as Role) || "kurye");
         setLoading(false);
       }
@@ -80,6 +115,7 @@ function IlanlarContent() {
           // Show business ads (both for logged-in couriers and guests)
           let query = supabase.from("business_ads")
             .select("id,title,description,province,district,working_type,working_hours,earning_model,working_days,daily_package_estimate,created_at,image_url,user_id")
+            .eq("is_available", true)
             .order("created_at", { ascending: false }).limit(60);
           
           // Apply filters
@@ -115,27 +151,41 @@ function IlanlarContent() {
           if (error) throw error;
           console.log('Business ads fetched:', data?.length || 0, 'items');
           
-          // Get business info for each ad if user_id exists
+          // Get business info for each ad and filter by seeking_couriers
           const adsWithBusinessInfo = await Promise.all(
             (data || []).map(async (ad: any) => {
-              if (!ad.user_id) return ad;
-              const { data: business } = await supabase
-                .from("businesses")
-                .select("id,business_name,avatar_url,user_id")
-                .eq("user_id", ad.user_id)
-                .single();
-              return {
-                ...ad,
-                businesses: business ? [business] : []
-              };
+              if (!ad.user_id) return null; // No user_id, skip this ad
+              try {
+                const { data: business } = await supabase
+                  .from("businesses")
+                  .select("id,business_name,avatar_url,user_id,seeking_couriers")
+                  .eq("user_id", ad.user_id)
+                  .single();
+                
+                // Only include ads from businesses that are seeking couriers
+                if (!business || !business.seeking_couriers) {
+                  return null;
+                }
+                
+                return {
+                  ...ad,
+                  businesses: [business]
+                };
+              } catch (err) {
+                console.warn('Failed to fetch business info for ad:', ad.id, err);
+                return null;
+              }
             })
           );
           
-          setItems(adsWithBusinessInfo); setPage(1);
+          // Filter out null values (ads from businesses not seeking couriers)
+          const filteredAds = adsWithBusinessInfo.filter(ad => ad !== null);
+          setItems(filteredAds); setPage(1);
         } else {
           // Show couriers for business perspective
           let query = supabase.from("couriers")
-            .select("id,user_id,first_name,last_name,avatar_url,phone,province,district,license_type,working_type,earning_model,daily_package_estimate,has_motorcycle,has_bag,experience,created_at")
+            .select("id,user_id,first_name,last_name,avatar_url,phone,province,district,license_type,working_type,earning_model,daily_package_estimate,has_motorcycle,has_bag,experience,created_at,is_accepting_offers")
+            .eq("is_accepting_offers", true)
             .order("created_at", { ascending: false }).limit(60);
           
           // Apply filters
@@ -225,7 +275,9 @@ function IlanlarContent() {
                   return (
                     <ListingCard
                       key={it.id}
-                      title={role === 'isletme' ? `${it.first_name ?? ''} ${it.last_name ?? ''}`.trim() || 'Kurye' : (it.title ?? 'Başlık')}
+                      title={role === 'isletme' 
+                        ? maskCourierName(it.first_name, it.last_name) 
+                        : maskBusinessName(it.businesses?.[0]?.business_name) || (it.title ?? 'Başlık')}
                       subtitle={role === 'kurye' ? (it.description ?? '') : ''}
                       metaParts={[
                         it.province,
@@ -236,6 +288,7 @@ function IlanlarContent() {
                       imageUrl={role === 'kurye' ? it.image_url : (it.avatar_url ?? null)}
                       fallbackImageUrl={role === 'kurye' ? (it.businesses?.[0]?.avatar_url ?? null) : null}
                       phone={role === 'isletme' ? (it.phone ?? null) : null}
+                      contactPreference={(it as any).contact_preference ?? 'phone'}
                       showActions={role === 'isletme'}
                       isGuest={!isAuthenticated || (isAuthenticated && role !== actualRole)}
                       onGuestClick={() => {

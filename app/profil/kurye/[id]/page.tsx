@@ -2,7 +2,13 @@ import React from "react";
 import { supabaseServer } from "@/lib/supabaseServer";
 import Link from "next/link";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
-import { PublicHeader } from "@/app/_components/PublicHeader";
+
+const maskCourierName = (first?: string | null, last?: string | null) => {
+  const f = (first || "").trim();
+  const l = (last || "").trim();
+  const initial = l ? `${l[0].toUpperCase()}.` : "";
+  return [f, initial].filter(Boolean).join(" ") || "Kurye";
+};
 
 interface CourierProfileProps {
   params: Promise<{ id: string }>;
@@ -32,6 +38,11 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
   console.log('Courier profile page - received id:', id);
   const courier = await getCourierProfile(id);
 
+  // Check if current user owns this profile
+  const { data: { user } } = await supabaseServer.auth.getUser();
+  const currentUserId = user?.id || null;
+  const isOwnProfile = currentUserId === id;
+
   if (!courier) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100 flex items-center justify-center px-4">
@@ -50,7 +61,8 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
   }
 
   const avatarUrl = courier.avatar_url || '/images/icon-profile.png';
-  const fullName = `${courier.first_name || ''} ${courier.last_name || ''}`.trim() || 'Kurye';
+  const maskedName = maskCourierName(courier.first_name, courier.last_name);
+  const fullName = maskedName;
 
   // Format working days
   const formatWorkingDays = (days: any) => {
@@ -68,8 +80,7 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
 
   // Info cards data structure
   const infoCards = [
-    { label: 'Ad', value: courier.first_name, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
-    { label: 'Soyad', value: courier.last_name, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+    { label: 'İsim', value: maskedName, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     { label: 'Yaş', value: courier.age, icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
     { label: 'Cinsiyet', value: courier.gender === 'ERKEK' ? 'Erkek' : courier.gender === 'KADIN' ? 'Kadın' : courier.gender, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     { label: 'Uyruk', value: courier.nationality, icon: 'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9' },
@@ -140,6 +151,17 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
                 )}
               </div>
             </div>
+            {isOwnProfile && (
+              <Link
+                href="/profil/duzenle/kurye"
+                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Bilgileri Düzenle
+              </Link>
+            )}
           </div>
         </div>
 

@@ -11,7 +11,8 @@ const businessSchema = z.object({
   businessName: z.string().min(2, "Firma adı gerekli"),
   businessSector: z.string().min(1, "Firma sektörü seçin"),
   managerName: z.string().min(2, "Yetkili adı soyadı gerekli"),
-  managerContact: z.string().min(10, "Yetkili iletişim gerekli"),
+  managerContact: z.string().optional(),
+  contactPreference: z.enum(["phone", "in_app"]),
   province: z.string().min(1, "İl seçin"),
   district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
   workingType: z.enum(["Full Time", "Part Time"]),
@@ -23,6 +24,16 @@ const businessSchema = z.object({
   acceptKVKK: z.literal(true, { errorMap: () => ({ message: "KVKK aydınlatma metnini kabul etmelisiniz" }) }),
   acceptCommercial: z.literal(true, { errorMap: () => ({ message: "Ticari ileti iznini onaylamalısınız" }) }),
   avatarFile: z.any().optional(),
+}).superRefine((val, ctx) => {
+  if (val.contactPreference === "phone") {
+    if (!val.managerContact || val.managerContact.trim().length < 10) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Yetkili iletişim gerekli",
+        path: ["managerContact"],
+      });
+    }
+  }
 });
 
 export interface BusinessFormProps {
@@ -56,6 +67,7 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
       dailyPackageEstimate: "15-25 PAKET",
       workingDays: ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"],
       businessSector: "",
+      contactPreference: "phone",
       acceptTerms: false,
       acceptPrivacy: false,
       acceptKVKK: false,
@@ -66,6 +78,7 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
   // Always use Istanbul districts
   const districts = ISTANBUL_DISTRICTS;
   const avatarDynamic = watch("avatarFile");
+  const contactPreference = watch("contactPreference");
   const [preview, setPreview] = useState<string | null>(null);
   
   useEffect(() => {
@@ -122,8 +135,16 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
           </div>
           <div>
             <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim *</label>
-            <input className="input-field text-sm" {...register("managerContact")} placeholder="05XXXXXXXXX" />
+            <input className="input-field text-sm" {...register("managerContact")} placeholder="05XXXXXXXXX" disabled={contactPreference === "in_app"} />
             {errors.managerContact && <p className="text-[10px] text-red-200 mt-1">{errors.managerContact.message}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">İletişim Tercihi *</label>
+            <select className="input-field text-sm" {...register("contactPreference")}>
+              <option value="phone">Telefon ile iletişim (arama/WhatsApp)</option>
+              <option value="in_app">Uygulama içi iletişim (yakında)</option>
+            </select>
+            <p className="text-[10px] text-white/70 mt-1">Telefon seçilirse arama/WhatsApp açıktır. Uygulama içi seçilirse telefonla arama yapılmaz.</p>
           </div>
         </div>
       </div>

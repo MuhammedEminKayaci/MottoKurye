@@ -2,7 +2,13 @@ import React from "react";
 import { supabaseServer } from "@/lib/supabaseServer";
 import Link from "next/link";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
-import { PublicHeader } from "@/app/_components/PublicHeader";
+
+const maskBusinessName = (name?: string | null) => {
+  const n = (name || "").trim();
+  if (!n || n.length < 2) return "İşletme";
+  const firstPart = n.substring(0, 1);
+  return `${firstPart}${"·".repeat(Math.min(n.length - 2, 3))} ${n[n.length - 1]}.`;
+};
 
 interface BusinessProfileProps {
   params: Promise<{ id: string }>;
@@ -32,6 +38,11 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
   console.log('Business profile page - received id:', id);
   const business = await getBusinessProfile(id);
 
+  // Check if current user owns this profile
+  const { data: { user } } = await supabaseServer.auth.getUser();
+  const currentUserId = user?.id || null;
+  const isOwnProfile = currentUserId === id;
+
   if (!business) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100 flex items-center justify-center px-4">
@@ -40,7 +51,7 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
           <p className="text-neutral-600 mb-6">Bu işletme profili bulunamadı veya silinmiş.</p>
           <Link
             href="/ilanlar"
-            className="inline-block px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-md hover:shadow-lg"
+            className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
           >
             İlanlara Dön
           </Link>
@@ -49,17 +60,16 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
     );
   }
 
-  const avatarUrl = business.avatar_url || '/images/icon-profile.png';
-  const businessName = business.business_name || 'İşletme';
+  const avatarUrl = business.avatar_url || '/images/icon-business.png';
+  const maskedName = maskBusinessName(business.business_name);
 
-  // Format working days
-  const formatWorkingDays = (days: any) => {
-    if (!days) return '-';
-    if (Array.isArray(days)) return days.join(' - ');
-    if (typeof days === 'string') return days.split(',').map(d => d.trim()).join(' - ');
-    return days;
+  // Format opening hours
+  const formatOpeningHours = (start: string | null, end: string | null) => {
+    if (!start || !end) return '-';
+    return `${start} - ${end}`;
   };
 
+  // Format district
   const formatDistrict = (district: any) => {
     if (!district) return '';
     if (Array.isArray(district)) return district.join(', ');
@@ -68,16 +78,16 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
 
   // Info cards data structure
   const infoCards = [
-    { label: 'Firma Adı', value: business.business_name, icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
-    { label: 'Sektör', value: business.business_sector, icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-    { label: 'Yetkili', value: business.manager_name, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
-    { label: 'İletişim', value: business.manager_contact, icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z' },
-    { label: 'Konum', value: business.province ? `${business.province} / ${formatDistrict(business.district)}` : formatDistrict(business.district) || '-', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
-    { label: 'Çalışma Tipi', value: business.working_type, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
-    { label: 'Kazanç Modeli', value: business.earning_model, icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
-    { label: 'Günlük Paket Tahmini', value: business.daily_package_estimate, icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
-    { label: 'Çalışma Günleri', value: formatWorkingDays(business.working_days), icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-  ].filter(card => card.value);
+    { label: 'İşletme Adı', value: maskedName, icon: 'M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4' },
+    { label: 'Yönetici Adı', value: business.manager_name, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+    { label: 'Yönetici Telefonu', value: business.manager_contact, icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z' },
+    { label: 'Hizmet Türü', value: business.service_type, icon: 'M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z' },
+    { label: 'Hizmet Saatleri', value: formatOpeningHours(business.service_hours_start, business.service_hours_end), icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+    { label: 'Pazar Günü', value: business.sunday_working === 'ACIK' ? 'Açık' : business.sunday_working === 'KAPALI' ? 'Kapalı' : '-', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+    { label: 'Şehir', value: business.province, icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
+    { label: 'Bölge', value: formatDistrict(business.district), icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.553-.894L9 7.5l5.447-2.724A1 1 0 0116 5.618v10.764a1 1 0 01-1.553.894L9 12.5l-5.447 2.724A1 1 0 013 16.382V5.618a1 1 0 011.553-.894L9 7.5' },
+    { label: 'Ek Bilgiler', value: business.additional_info || '-', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+  ].filter(card => card.value && card.value !== '-');
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100 pb-12">
@@ -93,7 +103,7 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
             </svg>
             Geri
           </Link>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#ff7a00]">İşletme Profili</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#0066ff]">İşletme Profili</h1>
         </div>
       </div>
 
@@ -105,31 +115,42 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
             <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex-shrink-0">
               <ProfileAvatar
                 src={avatarUrl}
-                alt={businessName}
+                alt={maskedName}
                 size={160}
                 borderColor="blue-100"
               />
               <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></div>
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-2">{businessName}</h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-2">{maskedName}</h2>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
+                    <path d="M13 7H7v6h6V7z"></path>
                   </svg>
                   İşletme
                 </span>
-                {business.business_sector && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
+                {business.service_type && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {business.business_sector}
+                    {business.service_type}
                   </span>
                 )}
               </div>
             </div>
+            {isOwnProfile && (
+              <Link
+                href="/profil/duzenle/isletme"
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Bilgileri Düzenle
+              </Link>
+            )}
           </div>
         </div>
 
@@ -159,13 +180,13 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
           ))}
         </div>
 
-        {/* Contact Section - only show if manager_contact exists */}
+        {/* Contact Section - only show if manager contact exists */}
         {business.manager_contact && (
           <div className="mt-8 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl border border-blue-200 p-6 sm:p-8">
             <h3 className="text-xl font-bold text-neutral-800 mb-4">İletişim</h3>
             <div className="flex flex-col sm:flex-row gap-3">
               <a
-                href={`https://wa.me/${business.manager_contact.replace(/\D/g, '')}?text=${encodeURIComponent(`Merhaba ${businessName}, ilanınız hakkında bilgi almak istiyorum.`)}`}
+                href={`https://wa.me/${business.manager_contact.replace(/\D/g, '')}?text=${encodeURIComponent(`Merhaba, işletmeniz hakkında bilgi almak istiyorum.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-2 py-3 px-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"

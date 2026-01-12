@@ -5,7 +5,8 @@ export interface CourierRegistration {
   age: number;
   gender: string;
   nationality: string;
-  phone: string;
+  phone?: string;
+  contactPreference: "phone" | "in_app";
   
   // İş Tecrübesi
   experience: string; // 0-1 | 1-3 | 3-5 | 5-10 | 10+
@@ -28,6 +29,8 @@ export interface CourierRegistration {
   // Belgeler
   p1Certificate: string; // VAR | YOK
   criminalRecord: string; // VAR | YOK
+  p1CertificateFile?: FileList;
+  criminalRecordFile?: FileList;
   
   // Onaylar
   acceptTerms: boolean;
@@ -47,7 +50,8 @@ export interface BusinessRegistration {
   businessName: string;
   businessSector: string;
   managerName: string;
-  managerContact: string;
+  managerContact?: string;
+  contactPreference: "phone" | "in_app";
   
   // Çalışma Koşulları
   province: string;

@@ -13,7 +13,8 @@ const courierSchema = z.object({
   age: z.number().int().min(18, "18 yaşından büyük olmalısınız").max(80, "Geçerli yaş girin"),
   gender: z.enum(["Erkek", "Kadın"]),
   nationality: z.string().min(1, "Uyruk seçin"),
-  phone: z.string().min(10, "Telefon gerekli"),
+  phone: z.string().optional(),
+  contactPreference: z.enum(["phone", "in_app"]),
   experience: z.enum(["0-1", "1-3", "3-5", "5-10", "10+"]),
   province: z.string().min(1, "İl seçin"),
   district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
@@ -28,11 +29,37 @@ const courierSchema = z.object({
   hasBag: z.enum(["VAR", "YOK"]),
   p1Certificate: z.enum(["VAR", "YOK"], { required_error: "P1 yetki belgesi durumu gerekli" }),
   criminalRecord: z.enum(["VAR", "YOK"], { required_error: "Sabıka kaydı durumu gerekli" }),
+  p1CertificateFile: z.any(),
+  criminalRecordFile: z.any(),
   acceptTerms: z.literal(true, { errorMap: () => ({ message: "Kullanım şartlarını kabul etmelisiniz" }) }),
   acceptPrivacy: z.literal(true, { errorMap: () => ({ message: "Gizlilik politikasını kabul etmelisiniz" }) }),
   acceptKVKK: z.literal(true, { errorMap: () => ({ message: "KVKK aydınlatma metnini kabul etmelisiniz" }) }),
   acceptCommercial: z.literal(true, { errorMap: () => ({ message: "Ticari ileti iznini onaylamalısınız" }) }),
   avatarFile: z.any().optional(),
+}).superRefine((val, ctx) => {
+  if (val.contactPreference === "phone") {
+    if (!val.phone || val.phone.trim().length < 10) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Telefon gerekli",
+        path: ["phone"],
+      });
+    }
+  }
+  const validateFile = (fileList: FileList | undefined | null, field: "p1CertificateFile" | "criminalRecordFile") => {
+    if (!fileList || (fileList as any).length === 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Belge yüklemek zorunlu", path: [field] });
+      return;
+    }
+    const file = (fileList as any)[0] as File;
+    const allowed = ["image/jpeg", "image/png", "application/pdf"];
+    if (!allowed.includes(file.type)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Sadece JPEG, PNG veya PDF yükleyin", path: [field] });
+    }
+  };
+
+  validateFile(val.p1CertificateFile as FileList, "p1CertificateFile");
+  validateFile(val.criminalRecordFile as FileList, "criminalRecordFile");
 });
 
 export interface CourierFormProps {
@@ -64,8 +91,11 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
       licenseType: "A",
       experience: "0-1",
       gender: "Erkek",
+      contactPreference: "phone",
       p1Certificate: "YOK",
       criminalRecord: "YOK",
+      p1CertificateFile: undefined,
+      criminalRecordFile: undefined,
       acceptTerms: false,
       acceptPrivacy: false,
       acceptKVKK: false,
@@ -74,9 +104,12 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
   });
 
   const hasMotorcycle = watch("hasMotorcycle");
+  const contactPreference = watch("contactPreference");
   // Always use Istanbul districts
   const districts = ISTANBUL_DISTRICTS;
   const avatarWatch = watch("avatarFile");
+  const p1FileWatch = watch("p1CertificateFile");
+  const criminalFileWatch = watch("criminalRecordFile");
   const [preview, setPreview] = useState<string | null>(null);
   
   useEffect(() => {
@@ -144,8 +177,16 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
           </div>
           <div>
             <label className="block text-xs font-medium text-white mb-1">Telefon *</label>
-            <input className="input-field text-sm" {...register("phone")} placeholder="05XXXXXXXXX" />
+            <input className="input-field text-sm" {...register("phone")} placeholder="05XXXXXXXXX" disabled={contactPreference === "in_app"} />
             {errors.phone && <p className="text-[10px] text-red-200 mt-1">{errors.phone.message}</p>}
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">İletişim Tercihi *</label>
+            <select className="input-field text-sm" {...register("contactPreference")}>
+              <option value="phone">Telefon ile iletişim (arama/WhatsApp)</option>
+              <option value="in_app">Uygulama içi iletişim (yakında)</option>
+            </select>
+            <p className="text-[10px] text-white/70 mt-1">Telefon seçilirse arama/WhatsApp açıktır. Uygulama içi seçilirse telefonla arama yapılmaz.</p>
           </div>
         </div>
       </div>
@@ -283,6 +324,9 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
               <option value="YOK">YOK</option>
             </select>
             {errors.p1Certificate && <p className="text-[10px] text-red-200 mt-1">{errors.p1Certificate.message as any}</p>}
+            <input type="file" accept=".jpg,.jpeg,.png,.pdf" className="input-field text-xs mt-2" {...register("p1CertificateFile")}/>
+            {errors.p1CertificateFile && <p className="text-[10px] text-red-200 mt-1">{errors.p1CertificateFile.message as any}</p>}
+            <p className="text-[10px] text-white/70 mt-1">JPEG, PNG veya PDF yüklenmelidir.</p>
           </div>
           <div>
             <label className="block text-xs font-medium text-white mb-1">Sabıka Kaydı *</label>
@@ -291,6 +335,9 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
               <option value="YOK">YOK</option>
             </select>
             {errors.criminalRecord && <p className="text-[10px] text-red-200 mt-1">{errors.criminalRecord.message as any}</p>}
+            <input type="file" accept=".jpg,.jpeg,.png,.pdf" className="input-field text-xs mt-2" {...register("criminalRecordFile")}/>
+            {errors.criminalRecordFile && <p className="text-[10px] text-red-200 mt-1">{errors.criminalRecordFile.message as any}</p>}
+            <p className="text-[10px] text-white/70 mt-1">JPEG, PNG veya PDF yüklenmelidir.</p>
           </div>
         </div>
       </div>

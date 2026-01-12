@@ -86,6 +86,34 @@ export default function KayitOlPage() {
     return [];
   };
 
+  const normalizePhone = (p?: string | null) => p ? p.replace(/\D/g, "") : null;
+
+  const assertPhoneUnique = async (phone: string) => {
+    const cleaned = normalizePhone(phone);
+    const candidates = Array.from(new Set([phone, cleaned].filter(Boolean))) as string[];
+    if (candidates.length === 0) return;
+
+    const { data: courierHit, error: courierErr } = await supabase
+      .from("couriers")
+      .select("id")
+      .in("phone", candidates)
+      .limit(1);
+    if (courierErr) throw courierErr;
+    if (courierHit && courierHit.length > 0) {
+      throw new Error("Bu telefon numarasıyla kayıt zaten var.");
+    }
+
+    const { data: businessHit, error: businessErr } = await supabase
+      .from("businesses")
+      .select("id")
+      .in("manager_contact", candidates)
+      .limit(1);
+    if (businessErr) throw businessErr;
+    if (businessHit && businessHit.length > 0) {
+      throw new Error("Bu telefon numarasıyla kayıt zaten var.");
+    }
+  };
+
   const handleAuthSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
@@ -147,15 +175,53 @@ export default function KayitOlPage() {
     setLoading(false);
   };
 
-  // Upload helper (avatar optional)
+  const MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5MB
+  const ALLOWED_MIME = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+  const DOCUMENT_MIME = ["image/jpeg", "image/png", "application/pdf"];
+
+  // Upload helper (avatar optional) with temel doğrulama
   const uploadAvatar = async (fileList?: FileList): Promise<string | null> => {
     try {
       if (!fileList || fileList.length === 0) return null;
       const file = fileList[0];
-      const path = `${sessionUserId}_${Date.now()}.${file.name.split(".").pop()}`;
+
+      if (!ALLOWED_MIME.includes(file.type)) {
+        setMessage("Sadece PNG, JPG veya WEBP yükleyin.");
+        return null;
+      }
+      if (file.size > MAX_AVATAR_SIZE) {
+        setMessage("Dosya boyutu 5MB'ı geçmemeli.");
+        return null;
+      }
+
+      const ext = file.name.includes(".") ? file.name.split(".").pop() : "bin";
+      const path = `${sessionUserId}_${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: false });
       if (error) return null;
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      return data.publicUrl || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const uploadDocument = async (fileList?: FileList, prefix: string = "doc"): Promise<string | null> => {
+    try {
+      if (!fileList || fileList.length === 0) return null;
+      const file = fileList[0];
+      if (!DOCUMENT_MIME.includes(file.type)) {
+        setMessage("Belge için sadece JPEG, PNG veya PDF yükleyin.");
+        return null;
+      }
+      if (file.size > MAX_AVATAR_SIZE) {
+        setMessage("Belge boyutu 5MB'ı geçmemeli.");
+        return null;
+      }
+      const ext = file.name.includes(".") ? file.name.split(".").pop() : "bin";
+      const path = `${prefix}_${sessionUserId}_${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("documents").upload(path, file, { upsert: false });
+      if (error) return null;
+      const { data } = supabase.storage.from("documents").getPublicUrl(path);
       return data.publicUrl || null;
     } catch {
       return null;
@@ -169,7 +235,12 @@ export default function KayitOlPage() {
     }
     setLoading(true); setMessage(null);
     try {
+      if (data.contactPreference === "phone" && data.phone) {
+        await assertPhoneUnique(data.phone);
+      }
       const avatarUrl = await uploadAvatar(data.avatarFile);
+      const p1Url = await uploadDocument(data.p1CertificateFile, "p1");
+      const criminalUrl = await uploadDocument(data.criminalRecordFile, "sabka");
       
       // Capture IP address for KVKK compliance
       let ipAddress = null;
@@ -189,7 +260,8 @@ export default function KayitOlPage() {
         age: data.age,
         gender: data.gender,
         nationality: data.nationality,
-        phone: data.phone,
+        phone: data.contactPreference === "phone" ? data.phone : null,
+        contact_preference: data.contactPreference,
         experience: data.experience,
         province: data.province,
         district: ensureStringArray(data.district),
@@ -204,6 +276,8 @@ export default function KayitOlPage() {
         has_bag: data.hasBag,
         p1_certificate: data.p1Certificate,
         criminal_record: data.criminalRecord,
+        p1_certificate_file_url: p1Url,
+        criminal_record_file_url: criminalUrl,
         accept_terms: data.acceptTerms,
         accept_privacy: data.acceptPrivacy,
         accept_kvkk: data.acceptKVKK,
@@ -222,6 +296,9 @@ export default function KayitOlPage() {
     if (!sessionUserId) { setMessage("Önce kimlik doğrulama yapılmalı."); return; }
     setLoading(true); setMessage(null);
     try {
+      if (data.contactPreference === "phone" && data.managerContact) {
+        await assertPhoneUnique(data.managerContact);
+      }
       const avatarUrl = await uploadAvatar(data.avatarFile);
       
       // Capture IP address for KVKK compliance
@@ -240,7 +317,8 @@ export default function KayitOlPage() {
         business_name: data.businessName,
         business_sector: data.businessSector,
         manager_name: data.managerName,
-        manager_contact: data.managerContact,
+        manager_contact: data.contactPreference === "phone" ? data.managerContact : null,
+        contact_preference: data.contactPreference,
         province: data.province,
         district: ensureStringArray(data.district),
         working_type: data.workingType,

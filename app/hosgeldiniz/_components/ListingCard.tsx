@@ -11,6 +11,7 @@ interface ListingCardProps {
   imageUrl?: string | null;
   fallbackImageUrl?: string | null; // fallback image (e.g. company avatar)
   phone?: string | null; // for WhatsApp & call actions
+  contactPreference?: "phone" | "in_app";
   showActions?: boolean; // show action buttons
   isGuest?: boolean; // guest mode - redirect to signup on any interaction
   onGuestClick?: () => void; // callback for guest interactions
@@ -19,10 +20,32 @@ interface ListingCardProps {
 }
 
 // Modern listing card with avatar + chips + action buttons
-export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, fallbackImageUrl, phone, showActions, isGuest, onGuestClick, userId, userRole }: ListingCardProps) {
+export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, fallbackImageUrl, phone, contactPreference = "phone", showActions, isGuest, onGuestClick, userId, userRole }: ListingCardProps) {
   const chips = (metaParts && metaParts.length ? metaParts : (meta ? meta.split(" • ") : [])).filter(Boolean);
   const finalImageUrl = imageUrl || fallbackImageUrl;
   const showImage = !!finalImageUrl;
+
+  const isWithinContactHours = () => {
+    const hour = new Date().getHours();
+    return hour >= 8 && hour < 21;
+  };
+
+  const guardAfterHours = () => {
+    if (!isWithinContactHours()) {
+      alert("İletişim 08:00-20:00 arasında mümkündür. 21:00 sonrası arama ve mesaj gönderimi kapalıdır.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleInAppChat = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isGuest && onGuestClick) {
+      onGuestClick();
+      return;
+    }
+    alert("Uygulama içi sohbet yakında eklenecek.");
+  };
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -30,6 +53,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       onGuestClick();
       return;
     }
+    if (!guardAfterHours()) return;
     if (!phone) return;
     const cleaned = phone.replace(/\D/g, '');
     const msg = encodeURIComponent(`Merhaba ${title}, kurye ilanınız hakkında bilgi almak istiyorum.`);
@@ -42,6 +66,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       onGuestClick();
       return;
     }
+    if (!guardAfterHours()) return;
     if (!phone) return;
     window.location.href = `tel:${phone}`;
   };
@@ -114,6 +139,16 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
             <div className="flex-1 text-center py-2.5 px-4 bg-gradient-to-r from-orange-100 to-orange-50 text-orange-700 text-sm font-semibold rounded-xl border border-orange-200">
               İletişim için kayıt olun
             </div>
+          ) : contactPreference === "in_app" ? (
+            <button
+              onClick={handleInAppChat}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-r from-neutral-200 to-neutral-100 text-neutral-700 text-sm font-semibold rounded-xl border border-neutral-200 shadow-sm hover:shadow-md transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 10h8M8 14h5m-9 5l2.5-2.5H18a2 2 0 002-2V7a2 2 0 00-2-2H6a2 2 0 00-2 2v7a2 2 0 002 2h.5" />
+              </svg>
+              Sohbet (yakında)
+            </button>
           ) : phone ? (
             <>
               <button
