@@ -27,15 +27,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
 
   const isWithinContactHours = () => {
     const hour = new Date().getHours();
-    return hour >= 8 && hour < 21;
-  };
-
-  const guardAfterHours = () => {
-    if (!isWithinContactHours()) {
-      alert("İletişim 08:00-20:00 arasında mümkündür. 21:00 sonrası arama ve mesaj gönderimi kapalıdır.");
-      return false;
-    }
-    return true;
+    return hour >= 8 && hour < 20;
   };
 
   const handleInAppChat = (e: React.MouseEvent) => {
@@ -44,8 +36,14 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       onGuestClick();
       return;
     }
+    if (!canContact) {
+      alert("İletişim 08:00-20:00 arasında mümkündür. 20:00 sonrası mesaj gönderimi kapalıdır.");
+      return;
+    }
     alert("Uygulama içi sohbet yakında eklenecek.");
   };
+
+  const canContact = isWithinContactHours();
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -53,7 +51,10 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       onGuestClick();
       return;
     }
-    if (!guardAfterHours()) return;
+    if (!canContact) {
+      alert("İletişim 08:00-20:00 arasında mümkündür. 20:00 sonrası arama ve mesaj gönderimi kapalıdır.");
+      return;
+    }
     if (!phone) return;
     const cleaned = phone.replace(/\D/g, '');
     const msg = encodeURIComponent(`Merhaba ${title}, kurye ilanınız hakkında bilgi almak istiyorum.`);
@@ -66,7 +67,10 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       onGuestClick();
       return;
     }
-    if (!guardAfterHours()) return;
+    if (!canContact) {
+      alert("İletişim 08:00-20:00 arasında mümkündür. 20:00 sonrası arama ve mesaj gönderimi kapalıdır.");
+      return;
+    }
     if (!phone) return;
     window.location.href = `tel:${phone}`;
   };

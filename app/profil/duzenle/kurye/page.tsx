@@ -26,6 +26,7 @@ interface CourierData {
   moto_cc: string | null;
   has_bag: string;
   contact_preference: 'phone' | 'in_app';
+  avatar_url?: string | null;
 }
 
 export default function KuryeDuzenlePage() {
@@ -35,6 +36,17 @@ export default function KuryeDuzenlePage() {
   const [error, setError] = useState<string | null>(null);
   const [courier, setCourier] = useState<CourierData | null>(null);
   const [formData, setFormData] = useState<Partial<CourierData>>({});
+
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+
+  const avatarOptions = [
+    "/images/avatars/kurye/avatar1.svg",
+    "/images/avatars/kurye/avatar2.svg",
+    "/images/avatars/kurye/avatar3.svg",
+    "/images/avatars/kurye/avatar4.svg",
+  ];
 
   useEffect(() => {
     const loadCourierData = async () => {
@@ -59,6 +71,7 @@ export default function KuryeDuzenlePage() {
 
         setCourier(data);
         setFormData(data);
+        setAvatarPreview(data.avatar_url);
       } catch (err) {
         console.error('Error loading courier data:', err);
         setError('Veriler yüklenirken hata oluştu');
@@ -69,6 +82,15 @@ export default function KuryeDuzenlePage() {
 
     loadCourierData();
   }, []);
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+      setSelectedAvatar(null);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -113,12 +135,27 @@ export default function KuryeDuzenlePage() {
 
       if (!user) throw new Error('Oturum açmanız gerekiyor');
 
+      let finalAvatarUrl = formData.avatar_url;
+      
+      if (avatarFile) {
+        const ext = avatarFile.name.split('.').pop() || 'png';
+        const fileName = `${user.id}_${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, avatarFile);
+        if (!uploadError) {
+           const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+           finalAvatarUrl = publicUrl;
+        }
+      } else if (selectedAvatar) {
+        finalAvatarUrl = selectedAvatar;
+      }
+
       const updateData: any = {
         first_name: formData.first_name,
         last_name: formData.last_name,
         age: formData.age,
         gender: formData.gender,
         nationality: formData.nationality,
+        avatar_url: finalAvatarUrl,
         phone: formData.contact_preference === 'phone' ? formData.phone : null,
         experience: formData.experience,
         province: formData.province,
@@ -215,6 +252,56 @@ export default function KuryeDuzenlePage() {
         )}
 
         <form className="space-y-6">
+          {/* Avatar Section */}
+          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
+             <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
+                <svg className="w-6 h-6 text-[#ff7a00]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                Profil Fotoğrafı
+             </h2>
+             
+             <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="w-32 h-32 rounded-full overflow-hidden bg-neutral-100 border-4 border-white shadow-lg shrink-0">
+                    {avatarPreview ? (
+                        <img src={avatarPreview} alt="Profil" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl">👤</div>
+                    )}
+                </div>
+                
+                <div className="flex-1 space-y-4 w-full">
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">Fotoğraf Yükle</label>
+                        <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={handleAvatarFileChange}
+                            className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00]"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">Veya Avatar Seç</label>
+                        <div className="flex gap-4 overflow-x-auto py-2">
+                            {avatarOptions.map((opt, idx) => (
+                                <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => {
+                                        setAvatarFile(null);
+                                        setSelectedAvatar(opt);
+                                        setAvatarPreview(opt);
+                                    }}
+                                    className={`w-12 h-12 rounded-full border-2 overflow-hidden shrink-0 transition-transform hover:scale-110 ${selectedAvatar === opt || (!avatarFile && avatarPreview === opt) ? 'border-[#ff7a00] ring-2 ring-[#ff7a00]/30' : 'border-neutral-200'}`}
+                                >
+                                    <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+             </div>
+          </div>
+
           {/* Temel Bilgiler */}
           <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
             <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">

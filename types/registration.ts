@@ -43,6 +43,7 @@ export interface CourierRegistration {
   consentIpAddress?: string;
   
   avatarFile?: FileList;
+  selectedAvatar?: string;
 }
 
 export interface BusinessRegistration {
@@ -72,6 +73,7 @@ export interface BusinessRegistration {
   consentIpAddress?: string;
 
   avatarFile?: FileList;
+  selectedAvatar?: string;
 }
 
 export type RoleType = "kurye" | "isletme";

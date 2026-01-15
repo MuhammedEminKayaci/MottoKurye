@@ -88,7 +88,7 @@ export default function ProfilPage() {
     );
   }
 
-  const avatarUrl = profile?.avatar_url && profile.avatar_url.startsWith('http') ? profile.avatar_url : '/images/icon-profile.png';
+  const avatarUrl = profile?.avatar_url && (profile.avatar_url.startsWith('http') || profile.avatar_url.startsWith('/')) ? profile.avatar_url : '/images/icon-profile.png';
   const coverUrl = profile?.cover_photo_url && profile.cover_photo_url.startsWith('http') ? profile.cover_photo_url : null;
   const displayName = role === 'kurye' 
     ? maskCourierName(profile.first_name, profile.last_name)

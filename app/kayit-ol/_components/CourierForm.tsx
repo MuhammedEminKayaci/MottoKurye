@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import Image from "next/image"; // Add this
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { CourierRegistration } from "../../../types/registration";
@@ -36,6 +37,7 @@ const courierSchema = z.object({
   acceptKVKK: z.literal(true, { errorMap: () => ({ message: "KVKK aydınlatma metnini kabul etmelisiniz" }) }),
   acceptCommercial: z.literal(true, { errorMap: () => ({ message: "Ticari ileti iznini onaylamalısınız" }) }),
   avatarFile: z.any().optional(),
+  selectedAvatar: z.string().optional(),
 }).superRefine((val, ctx) => {
   if (val.contactPreference === "phone") {
     if (!val.phone || val.phone.trim().length < 10) {
@@ -74,6 +76,7 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
     register,
     control,
     handleSubmit,
+    setValue, // Add setValue
     watch,
     formState: { errors },
   } = useForm<CourierRegistration>({
@@ -107,35 +110,78 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
   const contactPreference = watch("contactPreference");
   // Always use Istanbul districts
   const districts = ISTANBUL_DISTRICTS;
+  
   const avatarWatch = watch("avatarFile");
+  const selectedAvatar = watch("selectedAvatar");
+
   const p1FileWatch = watch("p1CertificateFile");
   const criminalFileWatch = watch("criminalRecordFile");
   const [preview, setPreview] = useState<string | null>(null);
+
+  const avatarOptions = [
+    "/images/avatars/kurye/avatar1.svg",
+    "/images/avatars/kurye/avatar2.svg",
+    "/images/avatars/kurye/avatar3.svg",
+    "/images/avatars/kurye/avatar4.svg",
+  ];
   
   useEffect(() => {
     if (avatarWatch && avatarWatch.length > 0) {
       const url = URL.createObjectURL(avatarWatch[0]);
       setPreview(url);
+      setValue("selectedAvatar", undefined); // Clear predefined avatar if file selected
       return () => URL.revokeObjectURL(url);
+    } else if (selectedAvatar) {
+      setPreview(selectedAvatar);
     } else {
       setPreview(null);
     }
-  }, [avatarWatch]);
+  }, [avatarWatch, selectedAvatar, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Profil Fotoğrafı */}
-      <div className="flex items-center gap-4">
-        <div className="w-20 h-20 rounded-full overflow-hidden bg-white/40 flex items-center justify-center border">
-          {preview ? (
-            <img src={preview} alt="Önizleme" className="object-cover w-full h-full" />
-          ) : (
-            <span className="text-3xl">👤</span>
-          )}
-        </div>
-        <div className="flex-1">
-          <label className="block text-xs font-medium text-white mb-1">Profil Fotoğrafı (Opsiyonel)</label>
-          <input type="file" accept="image/*" className="input-field text-xs" {...register("avatarFile")}/>
+      <div className="flex flex-col gap-4">
+        <label className="block text-xs font-medium text-white">Profil Fotoğrafı veya Avatar Seçin</label>
+        
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-white/10 flex items-center justify-center border-2 border-white/20 shrink-0">
+            {preview ? (
+              <img src={preview} alt="Önizleme" className="object-cover w-full h-full" />
+            ) : (
+              <span className="text-4xl cursor-default">👤</span>
+            )}
+          </div>
+          
+          <div className="flex-1 space-y-3">
+             {/* File Upload */}
+             <div>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="input-field text-xs block w-full text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00] cursor-pointer"
+                  {...register("avatarFile")}
+                />
+                <p className="text-[10px] text-white/50 mt-1">Kendi fotoğrafınızı yükleyin veya bir avatar seçin.</p>
+             </div>
+
+             {/* Avatars Grid */}
+             <div className="flex gap-3">
+                {avatarOptions.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                        setValue("avatarFile", undefined); 
+                        setValue("selectedAvatar", opt);
+                    }}
+                    className={`w-12 h-12 rounded-full border-2 overflow-hidden transition-transform hover:scale-110 ${selectedAvatar === opt && (!avatarWatch || avatarWatch.length === 0) ? 'border-[#ff7a00] ring-2 ring-[#ff7a00]/50' : 'border-transparent'}`}
+                  >
+                    <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+             </div>
+          </div>
         </div>
       </div>
 

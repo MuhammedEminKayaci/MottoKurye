@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import Image from "next/image";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { BusinessRegistration } from "../../../types/registration";
@@ -23,6 +24,7 @@ const businessSchema = z.object({
   acceptPrivacy: z.literal(true, { errorMap: () => ({ message: "Gizlilik politikasını kabul etmelisiniz" }) }),
   acceptKVKK: z.literal(true, { errorMap: () => ({ message: "KVKK aydınlatma metnini kabul etmelisiniz" }) }),
   acceptCommercial: z.literal(true, { errorMap: () => ({ message: "Ticari ileti iznini onaylamalısınız" }) }),
+  selectedAvatar: z.string().optional(),
   avatarFile: z.any().optional(),
 }).superRefine((val, ctx) => {
   if (val.contactPreference === "phone") {
@@ -78,34 +80,75 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
   // Always use Istanbul districts
   const districts = ISTANBUL_DISTRICTS;
   const avatarDynamic = watch("avatarFile");
+  const selectedAvatar = watch("selectedAvatar");
   const contactPreference = watch("contactPreference");
   const [preview, setPreview] = useState<string | null>(null);
+
+  const avatarOptions = [
+    "/images/avatars/isletme/avatar1.svg",
+    "/images/avatars/isletme/avatar2.svg",
+    "/images/avatars/isletme/avatar3.svg",
+    "/images/avatars/isletme/avatar4.svg",
+  ];
   
   useEffect(() => {
     const list: FileList | undefined = avatarDynamic as any;
     if (list && list.length > 0) {
       const url = URL.createObjectURL(list[0]);
       setPreview(url);
+      setValue("selectedAvatar", undefined);
       return () => URL.revokeObjectURL(url);
+    } else if (selectedAvatar) {
+      setPreview(selectedAvatar);
     } else {
       setPreview(null);
     }
-  }, [avatarDynamic]);
+  }, [avatarDynamic, selectedAvatar, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Profil Fotoğrafı */}
-      <div className="flex items-center gap-4">
-        <div className="w-20 h-20 rounded-full overflow-hidden bg-white/40 flex items-center justify-center border">
-          {preview ? (
-            <img src={preview} alt="Önizleme" className="object-cover w-full h-full" />
-          ) : (
-            <span className="text-3xl">🏢</span>
-          )}
-        </div>
-        <div className="flex-1">
-          <label className="block text-xs font-medium text-white mb-1">Firma Logosu (Opsiyonel)</label>
-          <input type="file" accept="image/*" className="input-field text-xs" {...register("avatarFile")}/>
+      <div className="flex flex-col gap-4">
+        <label className="block text-xs font-medium text-white">Firma Logosu veya Avatar Seçin</label>
+        
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-white/10 flex items-center justify-center border-2 border-white/20 shrink-0">
+            {preview ? (
+              <img src={preview} alt="Önizleme" className="object-cover w-full h-full" />
+            ) : (
+              <span className="text-4xl cursor-default">🏢</span>
+            )}
+          </div>
+          
+          <div className="flex-1 space-y-3">
+             {/* File Upload */}
+             <div>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="input-field text-xs block w-full text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00] cursor-pointer"
+                  {...register("avatarFile")}
+                />
+                <p className="text-[10px] text-white/50 mt-1">Firma logosu yükleyin veya bir avatar seçin.</p>
+             </div>
+
+             {/* Avatars Grid */}
+             <div className="flex gap-3">
+                {avatarOptions.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                        setValue("avatarFile", undefined); 
+                        setValue("selectedAvatar", opt);
+                    }}
+                    className={`w-12 h-12 rounded-full border-2 overflow-hidden transition-transform hover:scale-110 ${selectedAvatar === opt && (!avatarDynamic || avatarDynamic.length === 0) ? 'border-[#ff7a00] ring-2 ring-[#ff7a00]/50' : 'border-transparent'}`}
+                  >
+                    <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+             </div>
+          </div>
         </div>
       </div>
 

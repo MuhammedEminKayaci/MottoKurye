@@ -238,7 +238,18 @@ export default function KayitOlPage() {
       if (data.contactPreference === "phone" && data.phone) {
         await assertPhoneUnique(data.phone);
       }
-      const avatarUrl = await uploadAvatar(data.avatarFile);
+      
+      let finalAvatarUrl = await uploadAvatar(data.avatarFile);
+      if (!finalAvatarUrl) {
+        if (data.selectedAvatar) {
+          finalAvatarUrl = data.selectedAvatar;
+        } else {
+          // Default assigned avatar
+          const randomNum = Math.floor(Math.random() * 4) + 1;
+          finalAvatarUrl = `/images/avatars/kurye/avatar${randomNum}.svg`;
+        }
+      }
+
       const p1Url = await uploadDocument(data.p1CertificateFile, "p1");
       const criminalUrl = await uploadDocument(data.criminalRecordFile, "sabka");
       
@@ -282,7 +293,7 @@ export default function KayitOlPage() {
         accept_privacy: data.acceptPrivacy,
         accept_kvkk: data.acceptKVKK,
         accept_commercial: data.acceptCommercial,
-        avatar_url: avatarUrl,
+        avatar_url: finalAvatarUrl,
       };
       const { error } = await supabase.from("couriers").insert(insert);
       if (error) throw error;
@@ -299,7 +310,15 @@ export default function KayitOlPage() {
       if (data.contactPreference === "phone" && data.managerContact) {
         await assertPhoneUnique(data.managerContact);
       }
-      const avatarUrl = await uploadAvatar(data.avatarFile);
+      let finalAvatarUrl = await uploadAvatar(data.avatarFile);
+      if (!finalAvatarUrl) {
+          if (data.selectedAvatar) {
+            finalAvatarUrl = data.selectedAvatar;
+          } else {
+            const randomNum = Math.floor(Math.random() * 4) + 1;
+            finalAvatarUrl = `/images/avatars/isletme/avatar${randomNum}.svg`;
+          }
+      }
       
       // Capture IP address for KVKK compliance
       let ipAddress = null;
@@ -329,7 +348,7 @@ export default function KayitOlPage() {
         accept_privacy: data.acceptPrivacy,
         accept_kvkk: data.acceptKVKK,
         accept_commercial: data.acceptCommercial,
-        avatar_url: avatarUrl,
+        avatar_url: finalAvatarUrl,
       };
       const { error } = await supabase.from("businesses").insert(insert);
       if (error) throw error;

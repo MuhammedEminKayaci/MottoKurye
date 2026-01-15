@@ -20,6 +20,7 @@ interface BusinessData {
   district: string[];
   additional_info: string | null;
   contact_preference: 'phone' | 'in_app';
+  avatar_url?: string | null;
 }
 
 const SERVICE_TYPES = [
@@ -39,6 +40,17 @@ export default function IsletmeDuzenlePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [business, setBusiness] = useState<BusinessData | null>(null);
+  
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+
+  const avatarOptions = [
+    "/images/avatars/isletme/avatar1.svg",
+    "/images/avatars/isletme/avatar2.svg",
+    "/images/avatars/isletme/avatar3.svg",
+    "/images/avatars/isletme/avatar4.svg",
+  ];
   const [formData, setFormData] = useState<Partial<BusinessData>>({});
 
   useEffect(() => {
@@ -64,6 +76,7 @@ export default function IsletmeDuzenlePage() {
 
         setBusiness(data);
         setFormData(data);
+        setAvatarPreview(data.avatar_url);
       } catch (err) {
         console.error('Error loading business data:', err);
         setError('Veriler yüklenirken hata oluştu');
@@ -74,6 +87,14 @@ export default function IsletmeDuzenlePage() {
 
     loadBusinessData();
   }, []);
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+      setSelectedAvatar(null);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -119,6 +140,20 @@ export default function IsletmeDuzenlePage() {
 
       if (!user) throw new Error('Oturum açmanız gerekiyor');
 
+      let finalAvatarUrl = formData.avatar_url;
+      
+      if (avatarFile) {
+        const ext = avatarFile.name.split('.').pop() || 'png';
+        const fileName = `${user.id}_${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, avatarFile);
+        if (!uploadError) {
+           const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+           finalAvatarUrl = publicUrl;
+        }
+      } else if (selectedAvatar) {
+        finalAvatarUrl = selectedAvatar;
+      }
+
       const updateData: any = {
         business_name: formData.business_name,
         manager_name: formData.manager_name,
@@ -131,6 +166,7 @@ export default function IsletmeDuzenlePage() {
         district: formData.district,
         additional_info: formData.additional_info,
         contact_preference: formData.contact_preference,
+        avatar_url: finalAvatarUrl,
       };
 
       const { error: updateError } = await supabase
@@ -211,6 +247,56 @@ export default function IsletmeDuzenlePage() {
         )}
 
         <form className="space-y-6">
+          {/* Avatar Section */}
+          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
+             <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
+                <svg className="w-6 h-6 text-[#ff7a00]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                Profil Fotoğrafı
+             </h2>
+             
+             <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="w-32 h-32 rounded-full overflow-hidden bg-neutral-100 border-4 border-white shadow-lg shrink-0">
+                    {avatarPreview ? (
+                        <img src={avatarPreview} alt="Profil" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl">🏢</div>
+                    )}
+                </div>
+                
+                <div className="flex-1 space-y-4 w-full">
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">Logo Yükle</label>
+                        <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={handleAvatarFileChange}
+                            className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00]"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">Veya Avatar Seç</label>
+                        <div className="flex gap-4 overflow-x-auto py-2">
+                            {avatarOptions.map((opt, idx) => (
+                                <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => {
+                                        setAvatarFile(null);
+                                        setSelectedAvatar(opt);
+                                        setAvatarPreview(opt);
+                                    }}
+                                    className={`w-12 h-12 rounded-full border-2 overflow-hidden shrink-0 transition-transform hover:scale-110 ${selectedAvatar === opt || (!avatarFile && avatarPreview === opt) ? 'border-[#ff7a00] ring-2 ring-[#ff7a00]/30' : 'border-neutral-200'}`}
+                                >
+                                    <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+             </div>
+          </div>
+
           {/* İşletme Bilgileri */}
           <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
             <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
