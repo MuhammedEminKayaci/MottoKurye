@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ContactButtons } from "@/app/_components/ContactButtons";
 import { EditProfileButton } from "@/app/_components/EditProfileButton";
+import { StartChatButton } from "@/app/mesajlar/_components/StartChatButton";
 
 const maskCourierName = (first?: string | null, last?: string | null) => {
   const f = (first || "").trim();
@@ -148,8 +149,11 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
                   </span>
                 )}
               </div>
+              <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-4">
+                 <StartChatButton targetId={id} targetRole="kurye" targetUserId={courier.user_id} />
+                 <EditProfileButton targetUserId={courier.user_id} role="kurye" />
+              </div>
             </div>
-            <EditProfileButton targetUserId={id} role="kurye" />
           </div>
         </div>
 

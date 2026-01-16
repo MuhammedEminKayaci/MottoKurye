@@ -37,11 +37,13 @@ export function RoleHeader({ accent = "#ff7a00" }: RoleHeaderProps) {
   const courierNav = [
     { label: "Profilim", href: "/profil" },
     { label: "İlanlar", href: "/ilanlar" }, // işletme ilanları
+    { label: "Mesajlar", href: "/mesajlar" },
   ];
   const businessNav = [
     { label: "Profilim", href: "/profil" },
     { label: "İlanlar", href: "/ilanlar" }, // kuryeler listesi
     { label: "İlanlarım", href: "/ilanlarim" }, // business ilanları
+    { label: "Mesajlar", href: "/mesajlar" },
   ];
   const guestNav = [
     { label: "Ana Sayfa", href: "/" },

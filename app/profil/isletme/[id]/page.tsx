@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ContactButtons } from "@/app/_components/ContactButtons";
 import { EditProfileButton } from "@/app/_components/EditProfileButton";
+import { StartChatButton } from "@/app/mesajlar/_components/StartChatButton";
 
 const maskBusinessName = (name?: string | null) => {
   const n = (name || "").trim();
@@ -137,8 +138,11 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
                   </span>
                 )}
               </div>
+              <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-4">
+                 <StartChatButton targetId={id} targetRole="isletme" targetUserId={business.user_id} />
+                 <EditProfileButton targetUserId={business.user_id} role="isletme" />
+              </div>
             </div>
-            <EditProfileButton targetUserId={id} role="isletme" />
           </div>
         </div>
 

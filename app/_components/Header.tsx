@@ -26,6 +26,7 @@ export function Header() {
   const navItems = [
     { label: "Ana Sayfa", href: "/" },
     { label: "Profil", href: "/profil" },
+    { label: "Mesajlar", href: "/mesajlar" },
     { label: "İlanlar", href: "/ilanlar" },
     { label: "İlanlarım", href: "/ilanlarim" },
   ];
