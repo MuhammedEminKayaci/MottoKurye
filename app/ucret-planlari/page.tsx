@@ -2,15 +2,72 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { PublicHeader } from "../_components/PublicHeader";
 import { Footer } from "../_components/Footer";
+import { supabase } from "@/lib/supabase";
+import { PlanType, PLAN_LIMITS, isUnlimited } from "@/lib/planLimits";
 
 export default function UcretPlanlariPage() {
+  const [currentPlan, setCurrentPlan] = useState<PlanType | null>(null);
+  const [businessId, setBusinessId] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: auth } = await supabase.auth.getSession();
+      const uid = auth.session?.user?.id;
+      if (!uid) return;
+
+      setIsLoggedIn(true);
+      
+      const { data: business } = await supabase
+        .from("businesses")
+        .select("id, plan")
+        .eq("user_id", uid)
+        .single();
+
+      if (business) {
+        setCurrentPlan((business.plan || 'free') as PlanType);
+        setBusinessId(business.id);
+      }
+    };
+
+    checkUser();
+  }, []);
+
+  const handleUpgrade = async (newPlan: PlanType) => {
+    if (!businessId || newPlan === currentPlan) return;
+
+    setUpgrading(true);
+    try {
+      const { error } = await supabase
+        .from('businesses')
+        .update({
+          plan: newPlan,
+          plan_updated_at: new Date().toISOString(),
+          messages_sent_today: 0,
+          approvals_today: 0
+        })
+        .eq('id', businessId);
+
+      if (error) throw error;
+
+      setCurrentPlan(newPlan);
+      alert(`Planınız ${PLAN_LIMITS[newPlan].displayName} olarak güncellendi!`);
+    } catch (error) {
+      console.error('Plan upgrade error:', error);
+      alert('Plan güncellenirken bir hata oluştu.');
+    } finally {
+      setUpgrading(false);
+    }
+  };
   const plans = [
     {
       id: 1,
       name: "1. PAKET",
+      planKey: "free" as PlanType,
       price: "Ücretsiz",
       priceColor: "text-[#ff7a00]",
       features: [
@@ -26,6 +83,7 @@ export default function UcretPlanlariPage() {
     {
       id: 2,
       name: "2. PAKET",
+      planKey: "standard" as PlanType,
       price: "200 TL",
       priceColor: "text-[#ff7a00]",
       features: [
@@ -41,6 +99,7 @@ export default function UcretPlanlariPage() {
     {
       id: 3,
       name: "3. PAKET",
+      planKey: "premium" as PlanType,
       price: "275 TL",
       priceColor: "text-[#ff7a00]",
       features: [
@@ -77,16 +136,25 @@ export default function UcretPlanlariPage() {
               <div
                 key={plan.id}
                 className={`relative bg-white rounded-2xl shadow-xl border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 flex flex-col ${
-                  plan.popular
-                    ? 'border-[#ff7a00] ring-4 ring-[#ff7a00]/20'
-                    : 'border-neutral-200 hover:border-[#ff7a00]'
+                  currentPlan === plan.planKey
+                    ? 'border-green-400 ring-4 ring-green-100'
+                    : plan.popular
+                      ? 'border-[#ff7a00] ring-4 ring-[#ff7a00]/20'
+                      : 'border-neutral-200 hover:border-[#ff7a00]'
                 }`}
               >
-                {/* Popular Badge */}
-                {plan.popular && (
+                {/* Popular Badge or Current Plan Badge */}
+                {plan.popular && currentPlan !== plan.planKey && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span className="bg-[#ff7a00] text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
                       En Popüler
+                    </span>
+                  </div>
+                )}
+                {currentPlan === plan.planKey && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <span className="bg-green-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                      Mevcut Planınız
                     </span>
                   </div>
                 )}
@@ -132,12 +200,26 @@ export default function UcretPlanlariPage() {
                   </ul>
 
                   {/* CTA Button */}
-                  <Link
-                    href="/kayit-ol"
-                    className={`block w-full py-3 md:py-4 px-6 rounded-full font-bold text-center transition-all duration-300 text-sm md:text-base ${plan.buttonStyle}`}
-                  >
-                    {plan.buttonText}
-                  </Link>
+                  {isLoggedIn && businessId ? (
+                    <button
+                      onClick={() => handleUpgrade(plan.planKey)}
+                      disabled={currentPlan === plan.planKey || upgrading}
+                      className={`block w-full py-3 md:py-4 px-6 rounded-full font-bold text-center transition-all duration-300 text-sm md:text-base ${
+                        currentPlan === plan.planKey
+                          ? 'bg-green-100 text-green-700 border-2 border-green-300 cursor-default'
+                          : plan.buttonStyle
+                      }`}
+                    >
+                      {upgrading ? 'Güncelleniyor...' : currentPlan === plan.planKey ? '✓ Mevcut Planınız' : plan.buttonText}
+                    </button>
+                  ) : (
+                    <Link
+                      href="/kayit-ol"
+                      className={`block w-full py-3 md:py-4 px-6 rounded-full font-bold text-center transition-all duration-300 text-sm md:text-base ${plan.buttonStyle}`}
+                    >
+                      {plan.buttonText}
+                    </Link>
+                  )}
                 </div>
               </div>
             ))}

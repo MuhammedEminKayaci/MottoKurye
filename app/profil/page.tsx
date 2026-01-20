@@ -1,7 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Header } from "../_components/Header";
+import { PlanStatusCard } from "../_components/PlanStatusCard";
 import { supabase } from "../../lib/supabase";
+import { PlanType, PLAN_LIMITS } from "@/lib/planLimits";
 
 const maskCourierName = (first?: string | null, last?: string | null) => {
   const f = (first || "").trim();
@@ -21,7 +23,32 @@ export default function ProfilPage() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<string|null>(null);
+  const [planStatus, setPlanStatus] = useState<{
+    plan: PlanType;
+    messagesLeft: number;
+    dailyMessageLimit: number;
+    approvalsLeft: number;
+    dailyApprovalLimit: number;
+  } | null>(null);
   const fileInputId = "avatar-upload-input";
+
+  const fetchPlanStatus = async (businessId: string, businessPlan: PlanType, messagesSent: number, approvalsSent: number, lastReset: string | null) => {
+    const planLimits = PLAN_LIMITS[businessPlan] || PLAN_LIMITS.free;
+    const today = new Date().toISOString().split('T')[0];
+    const lastResetDate = lastReset ? lastReset.split('T')[0] : null;
+    
+    // Günlük sıfırlama kontrolü
+    const actualMessagesSent = lastResetDate === today ? messagesSent : 0;
+    const actualApprovalsSent = lastResetDate === today ? approvalsSent : 0;
+    
+    setPlanStatus({
+      plan: businessPlan,
+      messagesLeft: planLimits.dailyMessageLimit - actualMessagesSent,
+      dailyMessageLimit: planLimits.dailyMessageLimit,
+      approvalsLeft: planLimits.dailyApprovalLimit - actualApprovalsSent,
+      dailyApprovalLimit: planLimits.dailyApprovalLimit
+    });
+  };
 
   useEffect(() => {
     const run = async () => {
@@ -31,7 +58,18 @@ export default function ProfilPage() {
       const { data: c } = await supabase.from("couriers").select("*").eq("user_id", uid).limit(1);
       if (c && c.length) { setRole("kurye"); setProfile(c[0]); setLoading(false); return; }
       const { data: b } = await supabase.from("businesses").select("*").eq("user_id", uid).limit(1);
-      if (b && b.length) { setRole("isletme"); setProfile(b[0]); }
+      if (b && b.length) { 
+        setRole("isletme"); 
+        setProfile(b[0]); 
+        // Plan durumunu al
+        await fetchPlanStatus(
+          b[0].id, 
+          (b[0].plan || 'free') as PlanType, 
+          b[0].messages_sent_today || 0,
+          b[0].approvals_today || 0,
+          b[0].last_usage_reset
+        );
+      }
       setLoading(false);
     };
     run();
@@ -177,6 +215,34 @@ export default function ProfilPage() {
         {msg && (
           <div className={`max-w-2xl mx-auto mb-6 p-3 rounded-lg text-center text-sm font-medium ${msg.startsWith('✓') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
             {msg}
+          </div>
+        )}
+
+        {/* Plan Status Card - Sadece İşletmeler için */}
+        {role === 'isletme' && planStatus && (
+          <div className="mb-8">
+            <PlanStatusCard
+              plan={planStatus.plan}
+              messagesLeft={planStatus.messagesLeft}
+              dailyMessageLimit={planStatus.dailyMessageLimit}
+              approvalsLeft={planStatus.approvalsLeft}
+              dailyApprovalLimit={planStatus.dailyApprovalLimit}
+              businessId={profile.id}
+              onPlanUpdated={async () => {
+                // Plan güncellenince yeniden yükle
+                const { data: b } = await supabase.from("businesses").select("*").eq("id", profile.id).single();
+                if (b) {
+                  setProfile(b);
+                  await fetchPlanStatus(
+                    b.id,
+                    (b.plan || 'free') as PlanType,
+                    b.messages_sent_today || 0,
+                    b.approvals_today || 0,
+                    b.last_usage_reset
+                  );
+                }
+              }}
+            />
           </div>
         )}
 
