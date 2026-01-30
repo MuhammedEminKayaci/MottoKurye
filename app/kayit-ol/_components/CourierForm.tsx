@@ -15,7 +15,7 @@ const courierSchema = z.object({
   gender: z.enum(["Erkek", "Kadın"]),
   nationality: z.string().min(1, "Uyruk seçin"),
   phone: z.string().optional(),
-  contactPreference: z.enum(["phone", "in_app"]),
+  contactPreference: z.enum(["in_app", "phone"]),
   experience: z.enum(["0-1", "1-3", "3-5", "5-10", "10+"]),
   province: z.string().min(1, "İl seçin"),
   district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
@@ -60,7 +60,12 @@ const courierSchema = z.object({
     }
   };
 
-  validateFile(val.p1CertificateFile as FileList, "p1CertificateFile");
+  // Only validate P1 file if P1 certificate is VAR
+  if (val.p1Certificate === "VAR") {
+    validateFile(val.p1CertificateFile as FileList, "p1CertificateFile");
+  }
+  
+  // Criminal record file is always required
   validateFile(val.criminalRecordFile as FileList, "criminalRecordFile");
 });
 
@@ -108,6 +113,8 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
 
   const hasMotorcycle = watch("hasMotorcycle");
   const contactPreference = watch("contactPreference");
+  const p1Certificate = watch("p1Certificate");
+  const criminalRecord = watch("criminalRecord");
   // Always use Istanbul districts
   const districts = ISTANBUL_DISTRICTS;
   
@@ -117,6 +124,19 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
   const p1FileWatch = watch("p1CertificateFile");
   const criminalFileWatch = watch("criminalRecordFile");
   const [preview, setPreview] = useState<string | null>(null);
+  
+  // File upload status states
+  const [p1FileUploaded, setP1FileUploaded] = useState(false);
+  const [criminalFileUploaded, setCriminalFileUploaded] = useState(false);
+  
+  // Track file upload status
+  useEffect(() => {
+    setP1FileUploaded(!!(p1FileWatch && p1FileWatch.length > 0));
+  }, [p1FileWatch]);
+  
+  useEffect(() => {
+    setCriminalFileUploaded(!!(criminalFileWatch && criminalFileWatch.length > 0));
+  }, [criminalFileWatch]);
 
   const avatarOptions = [
     "/images/avatars/kurye/avatar1.svg",
@@ -140,47 +160,78 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Profil Fotoğrafı */}
-      <div className="flex flex-col gap-4">
-        <label className="block text-xs font-medium text-white">Profil Fotoğrafı veya Avatar Seçin</label>
+      {/* Profil Fotoğrafı - Modern Tasarım */}
+      <div className="space-y-4">
+        <h3 className="text-white font-bold text-sm border-b border-white/30 pb-1">PROFİL FOTOĞRAFI</h3>
         
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="w-24 h-24 rounded-full overflow-hidden bg-white/10 flex items-center justify-center border-2 border-white/20 shrink-0">
-            {preview ? (
-              <img src={preview} alt="Önizleme" className="object-cover w-full h-full" />
-            ) : (
-              <span className="text-4xl cursor-default">👤</span>
-            )}
+        <div className="flex flex-col items-center gap-4">
+          {/* Avatar Önizleme */}
+          <div className="relative group">
+            <div className="w-28 h-28 rounded-full overflow-hidden bg-white/10 flex items-center justify-center border-3 border-white/30 shadow-lg">
+              {preview ? (
+                <img src={preview} alt="Önizleme" className="object-cover w-full h-full" />
+              ) : (
+                <svg className="w-14 h-14 text-white/40" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+              )}
+            </div>
+            {/* Fotoğraf Yükle Butonu - Overlay */}
+            <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden"
+                {...register("avatarFile")}
+              />
+            </label>
           </div>
-          
-          <div className="flex-1 space-y-3">
-             {/* File Upload */}
-             <div>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="input-field text-xs block w-full text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00] cursor-pointer"
-                  {...register("avatarFile")}
-                />
-                <p className="text-[10px] text-white/50 mt-1">Kendi fotoğrafınızı yükleyin veya bir avatar seçin.</p>
-             </div>
 
-             {/* Avatars Grid */}
-             <div className="flex gap-3">
-                {avatarOptions.map((opt, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                        setValue("avatarFile", undefined); 
-                        setValue("selectedAvatar", opt);
-                    }}
-                    className={`w-12 h-12 rounded-full border-2 overflow-hidden transition-transform hover:scale-110 ${selectedAvatar === opt && (!avatarWatch || avatarWatch.length === 0) ? 'border-[#ff7a00] ring-2 ring-[#ff7a00]/50' : 'border-transparent'}`}
-                  >
-                    <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-             </div>
+          {/* Yükle Butonu - Mobil için görünür */}
+          <label className="sm:hidden px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-medium rounded-full cursor-pointer transition-colors flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Fotoğraf Yükle
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden"
+              onChange={(e) => {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                  setValue("avatarFile", files);
+                }
+              }}
+            />
+          </label>
+
+          {/* Avatar Seçenekleri */}
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[11px] text-white/60">veya hazır avatar seçin</p>
+            <div className="flex gap-3">
+              {avatarOptions.map((opt, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setValue("avatarFile", undefined); 
+                    setValue("selectedAvatar", opt);
+                  }}
+                  className={`w-14 h-14 rounded-full overflow-hidden transition-all duration-200 hover:scale-110 ${
+                    selectedAvatar === opt && (!avatarWatch || avatarWatch.length === 0) 
+                      ? 'ring-3 ring-[#ff7a00] ring-offset-2 ring-offset-[#ff7a00]/20 scale-110' 
+                      : 'ring-2 ring-white/20 hover:ring-white/40'
+                  }`}
+                >
+                  <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -222,17 +273,17 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-white mb-1">Telefon *</label>
+            <label className="block text-xs font-medium text-white mb-1">Telefon {contactPreference !== "in_app" && "*"}</label>
             <input className="input-field text-sm" {...register("phone")} placeholder="05XXXXXXXXX" disabled={contactPreference === "in_app"} />
             {errors.phone && <p className="text-[10px] text-red-200 mt-1">{errors.phone.message}</p>}
           </div>
           <div>
             <label className="block text-xs font-medium text-white mb-1">İletişim Tercihi *</label>
             <select className="input-field text-sm" {...register("contactPreference")}>
-              <option value="phone">Telefon ile iletişim (arama/WhatsApp)</option>
-              <option value="in_app">Uygulama içi iletişim (yakında)</option>
+              <option value="phone">Telefon ve WhatsApp</option>
+              <option value="in_app">Uygulama İçi İletişim</option>
             </select>
-            <p className="text-[10px] text-white/70 mt-1">Telefon seçilirse arama/WhatsApp açıktır. Uygulama içi seçilirse telefonla arama yapılmaz.</p>
+            <p className="text-[10px] text-white/70 mt-1">Seçtiğiniz yöntemle sizinle iletişime geçilecektir.</p>
           </div>
         </div>
       </div>
@@ -370,9 +421,31 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
               <option value="YOK">YOK</option>
             </select>
             {errors.p1Certificate && <p className="text-[10px] text-red-200 mt-1">{errors.p1Certificate.message as any}</p>}
-            <input type="file" accept=".jpg,.jpeg,.png,.pdf" className="input-field text-xs mt-2" {...register("p1CertificateFile")}/>
-            {errors.p1CertificateFile && <p className="text-[10px] text-red-200 mt-1">{errors.p1CertificateFile.message as any}</p>}
-            <p className="text-[10px] text-white/70 mt-1">JPEG, PNG veya PDF yüklenmelidir.</p>
+            {p1Certificate === "VAR" && (
+              <>
+                <div className="relative mt-2">
+                  <input 
+                    type="file" 
+                    accept=".jpg,.jpeg,.png,.pdf" 
+                    className={`input-field text-xs ${p1FileUploaded ? 'opacity-0 absolute inset-0 w-full h-full cursor-pointer' : ''}`}
+                    {...register("p1CertificateFile")}
+                  />
+                  {p1FileUploaded && (
+                    <div className="input-field text-xs flex items-center gap-2 bg-green-500/20 border-green-400/50">
+                      <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-green-200">Belge yüklendi</span>
+                    </div>
+                  )}
+                </div>
+                {errors.p1CertificateFile && <p className="text-[10px] text-red-200 mt-1">{errors.p1CertificateFile.message as any}</p>}
+                <p className="text-[10px] text-white/70 mt-1">JPEG, PNG veya PDF yüklenmelidir.</p>
+              </>
+            )}
+            {p1Certificate === "YOK" && (
+              <p className="text-[10px] text-white/50 mt-2">P1 belgesi yok olarak işaretlendi.</p>
+            )}
           </div>
           <div>
             <label className="block text-xs font-medium text-white mb-1">Sabıka Kaydı *</label>
@@ -381,9 +454,24 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
               <option value="YOK">YOK</option>
             </select>
             {errors.criminalRecord && <p className="text-[10px] text-red-200 mt-1">{errors.criminalRecord.message as any}</p>}
-            <input type="file" accept=".jpg,.jpeg,.png,.pdf" className="input-field text-xs mt-2" {...register("criminalRecordFile")}/>
+            <div className="relative mt-2">
+              <input 
+                type="file" 
+                accept=".jpg,.jpeg,.png,.pdf" 
+                className={`input-field text-xs ${criminalFileUploaded ? 'opacity-0 absolute inset-0 w-full h-full cursor-pointer' : ''}`}
+                {...register("criminalRecordFile")}
+              />
+              {criminalFileUploaded && (
+                <div className="input-field text-xs flex items-center gap-2 bg-green-500/20 border-green-400/50">
+                  <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-green-200">Belge yüklendi</span>
+                </div>
+              )}
+            </div>
             {errors.criminalRecordFile && <p className="text-[10px] text-red-200 mt-1">{errors.criminalRecordFile.message as any}</p>}
-            <p className="text-[10px] text-white/70 mt-1">JPEG, PNG veya PDF yüklenmelidir.</p>
+            <p className="text-[10px] text-white/70 mt-1">Sabıka kaydı belgesi yükleyin (JPEG, PNG veya PDF).</p>
           </div>
         </div>
       </div>

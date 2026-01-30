@@ -191,6 +191,7 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
               phone={courier.phone}
               name={fullName}
               role="kurye"
+              contactPreference={courier.contact_preference}
             />
           </div>
         )}

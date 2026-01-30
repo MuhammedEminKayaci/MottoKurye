@@ -113,12 +113,32 @@ a.button, .btn, .primary-btn { cursor: pointer; }
 .input-field {
   width: 100%;
   border-radius: 0.75rem; /* rounded-xl */
-  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  padding: 0.625rem 0.75rem; /* consistent padding */
   background: rgba(255, 255, 255, 0.9);
   color: #000;
   border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.25rem;
+  min-height: 2.5rem; /* consistent height */
+}
+
+/* Select specific styles */
+select.input-field {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+select.input-field::-ms-expand {
+  display: none;
 }
 
 .input-field::placeholder {

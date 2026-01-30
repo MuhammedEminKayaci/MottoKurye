@@ -13,7 +13,7 @@ const businessSchema = z.object({
   businessSector: z.string().min(1, "Firma sektörü seçin"),
   managerName: z.string().min(2, "Yetkili adı soyadı gerekli"),
   managerContact: z.string().optional(),
-  contactPreference: z.enum(["phone", "in_app"]),
+  contactPreference: z.enum(["in_app", "phone"]),
   province: z.string().min(1, "İl seçin"),
   district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
   workingType: z.enum(["Full Time", "Part Time"]),
@@ -107,47 +107,78 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Profil Fotoğrafı */}
-      <div className="flex flex-col gap-4">
-        <label className="block text-xs font-medium text-white">Firma Logosu veya Avatar Seçin</label>
+      {/* Profil Fotoğrafı - Modern Tasarım */}
+      <div className="space-y-4">
+        <h3 className="text-white font-bold text-sm border-b border-white/30 pb-1">FİRMA LOGOSU</h3>
         
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="w-24 h-24 rounded-full overflow-hidden bg-white/10 flex items-center justify-center border-2 border-white/20 shrink-0">
-            {preview ? (
-              <img src={preview} alt="Önizleme" className="object-cover w-full h-full" />
-            ) : (
-              <span className="text-4xl cursor-default">🏢</span>
-            )}
+        <div className="flex flex-col items-center gap-4">
+          {/* Avatar Önizleme */}
+          <div className="relative group">
+            <div className="w-28 h-28 rounded-full overflow-hidden bg-white/10 flex items-center justify-center border-3 border-white/30 shadow-lg">
+              {preview ? (
+                <img src={preview} alt="Önizleme" className="object-cover w-full h-full" />
+              ) : (
+                <svg className="w-14 h-14 text-white/40" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+                </svg>
+              )}
+            </div>
+            {/* Fotoğraf Yükle Butonu - Overlay */}
+            <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden"
+                {...register("avatarFile")}
+              />
+            </label>
           </div>
-          
-          <div className="flex-1 space-y-3">
-             {/* File Upload */}
-             <div>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="input-field text-xs block w-full text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00] cursor-pointer"
-                  {...register("avatarFile")}
-                />
-                <p className="text-[10px] text-white/50 mt-1">Firma logosu yükleyin veya bir avatar seçin.</p>
-             </div>
 
-             {/* Avatars Grid */}
-             <div className="flex gap-3">
-                {avatarOptions.map((opt, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                        setValue("avatarFile", undefined); 
-                        setValue("selectedAvatar", opt);
-                    }}
-                    className={`w-12 h-12 rounded-full border-2 overflow-hidden transition-transform hover:scale-110 ${selectedAvatar === opt && (!avatarDynamic || avatarDynamic.length === 0) ? 'border-[#ff7a00] ring-2 ring-[#ff7a00]/50' : 'border-transparent'}`}
-                  >
-                    <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-             </div>
+          {/* Yükle Butonu - Mobil için görünür */}
+          <label className="sm:hidden px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-medium rounded-full cursor-pointer transition-colors flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Logo Yükle
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden"
+              onChange={(e) => {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                  setValue("avatarFile", files);
+                }
+              }}
+            />
+          </label>
+
+          {/* Avatar Seçenekleri */}
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[11px] text-white/60">veya hazır avatar seçin</p>
+            <div className="flex gap-3">
+              {avatarOptions.map((opt, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setValue("avatarFile", undefined); 
+                    setValue("selectedAvatar", opt);
+                  }}
+                  className={`w-14 h-14 rounded-full overflow-hidden transition-all duration-200 hover:scale-110 ${
+                    selectedAvatar === opt && (!avatarDynamic || avatarDynamic.length === 0) 
+                      ? 'ring-3 ring-[#ff7a00] ring-offset-2 ring-offset-[#ff7a00]/20 scale-110' 
+                      : 'ring-2 ring-white/20 hover:ring-white/40'
+                  }`}
+                >
+                  <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -177,17 +208,17 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
             {errors.managerName && <p className="text-[10px] text-red-200 mt-1">{errors.managerName.message}</p>}
           </div>
           <div>
-            <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim *</label>
+            <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim {contactPreference !== "in_app" && "*"}</label>
             <input className="input-field text-sm" {...register("managerContact")} placeholder="05XXXXXXXXX" disabled={contactPreference === "in_app"} />
             {errors.managerContact && <p className="text-[10px] text-red-200 mt-1">{errors.managerContact.message}</p>}
           </div>
           <div>
             <label className="block text-xs font-medium text-white mb-1">İletişim Tercihi *</label>
             <select className="input-field text-sm" {...register("contactPreference")}>
-              <option value="phone">Telefon ile iletişim (arama/WhatsApp)</option>
-              <option value="in_app">Uygulama içi iletişim (yakında)</option>
+              <option value="phone">Telefon ve WhatsApp</option>
+              <option value="in_app">Uygulama İçi İletişim</option>
             </select>
-            <p className="text-[10px] text-white/70 mt-1">Telefon seçilirse arama/WhatsApp açıktır. Uygulama içi seçilirse telefonla arama yapılmaz.</p>
+            <p className="text-[10px] text-white/70 mt-1">Seçtiğiniz yöntemle sizinle iletişime geçilecektir.</p>
           </div>
         </div>
       </div>

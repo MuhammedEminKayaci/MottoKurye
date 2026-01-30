@@ -82,7 +82,7 @@ export default function RolSecPage() {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold text-black mb-3">
-            Hoş Geldin! 🎉
+            Hoş Geldin!
           </h1>
           <p className="text-neutral-600 text-lg mb-2">
             <span className="font-semibold">{userInfo.email}</span> olarak giriş yaptın.

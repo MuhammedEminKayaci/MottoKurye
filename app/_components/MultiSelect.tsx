@@ -43,10 +43,6 @@ export function MultiSelect({ options, value, onChange, placeholder = "Seçiniz"
     }
   };
 
-  const baseButtonClass = theme === "dark" 
-    ? "bg-white/10 border-white/20 text-white focus:ring-[#ff7a00]" 
-    : "bg-gray-100 border-gray-300 text-gray-800 focus:ring-[#ff7a00]";
-  
   const dropdownClass = theme === "dark"
     ? "bg-[#1a1a1a] border-white/10"
     : "bg-white border-gray-200";
@@ -67,11 +63,11 @@ export function MultiSelect({ options, value, onChange, placeholder = "Seçiniz"
       <button
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`w-full border rounded-xl px-4 py-3 text-left flex items-center justify-between focus:outline-none focus:ring-2 transition-all ${baseButtonClass} ${
+        className={`input-field text-sm flex items-center justify-between ${
           disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
         }`}
       >
-        <span className="truncate block mr-2">
+        <span className="truncate block mr-2 text-black">
           {value.length === 0
             ? placeholder
             : value.length === options.length

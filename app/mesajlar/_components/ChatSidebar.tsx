@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 
 interface Conversation {
   id: string;
@@ -186,17 +186,28 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
                   : 'hover:bg-neutral-50 border-l-4 border-l-transparent'
               }`}
             >
-              <div className="relative shrink-0">
-                <div className={`ring-2 ${isActive ? 'ring-orange-400' : 'ring-neutral-200'} rounded-full p-0.5 transition-all`}>
-                  <ProfileAvatar src={info.avatar_url} alt={info.name} size={48} />
+              {/* Avatar Container - Fixed Size */}
+              <div className="relative flex-shrink-0 w-14 h-14">
+                <div className={`w-14 h-14 ring-2 ${isActive ? 'ring-orange-400' : 'ring-neutral-200'} rounded-full overflow-hidden transition-all`}>
+                  <Image 
+                    src={info.avatar_url && info.avatar_url.trim() !== '' ? info.avatar_url : '/images/icon-profile.png'} 
+                    alt={info.name}
+                    width={56}
+                    height={56}
+                    className="w-14 h-14 object-cover rounded-full"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/images/icon-profile.png';
+                    }}
+                  />
                 </div>
-                {/* Online indicator */}
-                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                {/* Online indicator - Fixed Position */}
+                <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
               </div>
               
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start gap-2">
+                <div className="flex justify-between items-center gap-2">
                   <h3 className={`font-semibold truncate text-base ${isActive ? 'text-orange-700' : 'text-neutral-900'}`}>
                     {info.name}
                   </h3>
@@ -215,7 +226,7 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
               </div>
               
               {/* Arrow */}
-              <svg className={`w-5 h-5 shrink-0 ${isActive ? 'text-orange-400' : 'text-neutral-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-orange-400' : 'text-neutral-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>

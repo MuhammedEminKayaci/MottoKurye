@@ -5,9 +5,28 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
+type UserRole = "kurye" | "isletme" | null;
+
 export function Header() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>(null);
+
+  // Check user role
+  useEffect(() => {
+    const checkRole = async () => {
+      const { data } = await supabase.auth.getSession();
+      const uid = data.session?.user?.id;
+      if (!uid) return;
+      
+      const { data: c } = await supabase.from("couriers").select("id").eq("user_id", uid).limit(1);
+      if (c && c.length) { setUserRole("kurye"); return; }
+      
+      const { data: b } = await supabase.from("businesses").select("id").eq("user_id", uid).limit(1);
+      if (b && b.length) setUserRole("isletme");
+    };
+    checkRole();
+  }, []);
 
   // Close mobile menu on ESC for accessibility
   useEffect(() => {
@@ -23,12 +42,13 @@ export function Header() {
     router.push("/");
   };
 
+  // İlanlarım only for businesses
   const navItems = [
     { label: "Ana Sayfa", href: "/" },
     { label: "Profil", href: "/profil" },
     { label: "Mesajlar", href: "/mesajlar" },
     { label: "İlanlar", href: "/ilanlar" },
-    { label: "İlanlarım", href: "/ilanlarim" },
+    ...(userRole === "isletme" ? [{ label: "İlanlarım", href: "/ilanlarim" }] : []),
   ];
 
   const sharedNavLink = "font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-md px-1";

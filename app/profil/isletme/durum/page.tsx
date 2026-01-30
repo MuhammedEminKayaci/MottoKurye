@@ -68,8 +68,8 @@ export default function IsletmeDurumPage() {
       setSeekingCouriers(newStatus);
       setSuccess(
         newStatus
-          ? '✓ Kurye arayışınız aktif hale getirildi'
-          : '✓ Kurye arayışınız devre dışı bırakıldı'
+          ? 'Kurye arayışınız aktif hale getirildi'
+          : 'Kurye arayışınız devre dışı bırakıldı'
       );
     } catch (err: any) {
       console.error('Error updating status:', err);
@@ -140,7 +140,11 @@ export default function IsletmeDurumPage() {
                     : 'bg-red-500 hover:bg-red-600 active:bg-red-700'
                 } ${saving ? 'opacity-70' : ''}`}
               >
-                {saving ? 'Güncelleniyor...' : (seekingCouriers ? '✓ AÇIK' : '✕ KAPALI')}
+                {saving ? 'Güncelleniyor...' : (seekingCouriers ? (
+                  <span className="flex items-center gap-2"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> AÇIK</span>
+                ) : (
+                  <span className="flex items-center gap-2"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg> KAPALI</span>
+                ))}
               </button>
             </div>
           </div>
@@ -154,11 +158,11 @@ export default function IsletmeDurumPage() {
             </h3>
             <ul className="space-y-2 text-sm text-neutral-700">
               <li className="flex items-start gap-2">
-                <span className="text-green-600 font-bold mt-0.5">✓</span>
+                <svg className="w-4 h-4 text-green-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
                 <span><strong>AÇIK:</strong> Kuryeler sizi görüp başvuru yapabilir</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-red-600 font-bold mt-0.5">✕</span>
+                <svg className="w-4 h-4 text-red-600 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
                 <span><strong>KAPALI:</strong> Kuryeler sizi göremez, başvuru alamazsınız</span>
               </li>
             </ul>

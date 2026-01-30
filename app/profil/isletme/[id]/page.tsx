@@ -180,6 +180,7 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
               phone={business.manager_contact}
               name={maskedName}
               role="isletme"
+              contactPreference={business.contact_preference}
             />
           </div>
         )}
