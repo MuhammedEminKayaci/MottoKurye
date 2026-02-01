@@ -25,9 +25,22 @@ interface CourierData {
   moto_brand: string | null;
   moto_cc: string | null;
   has_bag: string;
-  contact_preference: 'phone' | 'in_app';
+  contact_preference: 'phone' | 'in_app' | 'both';
   avatar_url?: string | null;
 }
+
+// Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
+const formatPhoneNumber = (value: string): string => {
+  const digits = value.replace(/\D/g, '');
+  const limited = digits.slice(0, 11);
+  
+  if (limited.length === 0) return '';
+  if (limited.length <= 1) return limited;
+  if (limited.length <= 4) return `${limited[0]} (${limited.slice(1)}`;
+  if (limited.length <= 7) return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4)}`;
+  if (limited.length <= 9) return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4, 7)} ${limited.slice(7)}`;
+  return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4, 7)} ${limited.slice(7, 9)} ${limited.slice(9)}`;
+};
 
 export default function KuryeDuzenlePage() {
   const router = useRouter();
@@ -156,7 +169,7 @@ export default function KuryeDuzenlePage() {
         gender: formData.gender,
         nationality: formData.nationality,
         avatar_url: finalAvatarUrl,
-        phone: formData.contact_preference === 'phone' ? formData.phone : null,
+        phone: (formData.contact_preference === 'phone' || formData.contact_preference === 'both') ? formData.phone : null,
         experience: formData.experience,
         province: formData.province,
         district: formData.district,
@@ -403,11 +416,12 @@ export default function KuryeDuzenlePage() {
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
                 >
-                  <option value="phone">Telefon ile İletişim</option>
-                  <option value="in_app">Uygulama İçi İletişim</option>
+                  <option value="phone">Telefon ve WhatsApp</option>
+                  <option value="in_app">Uygulama İçi Mesajlaşma</option>
+                  <option value="both">Her İkisi de (Telefon + Uygulama İçi)</option>
                 </select>
               </div>
-              {formData.contact_preference === 'phone' && (
+              {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && (
                 <div>
                   <label className="block text-sm font-semibold text-neutral-900 mb-2">
                     Telefon Numarası <span className="text-red-500">*</span>
@@ -416,9 +430,9 @@ export default function KuryeDuzenlePage() {
                     type="tel"
                     name="phone"
                     value={formData.phone || ''}
-                    onChange={handleInputChange}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                    placeholder="+90 (5__) ____-____"
+                    placeholder="0 (5XX) XXX XX XX"
                   />
                 </div>
               )}

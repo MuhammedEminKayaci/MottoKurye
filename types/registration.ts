@@ -6,7 +6,7 @@ export interface CourierRegistration {
   gender: string;
   nationality: string;
   phone?: string;
-  contactPreference: "phone" | "in_app";
+  contactPreference: "phone" | "in_app" | "both";
   
   // İş Tecrübesi
   experience: string; // 0-1 | 1-3 | 3-5 | 5-10 | 10+
@@ -52,7 +52,7 @@ export interface BusinessRegistration {
   businessSector: string;
   managerName: string;
   managerContact?: string;
-  contactPreference: "phone" | "in_app";
+  contactPreference: "phone" | "in_app" | "both";
   
   // Çalışma Koşulları
   province: string;

@@ -15,7 +15,8 @@ const maskCourierName = (first?: string | null, last?: string | null) => {
 const maskBusinessName = (name?: string | null) => {
   const parts = (name || "").split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "İşletme";
-  return parts.map(p => `${p[0]?.toUpperCase() || ''}....`).join(' ');
+  // Her kelime için ilk harf + 3 nokta: "Engin Has Lahmacun" → "E... H... L..."
+  return parts.map(p => `${p[0]?.toUpperCase() || ''}...`).join(' ');
 };
 
 export default function ProfilPage() {
@@ -23,6 +24,7 @@ export default function ProfilPage() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<string|null>(null);
+  const [savingStatus, setSavingStatus] = useState(false);
   const [planStatus, setPlanStatus] = useState<{
     plan: PlanType;
     messagesLeft: number;
@@ -103,6 +105,38 @@ export default function ProfilPage() {
     }
   };
 
+  // Toggle iş/kurye arama durumu
+  const handleStatusToggle = async () => {
+    try {
+      setSavingStatus(true);
+      setMsg(null);
+      
+      if (role === 'kurye') {
+        const newStatus = !profile.is_accepting_offers;
+        const { error } = await supabase
+          .from('couriers')
+          .update({ is_accepting_offers: newStatus })
+          .eq('id', profile.id);
+        if (error) throw error;
+        setProfile((p: any) => ({ ...p, is_accepting_offers: newStatus }));
+        setMsg(newStatus ? 'İş tekliflerine AÇIK hale getirildiniz' : 'İş tekliflerine KAPALI hale getirildiniz');
+      } else if (role === 'isletme') {
+        const newStatus = !profile.seeking_couriers;
+        const { error } = await supabase
+          .from('businesses')
+          .update({ seeking_couriers: newStatus })
+          .eq('id', profile.id);
+        if (error) throw error;
+        setProfile((p: any) => ({ ...p, seeking_couriers: newStatus }));
+        setMsg(newStatus ? 'Kurye arayışınız AÇIK hale getirildi' : 'Kurye arayışınız KAPALI hale getirildi');
+      }
+    } catch (err: any) {
+      setMsg('Hata: ' + (err?.message ?? 'Durum güncellenemedi'));
+    } finally {
+      setSavingStatus(false);
+    }
+  };
+
   if (loading) {
     return (
       <main className="min-h-dvh w-full bg-neutral-50">
@@ -173,34 +207,47 @@ export default function ProfilPage() {
                 {profile.province && <span> • {profile.province}</span>}
               </div>
               
-              {/* Status Badge */}
+              {/* Status Badge - Clickable Toggle */}
               <div className="flex justify-center mb-4">
                 {role === 'kurye' ? (
-                  <span className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold ${
-                    profile.is_accepting_offers
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    {profile.is_accepting_offers ? (
-                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> İş Tekliflerine AÇIK</>
+                  <button
+                    onClick={handleStatusToggle}
+                    disabled={savingStatus}
+                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all hover:scale-105 ${
+                      profile.is_accepting_offers
+                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                    } ${savingStatus ? 'opacity-50' : ''}`}
+                  >
+                    {savingStatus ? (
+                      <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> Güncelleniyor...</>
+                    ) : profile.is_accepting_offers ? (
+                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> İş Arıyorum</>
                     ) : (
-                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg> İş Tekliflerine KAPALI</>
+                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg> İş Aramıyorum</>
                     )}
-                  </span>
+                  </button>
                 ) : (
-                  <span className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold ${
-                    profile.seeking_couriers
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    {profile.seeking_couriers ? (
-                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Kurye Arayışım AÇIK</>
+                  <button
+                    onClick={handleStatusToggle}
+                    disabled={savingStatus}
+                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all hover:scale-105 ${
+                      profile.seeking_couriers
+                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                    } ${savingStatus ? 'opacity-50' : ''}`}
+                  >
+                    {savingStatus ? (
+                      <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> Güncelleniyor...</>
+                    ) : profile.seeking_couriers ? (
+                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Kurye Arıyorum</>
                     ) : (
-                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg> Kurye Arayışım KAPALI</>
+                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg> Kurye Aramıyorum</>
                     )}
-                  </span>
+                  </button>
                 )}
               </div>
+              <p className="text-xs text-neutral-500 mb-4">Durumu değiştirmek için butona tıklayın</p>
               
               {/* Edit Button */}
               <div className="mt-4">
@@ -260,16 +307,10 @@ export default function ProfilPage() {
           </div>
         )}
 
-        {/* Tabs / Sections */}
+        {/* Section Title */}
         <div className="border-b border-neutral-200 mb-8">
           <div className="flex gap-6 text-sm font-semibold">
-            <button className="pb-3 border-b-2 border-orange-500 text-orange-600">Hakkında</button>
-            <a 
-              href={role === 'kurye' ? '/profil/kurye/durum' : '/profil/isletme/durum'}
-              className="pb-3 text-neutral-600 hover:text-orange-600 transition"
-            >
-              {role === 'kurye' ? 'İş Teklifleri' : 'Kurye Arayışı'}
-            </a>
+            <span className="pb-3 border-b-2 border-orange-500 text-orange-600">Profil Bilgileri</span>
           </div>
         </div>
 
@@ -293,6 +334,8 @@ export default function ProfilPage() {
               ["Marka", profile.moto_brand || '-', <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>],
               ["Motor CC", profile.moto_cc || '-', <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>],
               ["Taşıma Çantası", profile.has_bag, <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>],
+              ["P1 Yetki Belgesi", profile.p1_certificate || '-', <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>],
+              ["Sabıka Kaydı", profile.criminal_record || '-', <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>],
             ].map(([k, v, icon]) => (
               <div key={String(k)} className="rounded-2xl bg-white p-5 shadow-sm border border-neutral-200 hover:shadow-md hover:border-orange-200 transition">
                 <div className="flex items-center gap-2 mb-2">

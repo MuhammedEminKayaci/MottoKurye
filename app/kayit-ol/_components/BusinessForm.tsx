@@ -13,7 +13,7 @@ const businessSchema = z.object({
   businessSector: z.string().min(1, "Firma sektörü seçin"),
   managerName: z.string().min(2, "Yetkili adı soyadı gerekli"),
   managerContact: z.string().optional(),
-  contactPreference: z.enum(["in_app", "phone"]),
+  contactPreference: z.enum(["in_app", "phone", "both"]),
   province: z.string().min(1, "İl seçin"),
   district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
   workingType: z.enum(["Full Time", "Part Time"]),
@@ -27,7 +27,7 @@ const businessSchema = z.object({
   selectedAvatar: z.string().optional(),
   avatarFile: z.any().optional(),
 }).superRefine((val, ctx) => {
-  if (val.contactPreference === "phone") {
+  if (val.contactPreference === "phone" || val.contactPreference === "both") {
     if (!val.managerContact || val.managerContact.trim().length < 10) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -57,6 +57,23 @@ const businessSectors = [
 ];
 
 const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+
+// Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
+const formatPhoneNumber = (value: string): string => {
+  // Sadece rakamları al
+  const digits = value.replace(/\D/g, '');
+  
+  // Max 11 rakam (0 + 10 hane)
+  const limited = digits.slice(0, 11);
+  
+  // Format uygula
+  if (limited.length === 0) return '';
+  if (limited.length <= 1) return limited;
+  if (limited.length <= 4) return `${limited[0]} (${limited.slice(1)}`;
+  if (limited.length <= 7) return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4)}`;
+  if (limited.length <= 9) return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4, 7)} ${limited.slice(7)}`;
+  return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4, 7)} ${limited.slice(7, 9)} ${limited.slice(9)}`;
+};
 
 export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
   const { register, handleSubmit, watch, control, formState: { errors }, setValue } = useForm<BusinessRegistration>({
@@ -208,15 +225,28 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
             {errors.managerName && <p className="text-[10px] text-red-200 mt-1">{errors.managerName.message}</p>}
           </div>
           <div>
-            <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim {contactPreference !== "in_app" && "*"}</label>
-            <input className="input-field text-sm" {...register("managerContact")} placeholder="05XXXXXXXXX" disabled={contactPreference === "in_app"} />
+            <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim {(contactPreference === "phone" || contactPreference === "both") && "*"}</label>
+            <Controller
+              name="managerContact"
+              control={control}
+              render={({ field }) => (
+                <input 
+                  className="input-field text-sm" 
+                  value={field.value || ''}
+                  onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                  placeholder="0 (5XX) XXX XX XX" 
+                  disabled={contactPreference === "in_app"} 
+                />
+              )}
+            />
             {errors.managerContact && <p className="text-[10px] text-red-200 mt-1">{errors.managerContact.message}</p>}
           </div>
           <div>
             <label className="block text-xs font-medium text-white mb-1">İletişim Tercihi *</label>
             <select className="input-field text-sm" {...register("contactPreference")}>
               <option value="phone">Telefon ve WhatsApp</option>
-              <option value="in_app">Uygulama İçi İletişim</option>
+              <option value="in_app">Uygulama İçi Mesajlaşma</option>
+              <option value="both">Her İkisi de (Telefon + Uygulama İçi)</option>
             </select>
             <p className="text-[10px] text-white/70 mt-1">Seçtiğiniz yöntemle sizinle iletişime geçilecektir.</p>
           </div>

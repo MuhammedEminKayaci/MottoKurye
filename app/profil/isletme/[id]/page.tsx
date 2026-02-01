@@ -7,10 +7,10 @@ import { EditProfileButton } from "@/app/_components/EditProfileButton";
 import { StartChatButton } from "@/app/mesajlar/_components/StartChatButton";
 
 const maskBusinessName = (name?: string | null) => {
-  const n = (name || "").trim();
-  if (!n || n.length < 2) return "İşletme";
-  const firstPart = n.substring(0, 1);
-  return `${firstPart}${"·".repeat(Math.min(n.length - 2, 3))} ${n[n.length - 1]}.`;
+  const parts = (name || "").split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "İşletme";
+  // Her kelime için ilk harf + 3 nokta: "Engin Has Lahmacun" → "E... H... L..."
+  return parts.map(p => `${p[0]?.toUpperCase() || ''}...`).join(' ');
 };
 
 interface BusinessProfileProps {
@@ -85,7 +85,6 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
     { label: 'Pazar Günü', value: business.sunday_working === 'ACIK' ? 'Açık' : business.sunday_working === 'KAPALI' ? 'Kapalı' : '-', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
     { label: 'Şehir', value: business.province, icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
     { label: 'Bölge', value: formatDistrict(business.district), icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.553-.894L9 7.5l5.447-2.724A1 1 0 0116 5.618v10.764a1 1 0 01-1.553.894L9 12.5l-5.447 2.724A1 1 0 013 16.382V5.618a1 1 0 011.553-.894L9 7.5' },
-    { label: 'Ek Bilgiler', value: business.additional_info || '-', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
   ].filter(card => card.value && card.value !== '-');
 
   return (
@@ -172,15 +171,16 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
           ))}
         </div>
 
-        {/* Contact Section - only show if manager contact exists */}
-        {business.manager_contact && (
+        {/* Contact Section - show based on contact preference */}
+        {(business.contact_preference === "in_app" || business.contact_preference === "both" || business.manager_contact) && (
           <div className="mt-8 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl border border-blue-200 p-6 sm:p-8">
             <h3 className="text-xl font-bold text-neutral-800 mb-4">İletişim</h3>
             <ContactButtons
-              phone={business.manager_contact}
+              phone={business.manager_contact || ""}
               name={maskedName}
               role="isletme"
               contactPreference={business.contact_preference}
+              businessPlan={business.plan}
             />
           </div>
         )}

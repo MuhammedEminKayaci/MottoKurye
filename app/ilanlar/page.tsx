@@ -18,7 +18,8 @@ const maskCourierName = (first?: string | null, last?: string | null) => {
 const maskBusinessName = (name?: string | null) => {
   const parts = (name || "").split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "İşletme";
-  return parts.map(p => `${p[0]?.toUpperCase() || ''}....`).join(' ');
+  // Her kelime için ilk harf + 3 nokta: "Engin Has Lahmacun" → "E... H... L..."
+  return parts.map(p => `${p[0]?.toUpperCase() || ''}...`).join(' ');
 };
 
 function IlanlarContent() {

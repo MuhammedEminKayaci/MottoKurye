@@ -18,8 +18,7 @@ interface BusinessData {
   sunday_working: string;
   province: string;
   district: string[];
-  additional_info: string | null;
-  contact_preference: 'phone' | 'in_app';
+  contact_preference: 'phone' | 'in_app' | 'both';
   avatar_url?: string | null;
 }
 
@@ -32,6 +31,19 @@ const SERVICE_TYPES = [
 ];
 
 const PROVINCES = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya'];
+
+// Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
+const formatPhoneNumber = (value: string): string => {
+  const digits = value.replace(/\D/g, '');
+  const limited = digits.slice(0, 11);
+  
+  if (limited.length === 0) return '';
+  if (limited.length <= 1) return limited;
+  if (limited.length <= 4) return `${limited[0]} (${limited.slice(1)}`;
+  if (limited.length <= 7) return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4)}`;
+  if (limited.length <= 9) return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4, 7)} ${limited.slice(7)}`;
+  return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4, 7)} ${limited.slice(7, 9)} ${limited.slice(9)}`;
+};
 
 export default function IsletmeDuzenlePage() {
   const router = useRouter();
@@ -128,7 +140,7 @@ export default function IsletmeDuzenlePage() {
         setSaving(false);
         return;
       }
-      if (formData.contact_preference === 'phone' && !formData.manager_contact?.trim()) {
+      if ((formData.contact_preference === 'phone' || formData.contact_preference === 'both') && !formData.manager_contact?.trim()) {
         setError('Telefon tercihini seçtiyseniz telefon numarası gereklidir');
         setSaving(false);
         return;
@@ -157,14 +169,13 @@ export default function IsletmeDuzenlePage() {
       const updateData: any = {
         business_name: formData.business_name,
         manager_name: formData.manager_name,
-        manager_contact: formData.contact_preference === 'phone' ? formData.manager_contact : null,
+        manager_contact: (formData.contact_preference === 'phone' || formData.contact_preference === 'both') ? formData.manager_contact : null,
         service_type: formData.service_type,
         service_hours_start: formData.service_hours_start,
         service_hours_end: formData.service_hours_end,
         sunday_working: formData.sunday_working,
         province: formData.province,
         district: formData.district,
-        additional_info: formData.additional_info,
         contact_preference: formData.contact_preference,
         avatar_url: finalAvatarUrl,
       };
@@ -372,11 +383,13 @@ export default function IsletmeDuzenlePage() {
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
                 >
-                  <option value="phone">Telefon ile İletişim</option>
-                  <option value="in_app">Uygulama İçi İletişim</option>
+                  <option value="phone">Telefon ve WhatsApp</option>
+                  <option value="in_app">Uygulama İçi Mesajlaşma</option>
+                  <option value="both">Her İkisi de (Telefon + Uygulama İçi)</option>
                 </select>
+                <p className="text-xs text-neutral-500 mt-1">Seçtiğiniz yöntemle sizinle iletişime geçilecektir.</p>
               </div>
-              {formData.contact_preference === 'phone' && (
+              {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && (
                 <div>
                   <label className="block text-sm font-semibold text-neutral-900 mb-2">
                     Telefon Numarası <span className="text-red-500">*</span>
@@ -385,9 +398,9 @@ export default function IsletmeDuzenlePage() {
                     type="tel"
                     name="manager_contact"
                     value={formData.manager_contact || ''}
-                    onChange={handleInputChange}
+                    onChange={(e) => setFormData(prev => ({ ...prev, manager_contact: formatPhoneNumber(e.target.value) }))}
                     className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                    placeholder="+90 (5__) ____-____"
+                    placeholder="0 (5XX) XXX XX XX"
                   />
                 </div>
               )}
@@ -491,29 +504,6 @@ export default function IsletmeDuzenlePage() {
                   />
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Ek Bilgiler */}
-          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
-            <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Ek Bilgiler
-            </h2>
-            <div>
-              <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                İşletme Açıklaması
-              </label>
-              <textarea
-                name="additional_info"
-                value={formData.additional_info || ''}
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                placeholder="İşletmeniz hakkında ek bilgileri buraya yazabilirsiniz..."
-              />
             </div>
           </div>
 

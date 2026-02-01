@@ -183,12 +183,12 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
           ))}
         </div>
 
-        {/* Contact Section - only show if phone exists */}
-        {courier.phone && (
+        {/* Contact Section - show based on contact preference */}
+        {(courier.contact_preference === "in_app" || courier.contact_preference === "both" || courier.phone) && (
           <div className="mt-8 bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl border border-orange-200 p-6 sm:p-8">
             <h3 className="text-xl font-bold text-neutral-800 mb-4">İletişim</h3>
             <ContactButtons
-              phone={courier.phone}
+              phone={courier.phone || ""}
               name={fullName}
               role="kurye"
               contactPreference={courier.contact_preference}
