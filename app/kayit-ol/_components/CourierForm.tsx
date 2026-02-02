@@ -106,7 +106,7 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
     defaultValues: {
       province: "İstanbul",
       district: [],
-      nationality: "Türkiye",
+      nationality: "Türk Vatandaşı",
       workingType: "Full Time",
       earningModel: "Saat+Paket Başı",
       dailyPackageEstimate: "15-25 PAKET",
@@ -116,7 +116,7 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
       licenseType: "A",
       experience: "0-1",
       gender: "Erkek",
-      contactPreference: "phone",
+      contactPreference: "in_app",
       p1Certificate: "YOK",
       criminalRecord: "YOK",
       p1CertificateFile: undefined,
@@ -283,10 +283,8 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
           <div>
             <label className="block text-xs font-medium text-white mb-1">Uyruk *</label>
             <select className="input-field text-sm" {...register("nationality")}>
-              <option value="Türkiye">Türkiye</option>
-              <option value="Azerbaycan">Azerbaycan</option>
-              <option value="Gürcistan">Gürcistan</option>
-              <option value="Diğer">Diğer</option>
+              <option value="Türk Vatandaşı">Türk Vatandaşı</option>
+              <option value="Türk Vatandaşı Olmayan">Türk Vatandaşı Olmayan</option>
             </select>
           </div>
           <div>
@@ -309,11 +307,15 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
           <div>
             <label className="block text-xs font-medium text-white mb-1">İletişim Tercihi *</label>
             <select className="input-field text-sm" {...register("contactPreference")}>
-              <option value="phone">Telefon ve WhatsApp</option>
-              <option value="in_app">Uygulama İçi Mesajlaşma</option>
-              <option value="both">Her İkisi de (Telefon + Uygulama İçi)</option>
+              <option value="in_app">Uygulama İçi İletişim</option>
+              <option value="phone">Telefon ve Uygulama İçi İletişim</option>
             </select>
-            <p className="text-[10px] text-white/70 mt-1">Seçtiğiniz yöntemle sizinle iletişime geçilecektir.</p>
+            {(contactPreference === "phone" || contactPreference === "both") && (
+              <p className="text-[10px] text-yellow-300 mt-1 flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Telefon görüşmelerine 08:00-20:00 saatleri arasında izin verilmektedir.
+              </p>
+            )}
           </div>
         </div>
       </div>

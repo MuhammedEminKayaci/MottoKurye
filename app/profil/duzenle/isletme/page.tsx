@@ -379,15 +379,19 @@ export default function IsletmeDuzenlePage() {
                 </label>
                 <select
                   name="contact_preference"
-                  value={formData.contact_preference || 'phone'}
+                  value={formData.contact_preference || 'in_app'}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
                 >
-                  <option value="phone">Telefon ve WhatsApp</option>
-                  <option value="in_app">Uygulama İçi Mesajlaşma</option>
-                  <option value="both">Her İkisi de (Telefon + Uygulama İçi)</option>
+                  <option value="in_app">Uygulama İçi İletişim</option>
+                  <option value="phone">Telefon ve Uygulama İçi İletişim</option>
                 </select>
-                <p className="text-xs text-neutral-500 mt-1">Seçtiğiniz yöntemle sizinle iletişime geçilecektir.</p>
+                {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && (
+                  <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Telefon görüşmelerine 08:00-20:00 saatleri arasında izin verilmektedir.
+                  </p>
+                )}
               </div>
               {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && (
                 <div>
