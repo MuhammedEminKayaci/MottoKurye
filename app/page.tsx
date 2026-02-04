@@ -241,7 +241,7 @@ export default function Page() {
 
             <div className="flex justify-center md:justify-end">
               <div className="w-56 md:w-72">
-                <Image src="/images/i-phone.png" alt="phone" width={420} height={840} className="rounded-3xl shadow-2xl" />
+                <Image src="/images/PHONE.png" alt="phone" width={420} height={840} className="rounded-3xl shadow-2xl" />
               </div>
             </div>
           </div>

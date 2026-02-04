@@ -59,8 +59,8 @@ export function Header() {
       <div className="flex items-center gap-2">
         <Link href="/" aria-label="Ana Sayfa" className="flex items-center">
           <Image
-            src="/images/headerlogo.png"
-            alt="Motto Kurye Logo"
+            src="/images/paketservisci.png"
+            alt="PaketServisi Logo"
             width={300}
             height={80}
             priority

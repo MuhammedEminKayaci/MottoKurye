@@ -52,7 +52,7 @@ export default function SifreSifirlaPage() {
       <div className="relative z-10 flex min-h-dvh items-center justify-center px-6 py-12">
         <div className="w-full max-w-md glass-card rounded-3xl p-8 shadow-2xl fade-up">
           <div className="flex flex-col items-center gap-2 mb-6">
-            <Image src="/images/headerlogo.png" alt="Motto Kurye Logo" width={180} height={60} priority className="drop-shadow-lg" />
+            <Image src="/images/paketservisci.png" alt="PaketServisi Logo" width={180} height={60} priority className="drop-shadow-lg" />
             <h1 className="text-2xl font-extrabold text-white">Şifreyi Sıfırla</h1>
           </div>
 

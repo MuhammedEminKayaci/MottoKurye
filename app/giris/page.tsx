@@ -74,8 +74,8 @@ export default function GirisPage() {
           <div className="flex flex-col items-center gap-2 mb-6">
             <Link href="/" className="cursor-pointer">
               <Image
-                src="/images/headerlogo.png"
-                alt="Motto Kurye Logo"
+                src="/images/paketservisci.png"
+                alt="PaketServisi Logo"
                 width={200}
                 height={60}
                 priority

@@ -8,8 +8,8 @@ export function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start gap-8">
           <div className="flex items-center mb-4 md:mb-0">
             <Image
-              src="/images/headerlogo.png"
-              alt="Motto Kurye Logo"
+              src="/images/paketservisci.png"
+              alt="PaketServisi Logo"
               width={300}
               height={80}
               className="object-contain"

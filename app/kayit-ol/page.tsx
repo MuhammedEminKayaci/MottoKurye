@@ -394,7 +394,7 @@ export default function KayitOlPage() {
         <div className="w-full max-w-2xl glass-card rounded-3xl p-6 sm:p-8 shadow-2xl fade-up">
           <div className="flex flex-col items-center gap-2 mb-6">
             <Link href="/" className="cursor-pointer">
-              <Image src="/images/headerlogo.png" alt="Logo" width={160} height={50} priority className="drop-shadow-lg hover:opacity-90 transition-opacity" />
+              <Image src="/images/paketservisci.png" alt="PaketServisi Logo" width={160} height={50} priority className="drop-shadow-lg hover:opacity-90 transition-opacity" />
             </Link>
             <h1 className="text-xl sm:text-2xl font-extrabold text-white">
               {isGoogleUser ? "Profil Tamamlama" : "Kayıt / Profil Tamamlama"}
