@@ -124,7 +124,7 @@ export default function UcretPlanlariPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 md:mb-16">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-neutral-900 mb-4">
-              Ücret Planları
+              İşletme Ücret Planları
             </h1>
             <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
               İşletmeniz için en uygun paketi seçin ve kurye bulmayı kolaylaştırın.

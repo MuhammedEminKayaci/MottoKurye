@@ -72,7 +72,7 @@ export function PublicHeader() {
     { label: "Ana Sayfa", href: "/" },
     { label: "İletişim", href: "/iletisim" },
     { label: "Nasıl Çalışır", href: "#nasil-calisir" },
-    { label: "Ücretler", href: "/ucret-planlari" },
+    { label: "İşletme Ücret Planları", href: "/ucret-planlari" },
   ];
 
   const sharedNavLink =
