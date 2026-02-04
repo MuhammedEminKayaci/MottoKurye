@@ -15,6 +15,20 @@ interface FilterPanelProps {
 // Çalışma günleri
 const WORKING_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
+// İşletme sektörleri
+const BUSINESS_SECTORS = [
+  "E-Ticaret ve Online Satış Firmaları",
+  "Moda, Tekstil ve Aksesuar",
+  "Kurumsal ve Ofis Hizmetleri",
+  "Finans - Bankacılık - Sigorta",
+  "Yeme-İçme",
+  "Sağlık ve Medikal",
+  "Teknoloji ve Elektronik",
+  "Lojistik ve Depolama",
+  "Çiçek & Hediyeli Eşya",
+  "Otomotiv ve Yedek Parça",
+];
+
 export function FilterPanel({ role, onChange }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<Record<string, string>>({ province: "İstanbul" });
@@ -105,17 +119,6 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
 
             {/* Filter Content */}
             <div className="p-6 space-y-6">
-              {/* İl */}
-              <div>
-                <label className="block text-sm font-semibold text-black mb-2">İl</label>
-                <input
-                  type="text"
-                  value="İstanbul"
-                  disabled
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-gray-100 text-gray-600 text-base"
-                />
-              </div>
-
               {/* İlçe */}
               <div>
                 <label className="block text-sm font-semibold text-black mb-2">İlçe</label>
@@ -136,7 +139,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.working_type || ""}
                       onChange={(e) => handleFilterChange("working_type", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="Full Time" className="text-black">Full Time</option>
@@ -149,12 +152,11 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.earning_model || ""}
                       onChange={(e) => handleFilterChange("earning_model", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
                       <option value="Paket Başı" className="text-black">Paket Başı</option>
-                      <option value="Saat Başı" className="text-black">Saat Başı</option>
                       <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
                     </select>
                   </div>
@@ -167,7 +169,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                           key={day}
                           type="button"
                           onClick={() => handleWorkingDayToggle(day)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          className={`h-[52px] px-3 rounded-lg text-sm font-medium transition-all ${
                             index === 6 ? 'col-span-2' : ''
                           } ${
                             selectedWorkingDays.includes(day)
@@ -186,7 +188,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.license_type || ""}
                       onChange={(e) => handleFilterChange("license_type", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="A1" className="text-black">A1</option>
@@ -200,7 +202,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.has_motorcycle || ""}
                       onChange={(e) => handleFilterChange("has_motorcycle", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="VAR" className="text-black">Var</option>
@@ -213,7 +215,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.has_bag || ""}
                       onChange={(e) => handleFilterChange("has_bag", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="VAR" className="text-black">Var</option>
@@ -226,7 +228,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.p1_certificate || ""}
                       onChange={(e) => handleFilterChange("p1_certificate", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="VAR" className="text-black">Var</option>
@@ -239,7 +241,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.criminal_record || ""}
                       onChange={(e) => handleFilterChange("criminal_record", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="VAR" className="text-black">Var</option>
@@ -252,7 +254,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.daily_package_estimate || ""}
                       onChange={(e) => handleFilterChange("daily_package_estimate", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="0-15 PAKET" className="text-black">0-15 Paket</option>
@@ -268,11 +270,25 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
               {role === "kurye" && (
                 <>
                   <div>
+                    <label className="block text-sm font-semibold text-black mb-2">Sektör</label>
+                    <select
+                      value={filters.business_sector || ""}
+                      onChange={(e) => handleFilterChange("business_sector", e.target.value)}
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      {BUSINESS_SECTORS.map((sector) => (
+                        <option key={sector} value={sector} className="text-black">{sector}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-semibold text-black mb-2">Çalışma Tipi</label>
                     <select
                       value={filters.working_type || ""}
                       onChange={(e) => handleFilterChange("working_type", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="Full Time" className="text-black">Full Time</option>
@@ -285,7 +301,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.earning_model || ""}
                       onChange={(e) => handleFilterChange("earning_model", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
@@ -302,7 +318,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                           key={day}
                           type="button"
                           onClick={() => handleWorkingDayToggle(day)}
-                          className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          className={`h-[52px] px-3 rounded-lg text-sm font-medium transition-all ${
                             index === 6 ? 'col-span-2' : ''
                           } ${
                             selectedWorkingDays.includes(day)
@@ -321,7 +337,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.daily_package_estimate || ""}
                       onChange={(e) => handleFilterChange("daily_package_estimate", e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
                       <option value="0-15 PAKET" className="text-black">0-15 Paket</option>
@@ -369,17 +385,6 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
           </div>
 
           <div className="space-y-5">
-            {/* İl */}
-            <div>
-              <label className="block text-sm font-semibold text-white mb-2">İl</label>
-              <input
-                type="text"
-                value="İstanbul"
-                disabled
-                className="w-full px-3 py-2.5 border-2 border-gray-600 rounded-lg bg-gray-800 text-gray-400 text-sm"
-              />
-            </div>
-
             {/* İlçe */}
             <div>
               <label className="block text-sm font-semibold text-white mb-2">İlçe</label>
@@ -410,7 +415,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("working_type", e.target.value);
                       onChange({ ...filters, working_type: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="Full Time" className="text-black">Full Time</option>
@@ -426,7 +431,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("earning_model", e.target.value);
                       onChange({ ...filters, earning_model: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
@@ -455,7 +460,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                           }
                           onChange(newFilters);
                         }}
-                        className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                        className={`h-[44px] px-2 rounded-lg text-xs font-medium transition-all ${
                           index === 6 ? 'col-span-2' : ''
                         } ${
                           selectedWorkingDays.includes(day)
@@ -477,7 +482,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("license_type", e.target.value);
                       onChange({ ...filters, license_type: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="A1" className="text-black">A1</option>
@@ -494,7 +499,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("has_motorcycle", e.target.value);
                       onChange({ ...filters, has_motorcycle: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="VAR" className="text-black">Var</option>
@@ -510,7 +515,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("has_bag", e.target.value);
                       onChange({ ...filters, has_bag: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="VAR" className="text-black">Var</option>
@@ -526,7 +531,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("p1_certificate", e.target.value);
                       onChange({ ...filters, p1_certificate: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="VAR" className="text-black">Var</option>
@@ -542,7 +547,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("criminal_record", e.target.value);
                       onChange({ ...filters, criminal_record: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="VAR" className="text-black">Var</option>
@@ -558,7 +563,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("daily_package_estimate", e.target.value);
                       onChange({ ...filters, daily_package_estimate: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="0-15 PAKET" className="text-black">0-15 Paket</option>
@@ -574,6 +579,23 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
             {role === "kurye" && (
               <>
                 <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Sektör</label>
+                  <select
+                    value={filters.business_sector || ""}
+                    onChange={(e) => {
+                      handleFilterChange("business_sector", e.target.value);
+                      onChange({ ...filters, business_sector: e.target.value });
+                    }}
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    {BUSINESS_SECTORS.map((sector) => (
+                      <option key={sector} value={sector} className="text-black">{sector}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-sm font-semibold text-white mb-2">Çalışma Tipi</label>
                   <select
                     value={filters.working_type || ""}
@@ -581,7 +603,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("working_type", e.target.value);
                       onChange({ ...filters, working_type: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="Full Time" className="text-black">Full Time</option>
@@ -597,7 +619,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("earning_model", e.target.value);
                       onChange({ ...filters, earning_model: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
@@ -626,7 +648,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                           }
                           onChange(newFilters);
                         }}
-                        className={`px-2 py-2 rounded-lg text-xs font-medium transition-all ${
+                        className={`h-[44px] px-2 rounded-lg text-xs font-medium transition-all ${
                           index === 6 ? 'col-span-2' : ''
                         } ${
                           selectedWorkingDays.includes(day)
@@ -648,7 +670,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       handleFilterChange("daily_package_estimate", e.target.value);
                       onChange({ ...filters, daily_package_estimate: e.target.value });
                     }}
-                    className="w-full px-3 py-2.5 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
                     <option value="0-15 PAKET" className="text-black">0-15 Paket</option>

@@ -45,29 +45,37 @@ export function MultiSelect({ options, value, onChange, placeholder = "Seçiniz"
 
   const dropdownClass = theme === "dark"
     ? "bg-[#1a1a1a] border-white/10"
-    : "bg-white border-gray-200";
+    : "bg-white border-neutral-200";
 
   const optionHoverClass = theme === "dark"
     ? "hover:bg-white/5"
-    : "hover:bg-gray-100";
+    : "hover:bg-neutral-50";
 
   const checkboxBorderClass = theme === "dark"
     ? "border-white/30"
-    : "border-gray-400";
+    : "border-neutral-400";
 
-  const textColor = theme === "dark" ? "text-white" : "text-gray-800";
-  const iconColor = theme === "dark" ? "text-white/50" : "text-gray-500";
+  const textColor = theme === "dark" ? "text-white" : "text-neutral-900";
+  const iconColor = theme === "dark" ? "text-white/50" : "text-neutral-500";
+  
+  const buttonClass = theme === "dark"
+    ? "bg-[#1a1a1a] border-white/10 text-white"
+    : "bg-white border-neutral-300 text-neutral-900";
+
+  // Filtre panellerinde 52px, profil düzenleme gibi sayfalarda 60px - tema bazlı
+  const heightClass = theme === "dark" ? "h-[52px]" : "h-[60px]";
+  const borderClass = theme === "dark" ? "border-2 border-[#ff7a00] rounded-xl" : "border border-neutral-300 rounded-lg";
 
   return (
     <div className="relative" ref={containerRef}>
       <button
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`input-field text-sm flex items-center justify-between ${
-          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        className={`w-full ${heightClass} px-4 ${borderClass} text-sm flex items-center justify-between transition-all focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] ${buttonClass} ${
+          disabled ? "opacity-60 cursor-not-allowed !bg-neutral-100" : "cursor-pointer hover:border-[#ff7a00]"
         }`}
       >
-        <span className="truncate block mr-2 text-black">
+        <span className={`truncate block mr-2 ${value.length === 0 ? (theme === "dark" ? "text-white/50" : "text-neutral-500") : textColor}`}>
           {value.length === 0
             ? placeholder
             : value.length === options.length
@@ -75,7 +83,7 @@ export function MultiSelect({ options, value, onChange, placeholder = "Seçiniz"
             : `${value.length} seçim`}
         </span>
         <svg
-          className={`w-5 h-5 transition-transform ${isOpen ? "rotate-180" : ""} ${iconColor}`}
+          className={`w-5 h-5 transition-transform shrink-0 ${isOpen ? "rotate-180" : ""} ${iconColor}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -86,7 +94,7 @@ export function MultiSelect({ options, value, onChange, placeholder = "Seçiniz"
 
       {isOpen && (
         <div className={`absolute z-50 w-full mt-2 border rounded-xl shadow-xl max-h-60 overflow-y-auto ${dropdownClass}`}>
-          <div className={`p-2 sticky top-0 border-b z-10 ${theme === "dark" ? "bg-[#1a1a1a] border-white/10" : "bg-white border-gray-200"}`}>
+          <div className={`p-2 sticky top-0 border-b z-10 ${theme === "dark" ? "bg-[#1a1a1a] border-white/10" : "bg-white border-neutral-200"}`}>
              <button
               type="button"
               onClick={handleSelectAll}
@@ -103,7 +111,7 @@ export function MultiSelect({ options, value, onChange, placeholder = "Seçiniz"
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors ${optionHoverClass}`}
               >
                 <div
-                  className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                  className={`w-5 h-5 rounded border flex items-center justify-center transition-colors shrink-0 ${
                     value.includes(option)
                       ? "bg-[#ff7a00] border-[#ff7a00]"
                       : checkboxBorderClass

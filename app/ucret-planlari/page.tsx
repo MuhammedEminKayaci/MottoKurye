@@ -321,6 +321,42 @@ export default function UcretPlanlariPage() {
                 </div>
               </div>
             </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-neutral-100 hover:shadow-xl transition-shadow">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-[#ff7a00]/10 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
+                    İşletmeler için nasıl çalışıyor?
+                  </h3>
+                  <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
+                    Platform, işletmelerin doğru kuryelere ulaşması için tasarlanmıştır. İşletmeler, kurye profillerini görüntüleyebilir ve iletişim talebi gönderebilir. Seçtiğiniz pakete göre günlük iletişim ve onay limitleriniz belirlenir. Ücretsiz paket ile başlayıp, ihtiyacınıza göre ücretli paketlere geçiş yapabilirsiniz.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-neutral-100 hover:shadow-xl transition-shadow">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 md:w-6 md:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
+                    Kuryeler için ücretsiz mi?
+                  </h3>
+                  <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
+                    Evet! Kuryeler için platform tamamen ücretsizdir. Kuryeler ücretsiz kayıt olabilir, profillerini oluşturabilir, ilan verebilir ve işletmelerden gelen iletişim taleplerini yanıtlayabilir. Hiçbir ücret veya gizli masraf bulunmamaktadır.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

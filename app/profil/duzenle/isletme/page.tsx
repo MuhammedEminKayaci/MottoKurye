@@ -10,27 +10,33 @@ import { ISTANBUL_DISTRICTS } from '@/lib/istanbul-districts';
 interface BusinessData {
   id: string;
   business_name: string;
+  business_sector: string;
   manager_name: string;
   manager_contact: string | null;
-  service_type: string;
-  service_hours_start: string;
-  service_hours_end: string;
-  sunday_working: string;
   province: string;
   district: string[];
+  working_type: string;
+  earning_model: string;
+  working_days: string[];
+  daily_package_estimate: string;
   contact_preference: 'phone' | 'in_app' | 'both';
   avatar_url?: string | null;
 }
 
-const SERVICE_TYPES = [
-  'Kargo',
-  'Kurye',
-  'Restoran',
-  'Market',
-  'Diğer'
+const businessSectors = [
+  "E-Ticaret ve Online Satış Firmaları",
+  "Moda, Tekstil ve Aksesuar",
+  "Kurumsal ve Ofis Hizmetleri",
+  "Finans - Bankacılık - Sigorta",
+  "Yeme-İçme",
+  "Sağlık ve Medikal",
+  "Teknoloji ve Elektronik",
+  "Lojistik ve Depolama",
+  "Çiçek & Hediyeli Eşya",
+  "Otomotiv ve Yedek Parça",
 ];
 
-const PROVINCES = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya'];
+const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
 // Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
 const formatPhoneNumber = (value: string): string => {
@@ -86,8 +92,14 @@ export default function IsletmeDuzenlePage() {
         if (fetchError) throw fetchError;
         if (!data) throw new Error('İşletme profili bulunamadı');
 
-        setBusiness(data);
-        setFormData(data);
+        // Parse working_days if it's a string
+        let workingDays = data.working_days;
+        if (typeof workingDays === 'string') {
+          workingDays = workingDays.split(',').map((d: string) => d.trim());
+        }
+
+        setBusiness({ ...data, working_days: workingDays });
+        setFormData({ ...data, working_days: workingDays });
         setAvatarPreview(data.avatar_url);
       } catch (err) {
         console.error('Error loading business data:', err);
@@ -99,6 +111,7 @@ export default function IsletmeDuzenlePage() {
 
     loadBusinessData();
   }, []);
+
   const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -123,6 +136,17 @@ export default function IsletmeDuzenlePage() {
     }));
   };
 
+  const handleWorkingDaysChange = (day: string) => {
+    setFormData(prev => {
+      const currentDays = Array.isArray(prev.working_days) ? prev.working_days : [];
+      if (currentDays.includes(day)) {
+        return { ...prev, working_days: currentDays.filter(d => d !== day) };
+      } else {
+        return { ...prev, working_days: [...currentDays, day] };
+      }
+    });
+  };
+
   const handleSave = async () => {
     try {
       setError(null);
@@ -136,7 +160,7 @@ export default function IsletmeDuzenlePage() {
         return;
       }
       if (!formData.manager_name?.trim()) {
-        setError('Yönetici adı gereklidir');
+        setError('Yetkili adı gereklidir');
         setSaving(false);
         return;
       }
@@ -168,14 +192,15 @@ export default function IsletmeDuzenlePage() {
 
       const updateData: any = {
         business_name: formData.business_name,
+        business_sector: formData.business_sector,
         manager_name: formData.manager_name,
         manager_contact: (formData.contact_preference === 'phone' || formData.contact_preference === 'both') ? formData.manager_contact : null,
-        service_type: formData.service_type,
-        service_hours_start: formData.service_hours_start,
-        service_hours_end: formData.service_hours_end,
-        sunday_working: formData.sunday_working,
         province: formData.province,
         district: formData.district,
+        working_type: formData.working_type,
+        earning_model: formData.earning_model,
+        working_days: formData.working_days,
+        daily_package_estimate: formData.daily_package_estimate,
         contact_preference: formData.contact_preference,
         avatar_url: finalAvatarUrl,
       };
@@ -319,7 +344,7 @@ export default function IsletmeDuzenlePage() {
               İşletme Bilgileri
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="sm:col-span-2">
+              <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
                   İşletme Adı <span className="text-red-500">*</span>
                 </label>
@@ -328,38 +353,39 @@ export default function IsletmeDuzenlePage() {
                   name="business_name"
                   value={formData.business_name || ''}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                   placeholder="Örn: ABC Kargo"
                 />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Yönetici Adı <span className="text-red-500">*</span>
+                  Firma Sektörü <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="business_sector"
+                  value={formData.business_sector || ''}
+                  onChange={handleInputChange}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white cursor-pointer appearance-none"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
+                >
+                  <option value="">Sektör Seçin</option>
+                  {businessSectors.map(sector => (
+                    <option key={sector} value={sector}>{sector}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Yetkili Adı Soyadı <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="manager_name"
                   value={formData.manager_name || ''}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                   placeholder="Ad Soyadı"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Hizmet Türü <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="service_type"
-                  value={formData.service_type || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
-                >
-                  <option value="">Seçiniz</option>
-                  {SERVICE_TYPES.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
               </div>
             </div>
           </div>
@@ -372,7 +398,7 @@ export default function IsletmeDuzenlePage() {
               </svg>
               İletişim Tercihi
             </h2>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
                   İletişim Şekli <span className="text-red-500">*</span>
@@ -381,87 +407,37 @@ export default function IsletmeDuzenlePage() {
                   name="contact_preference"
                   value={formData.contact_preference || 'in_app'}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white cursor-pointer appearance-none"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
                 >
                   <option value="in_app">Uygulama İçi İletişim</option>
                   <option value="phone">Telefon ve Uygulama İçi İletişim</option>
                 </select>
                 {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && (
-                  <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    Telefon görüşmelerine 08:00-20:00 saatleri arasında izin verilmektedir.
+                  <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
+                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Telefon numaranız 08:00-20:00 saatleri arasında kuryelere gösterilecektir.
                   </p>
                 )}
               </div>
-              {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && (
-                <div>
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                    Telefon Numarası <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    name="manager_contact"
-                    value={formData.manager_contact || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, manager_contact: formatPhoneNumber(e.target.value) }))}
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                    placeholder="0 (5XX) XXX XX XX"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Hizmet Saatleri */}
-          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
-            <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Hizmet Saatleri
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Açılış Saati
+                  Telefon Numarası {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && <span className="text-red-500">*</span>}
                 </label>
                 <input
-                  type="time"
-                  name="service_hours_start"
-                  value={formData.service_hours_start || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
+                  type="tel"
+                  name="manager_contact"
+                  value={formData.manager_contact || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, manager_contact: formatPhoneNumber(e.target.value) }))}
+                  disabled={formData.contact_preference === 'in_app'}
+                  className={`w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white ${formData.contact_preference === 'in_app' ? '!bg-neutral-100 cursor-not-allowed opacity-60' : ''}`}
+                  placeholder="0 (5XX) XXX XX XX"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Kapanış Saati
-                </label>
-                <input
-                  type="time"
-                  name="service_hours_end"
-                  value={formData.service_hours_end || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Pazar Günü
-                </label>
-                <select
-                  name="sunday_working"
-                  value={formData.sunday_working || 'ACIK'}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
-                >
-                  <option value="ACIK">Açık</option>
-                  <option value="KAPALI">Kapalı</option>
-                </select>
               </div>
             </div>
           </div>
 
-          {/* Konum Bilgileri */}
+          {/* Hizmet Bölgesi */}
           <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
             <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
               <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -478,12 +454,11 @@ export default function IsletmeDuzenlePage() {
                   name="province"
                   value={formData.province || ''}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white cursor-pointer appearance-none"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
                 >
                   <option value="">Seçiniz</option>
-                  {PROVINCES.map(prov => (
-                    <option key={prov} value={prov}>{prov}</option>
-                  ))}
+                  <option value="İstanbul">İstanbul</option>
                 </select>
               </div>
               <div>
@@ -503,10 +478,97 @@ export default function IsletmeDuzenlePage() {
                     type="text"
                     value={Array.isArray(formData.district) ? formData.district.join(', ') : ''}
                     onChange={(e) => handleDistrictChange(e.target.value.split(',').map(d => d.trim()))}
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
+                    className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                     placeholder="Virgülle ayrılmış"
                   />
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* Çalışma Koşulları */}
+          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
+            <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
+              <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Çalışma Koşulları
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Çalışma Tipi <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="working_type"
+                  value={formData.working_type || ''}
+                  onChange={handleInputChange}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white cursor-pointer appearance-none"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="Full Time">Full Time</option>
+                  <option value="Part Time">Part Time</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Kazanç Modeli <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="earning_model"
+                  value={formData.earning_model || ''}
+                  onChange={handleInputChange}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white cursor-pointer appearance-none"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="Saat+Paket Başı">Saat+Paket Başı</option>
+                  <option value="Paket Başı">Paket Başı</option>
+                  <option value="Aylık Sabit">Aylık Sabit</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Günlük Paket Tahmini <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="daily_package_estimate"
+                  value={formData.daily_package_estimate || ''}
+                  onChange={handleInputChange}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white cursor-pointer appearance-none"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="0-15 PAKET">0-15 PAKET</option>
+                  <option value="15-25 PAKET">15-25 PAKET</option>
+                  <option value="25-40 PAKET">25-40 PAKET</option>
+                  <option value="40 VE ÜZERİ">40 VE ÜZERİ</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Çalışma Günleri <span className="text-red-500">*</span>
+                </label>
+                <div className="flex flex-wrap gap-2 h-[80px] items-center">
+                  {days.map(day => {
+                    const isSelected = Array.isArray(formData.working_days) && formData.working_days.includes(day);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => handleWorkingDaysChange(day)}
+                        className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all ${
+                          isSelected
+                            ? 'bg-[#ff7a00] text-white border-[#ff7a00]'
+                            : 'bg-white text-neutral-700 border-neutral-300 hover:border-[#ff7a00]'
+                        }`}
+                      >
+                        {day.slice(0, 3)}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>

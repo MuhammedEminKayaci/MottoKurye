@@ -159,12 +159,17 @@ function IlanlarContent() {
               try {
                 const { data: business } = await supabase
                   .from("businesses")
-                  .select("id,business_name,avatar_url,user_id,seeking_couriers")
+                  .select("id,business_name,avatar_url,user_id,seeking_couriers,business_sector")
                   .eq("user_id", ad.user_id)
                   .single();
                 
                 // Only include ads from businesses that are seeking couriers
                 if (!business || !business.seeking_couriers) {
+                  return null;
+                }
+                
+                // Filter by business_sector if specified
+                if (filters.business_sector && business.business_sector !== filters.business_sector) {
                   return null;
                 }
                 

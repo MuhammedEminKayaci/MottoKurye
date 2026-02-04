@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { PublicHeader } from "./_components/PublicHeader";
+import { RoleHeader } from "./_components/RoleHeader";
 import { Footer } from "./_components/Footer";
 
 type UserRole = "kurye" | "isletme" | null;
@@ -14,6 +15,7 @@ export default function Page() {
   const router = useRouter();
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const checkUserRole = async () => {
@@ -23,9 +25,12 @@ export default function Page() {
         
         if (!userId) {
           setUserRole(null);
+          setIsLoggedIn(false);
           setIsLoading(false);
           return;
         }
+
+        setIsLoggedIn(true);
 
         // Check if courier
         const { data: courierData } = await supabase
@@ -66,7 +71,8 @@ export default function Page() {
 
   return (
     <div className="min-h-screen w-full bg-white flex flex-col font-sans">
-      <PublicHeader />
+      {/* Giriş yapmış kullanıcılar için RoleHeader, misafirler için PublicHeader */}
+      {isLoggedIn ? <RoleHeader /> : <PublicHeader />}
 
       {/* Hero */}
       <main className="flex-1 p-6 md:p-12 lg:p-20">
