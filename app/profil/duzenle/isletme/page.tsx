@@ -218,7 +218,25 @@ export default function IsletmeDuzenlePage() {
       }, 1500);
     } catch (err: any) {
       console.error('Error saving business data:', err);
-      setError(err.message || 'Bilgiler güncellenirken hata oluştu');
+      // Hata mesajlarını Türkçeleştir
+      let errorMessage = 'Bilgiler güncellenirken hata oluştu';
+      const errMsg = err?.message || '';
+      
+      if (errMsg.includes('null value in column') && errMsg.includes('phone')) {
+        errorMessage = 'Telefon numarası alanı boş bırakılamaz. Lütfen geçerli bir telefon numarası girin.';
+      } else if (errMsg.includes('violates not-null constraint')) {
+        errorMessage = 'Zorunlu alanlardan biri boş bırakılmış. Lütfen tüm alanları doldurun.';
+      } else if (errMsg.includes('duplicate key')) {
+        errorMessage = 'Bu bilgiler zaten kayıtlı. Lütfen farklı bilgiler deneyin.';
+      } else if (errMsg.includes('network') || errMsg.includes('fetch')) {
+        errorMessage = 'İnternet bağlantısı sorunu. Lütfen bağlantınızı kontrol edin.';
+      } else if (errMsg.includes('permission') || errMsg.includes('policy')) {
+        errorMessage = 'Bu işlemi yapmaya yetkiniz yok.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }

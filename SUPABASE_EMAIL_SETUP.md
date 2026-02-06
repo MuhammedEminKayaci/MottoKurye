@@ -9,11 +9,11 @@
 ### Adım 2: Email Settings (Authentication > Email Templates)
 1. **Authentication** → **Email Templates** bölümüne git
 2. Tüm email template'lerinde gönderici adı ayarını kontrol et:
-   - "MottoKurye" olarak ayarla
+   - "PaketServisçi" olarak ayarla
 
 ### Adım 3: Email Sender Configuration
 1. **Project Settings** → **Email** bölümüne git
-2. Gönderici adı (Sender Name): `MottoKurye` olarak ayarla
+2. Gönderici adı (Sender Name): `PaketServisçi` olarak ayarla
 3. Gönderici email: `noreply@[supabase-project-ref].supabase.co`
 
 ### Adım 4: Email Confirmation Required
@@ -44,13 +44,13 @@
 ```
 Merhaba {{ .Email }},
 
-MottoKurye'ye hoş geldiniz! Hesabınızı doğrulamak için aşağıdaki linke tıklayın:
+PaketServisçi'ye hoş geldiniz! Hesabınızı doğrulamak için aşağıdaki linke tıklayın:
 
 {{ .ConfirmationURL }}
 
 Bu link 24 saat geçerlidir.
 
-MottoKurye Ekibi
+PaketServisçi Ekibi
 ```
 
 Şeklinde özelleştir.

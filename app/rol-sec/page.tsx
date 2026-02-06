@@ -88,7 +88,7 @@ export default function RolSecPage() {
             <span className="font-semibold">{userInfo.email}</span> olarak giriş yaptın.
           </p>
           <p className="text-neutral-500 text-base">
-            MottoKurye'de nasıl yer almak istersin?
+            PaketServisçi'de nasıl yer almak istersin?
           </p>
         </div>
 

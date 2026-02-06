@@ -9,6 +9,7 @@ export function PublicHeader() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // Check if user is logged in
   useEffect(() => {
@@ -40,9 +41,9 @@ export function PublicHeader() {
   };
 
   const handleLogout = async () => {
+    setLoggingOut(true);
     await supabase.auth.signOut();
-    setIsLoggedIn(false);
-    router.push("/");
+    window.location.href = "/";
   };
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -145,8 +146,12 @@ export function PublicHeader() {
                 </Link>
               </>
             ) : (
-              <button onClick={handleLogout} className={authBtnBase}>
-                Çıkış Yap
+              <button 
+                onClick={handleLogout} 
+                disabled={loggingOut}
+                className={`${authBtnBase} ${loggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {loggingOut ? 'Çıkılıyor...' : 'Çıkış Yap'}
               </button>
             )}
           </nav>
@@ -179,8 +184,12 @@ export function PublicHeader() {
             </Link>
           </>
         ) : (
-          <button onClick={handleLogout} className={authBtnBase}>
-            Çıkış Yap
+          <button 
+            onClick={handleLogout} 
+            disabled={loggingOut}
+            className={`${authBtnBase} ${loggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {loggingOut ? 'Çıkılıyor...' : 'Çıkış Yap'}
           </button>
         )}
       </div>

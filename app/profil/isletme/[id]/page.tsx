@@ -74,10 +74,17 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
   const avatarUrl = business.avatar_url || '/images/icon-business.png';
   const maskedName = maskBusinessName(business.business_name);
 
-  // Format district
+  // Format district - max 2 ilçe göster, geri kalanı sayı olarak belirt
   const formatDistrict = (district: any) => {
     if (!district) return '';
-    if (Array.isArray(district)) return district.join(', ');
+    if (Array.isArray(district)) {
+      if (district.length <= 2) {
+        return district.join(', ');
+      }
+      const firstTwo = district.slice(0, 2).join(', ');
+      const remaining = district.length - 2;
+      return `${firstTwo} +${remaining} ilçe`;
+    }
     return district;
   };
 
@@ -190,8 +197,9 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
           ))}
         </div>
 
-        {/* Contact Section - show based on contact preference */}
-        {(business.contact_preference === "in_app" || business.contact_preference === "both" || business.manager_contact) && (
+        {/* Contact Section - show based on contact preference and premium status */}
+        {/* Premium olmayan işletmelerde İletişim bölümü gösterilmez (sadece in_app tercihinde gösterilir) */}
+        {(isPremiumPlan || business.contact_preference === "in_app") && (
           <div className="mt-8 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl border border-blue-200 p-6 sm:p-8">
             <h3 className="text-xl font-bold text-neutral-800 mb-4">İletişim</h3>
             <ContactButtons

@@ -33,32 +33,6 @@ export default function IlanlarimPage() {
   const [form, setForm] = useState({ title:"", description:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
   const WORKING_DAYS = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"];
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [adImage, setAdImage] = useState<File | null>(null);
-  const [adImagePreview, setAdImagePreview] = useState<string | null>(null);
-  const uploadAdImage = async (file: File): Promise<string | null> => {
-    try {
-      const { data: auth } = await supabase.auth.getSession();
-      const uid = auth.session?.user?.id;
-      if (!uid) return null;
-      const ext = file.name.split('.').pop();
-      const path = `ads/${uid}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
-      if (error) return null;
-      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-      return data.publicUrl || null;
-    } catch {
-      return null;
-    }
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setAdImage(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setAdImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
-  };
 
   const submit = async () => {
     setErrorMsg(null as any);
@@ -68,13 +42,7 @@ export default function IlanlarimPage() {
     const uid = auth.session?.user?.id;
     if (!form.title.trim()) { setErrorMsg("Başlık zorunludur."); setCreating(false); return; }
     
-    // Upload image if exists
-    let imageUrl = null;
-    if (adImage) {
-      imageUrl = await uploadAdImage(adImage);
-    }
-    
-    const payload: any = { ...form, user_id: uid, image_url: imageUrl };
+    const payload: any = { ...form, user_id: uid };
     if (selectedDays.length) payload.working_days = selectedDays;
     const { data, error } = await supabase.from("business_ads").insert(payload).select().single();
     if (error) {
@@ -86,8 +54,6 @@ export default function IlanlarimPage() {
     setCreating(false);
     setForm({ title:"", description:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
     setSelectedDays([]);
-    setAdImage(null);
-    setAdImagePreview(null);
   };
 
   return (
@@ -133,51 +99,6 @@ export default function IlanlarimPage() {
                 })}
               </div>
             </div>
-            
-            {/* Image Upload Section */}
-            <div className="md:col-span-3">
-              <label className="block">
-                <span className="block text-[11px] font-semibold text-neutral-600 mb-2 uppercase tracking-wide">İlan Görseli (Opsiyonel)</span>
-                <div className="flex items-start gap-4">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="ad-image-input"
-                  />
-                  <label
-                    htmlFor="ad-image-input"
-                    className="cursor-pointer flex items-center justify-center w-24 h-24 border-2 border-dashed border-neutral-300 rounded-lg hover:border-orange-400 transition"
-                  >
-                    {adImagePreview ? (
-                      <img src={adImagePreview} alt="Preview" className="w-full h-full object-cover rounded-lg" />
-                    ) : (
-                      <svg className="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                    )}
-                  </label>
-                  <div className="flex-1">
-                    <p className="text-sm text-neutral-600 mb-1">
-                      {adImage ? `Seçilen: ${adImage.name}` : "Görsel seçmek için tıklayın"}
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      Görsel seçmezseniz şirket profil fotoğrafınız kullanılacak
-                    </p>
-                    {adImage && (
-                      <button
-                        type="button"
-                        onClick={() => {setAdImage(null); setAdImagePreview(null);}}
-                        className="mt-1 text-xs text-red-600 hover:text-red-800"
-                      >
-                        Kaldır
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </label>
-            </div>
           </div>
         )}
         {loading ? (
@@ -188,12 +109,6 @@ export default function IlanlarimPage() {
           <ul className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((it) => (
               <li key={it.id} className="bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-sm hover:shadow-md transition">
-                {/* Ad Image */}
-                {it.image_url && (
-                  <div className="h-48 overflow-hidden">
-                    <img src={it.image_url} alt={it.title} className="w-full h-full object-cover" />
-                  </div>
-                )}
                 <div className="p-5">
                   <div className="font-semibold text-black text-lg mb-1">{it.title}</div>
                   <div className="text-sm text-black/70 line-clamp-3">{it.description}</div>

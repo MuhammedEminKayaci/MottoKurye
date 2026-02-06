@@ -53,13 +53,13 @@ export function Footer() {
         </div>
 
         <div className="mt-6 text-xs opacity-80 text-center md:text-left max-w-3xl">
-          MottoKurye olarak çıktığımız bu yolda kuryelerin yaşadığı teslimat sorununu çözmek
+          PaketServisçi olarak çıktığımız bu yolda kuryelerin yaşadığı teslimat sorununu çözmek
           ve işletmelerin güvenilir kurye bulma gibi problemlerine çözüm düşünerek geliştirdiğimiz bu
           yenilikçi bakış uygulamalarla artık çok daha kolay.
         </div>
 
         <div className="mt-4 pt-4 border-t border-white/20 text-xs text-center">
-          © 2025 MottoKurye - Tüm haklar saklıdır.
+          © 2026 PaketServisçi - Tüm haklar saklıdır.
         </div>
       </div>
     </footer>

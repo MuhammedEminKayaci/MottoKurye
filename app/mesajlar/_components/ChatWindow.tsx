@@ -74,10 +74,23 @@ export function ChatWindow({ conversationId, currentUserId, currentUserRole }: C
       console.error('Error fetching messages:', error);
     } else {
       setMessages(data || []);
-      // Mark unseen messages as read
-      // We can optimize this by only doing it if there are unread messages
+      // Tüm okunmamış mesajları okundu olarak işaretle (kendi gönderdiklerim hariç)
+      await markAllAsRead();
     }
     setLoading(false);
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('conversation_id', conversationId)
+        .neq('sender_id', currentUserId)
+        .eq('is_read', false);
+    } catch (err) {
+      console.error('Error marking messages as read:', err);
+    }
   };
 
   const markAsRead = async (messageId: string) => {

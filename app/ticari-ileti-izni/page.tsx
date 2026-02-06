@@ -39,13 +39,13 @@ export default function TicariIletiIzniPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>1.1.</strong> MottoKurye ("Şirket", "Platform"), <strong>6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun</strong> ve <strong>Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik</strong> hükümlerine uygun olarak ticari elektronik ileti göndermektedir.
+                  <strong>1.1.</strong> PaketServisçi ("Şirket", "Platform"), <strong>6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun</strong> ve <strong>Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik</strong> hükümlerine uygun olarak ticari elektronik ileti göndermektedir.
                 </p>
                 <p>
                   <strong>1.2.</strong> Ticari elektronik ileti, telefon, çağrı merkezleri, faks, otomatik arama makineleri, akıllı ses kaydedici sistemler, elektronik posta, kısa mesaj hizmeti gibi vasıtalar kullanılarak elektronik ortamda gerçekleştirilen ve ticari amaçlarla gönderilen veri, ses ve görüntü içerikli iletilerdir.
                 </p>
                 <p>
-                  <strong>1.3.</strong> MottoKurye, ticari elektronik ileti göndermek için alıcıların <strong>önceden onayını</strong> (açık rızasını) almaktadır.
+                  <strong>1.3.</strong> PaketServisçi, ticari elektronik ileti göndermek için alıcıların <strong>önceden onayını</strong> (açık rızasını) almaktadır.
                 </p>
               </div>
             </section>
@@ -87,7 +87,7 @@ export default function TicariIletiIzniPage() {
                   <li><strong>E-posta Linki:</strong> Gönderilen e-postaların altındaki "Abonelikten Çık" bağlantısını kullanma</li>
                   <li><strong>SMS RED:</strong> Aldığınız SMS'e "RED [Marka Kodu]" yazarak kısa mesaj gönderme</li>
                   <li><strong>Profil Ayarları:</strong> Hesap ayarlarınızdan ticari ileti tercihlerini güncelleme</li>
-                  <li><strong>İletişim:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">İletişim sayfamızdan</Link> veya kvkk@mottokurye.com adresine yazarak</li>
+                  <li><strong>İletişim:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">İletişim sayfamızdan</Link> veya kvkk@paketservisci.com adresine yazarak</li>
                 </ul>
                 <p>
                   <strong>3.3.</strong> İzin geri alındığında, en geç <strong>3 iş günü</strong> içinde ticari ileti gönderimi durdurulur ve İYS sistemine bildirilir.
@@ -102,7 +102,7 @@ export default function TicariIletiIzniPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>4.1.</strong> MottoKurye, <strong>İleti Yönetim Sistemi (İYS)</strong>'ne kayıtlıdır ve ticari elektronik ileti izinlerinizi İYS üzerinde yönetmektedir.
+                  <strong>4.1.</strong> PaketServisçi, <strong>İleti Yönetim Sistemi (İYS)</strong>'ne kayıtlıdır ve ticari elektronik ileti izinlerinizi İYS üzerinde yönetmektedir.
                 </p>
                 <p>
                   <strong>4.2.</strong> İYS, alıcıların ticari elektronik ileti tercihlerini merkezi olarak yönetebilmelerine olanak tanıyan resmi bir sistemdir.
@@ -224,13 +224,13 @@ export default function TicariIletiIzniPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>8.1.</strong> MottoKurye, ticari elektronik ileti gönderiminde 6563 sayılı Kanun ve ilgili mevzuata uygun hareket etmeyi taahhüt eder.
+                  <strong>8.1.</strong> PaketServisçi, ticari elektronik ileti gönderiminde 6563 sayılı Kanun ve ilgili mevzuata uygun hareket etmeyi taahhüt eder.
                 </p>
                 <p>
                   <strong>8.2.</strong> Hukuka aykırı ticari elektronik ileti gönderildiğini düşünüyorsanız:
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-1">
-                  <li>Bizimle iletişime geçebilirsiniz: kvkk@mottokurye.com</li>
+                  <li>Bizimle iletişime geçebilirsiniz: kvkk@paketservisci.com</li>
                   <li><strong>Ticaret Bakanlığı Tüketici Hakem Heyetleri</strong>'ne başvurabilirsiniz</li>
                   <li><strong>İYS</strong> üzerinden şikayet oluşturabilirsiniz</li>
                 </ul>
@@ -249,9 +249,9 @@ export default function TicariIletiIzniPage() {
                 <p>Ticari ileti izninizi yönetmek veya sorularınız için:</p>
                 <div className="bg-[#ff7a00]/10 p-6 rounded-lg border-2 border-[#ff7a00]">
                   <ul className="list-none space-y-2">
-                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-[#ff7a00] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg><strong>E-posta:</strong> kvkk@mottokurye.com</li>
+                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-[#ff7a00] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg><strong>E-posta:</strong> kvkk@paketservisci.com</li>
                     <li className="flex items-center gap-2"><svg className="w-4 h-4 text-[#ff7a00] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg><strong>Telefon:</strong> +90 555 123 45 67</li>
-                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-[#ff7a00] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg><strong>İletişim Formu:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">www.mottokurye.com/iletisim</Link></li>
+                    <li className="flex items-center gap-2"><svg className="w-4 h-4 text-[#ff7a00] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg><strong>İletişim Formu:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">www.paketservisci.com/iletisim</Link></li>
                     <li className="flex items-center gap-2"><svg className="w-4 h-4 text-[#ff7a00] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg><strong>Hesap Ayarları:</strong> Profil ayarlarınızdan "Bildirim Tercihleri"</li>
                   </ul>
                 </div>

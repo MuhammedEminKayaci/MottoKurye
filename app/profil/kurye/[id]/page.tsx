@@ -73,17 +73,19 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
 
   const formatDistrict = (district: any) => {
     if (!district) return '';
-    if (Array.isArray(district)) return district.join(', ');
+    if (Array.isArray(district)) {
+      if (district.length <= 2) return district.join(', ');
+      return `${district.slice(0, 2).join(', ')} +${district.length - 2} ilçe`;
+    }
     return district;
   };
 
-  // Info cards data structure
+  // Info cards data structure - Telefon bilgisi ContactButtons'da gösteriliyor (premium kontrolü için)
   const infoCards = [
     { label: 'İsim', value: maskedName, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     { label: 'Yaş', value: courier.age, icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
     { label: 'Cinsiyet', value: courier.gender === 'ERKEK' ? 'Erkek' : courier.gender === 'KADIN' ? 'Kadın' : courier.gender, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     { label: 'Uyruk', value: courier.nationality, icon: 'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9' },
-    { label: 'Telefon', value: courier.phone, icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z' },
     { label: 'İş Tecrübesi', value: courier.experience, icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
     { label: 'Konum', value: courier.province ? `${courier.province} / ${formatDistrict(courier.district)}` : formatDistrict(courier.district) || '-', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
     { label: 'Çalışma Tipi', value: courier.working_type, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },

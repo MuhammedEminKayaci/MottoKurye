@@ -31,6 +31,8 @@ interface CourierData {
   criminal_record: string;
   contact_preference: 'phone' | 'in_app' | 'both';
   avatar_url?: string | null;
+  p1_certificate_file_url?: string | null;
+  criminal_record_file_url?: string | null;
 }
 
 const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
@@ -59,6 +61,18 @@ export default function KuryeDuzenlePage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+
+  // Ehliyet ve sertifika dosyaları
+  const [licenseFile, setLicenseFile] = useState<File | null>(null);
+  const [licensePreview, setLicensePreview] = useState<string | null>(null);
+  const [p1File, setP1File] = useState<File | null>(null);
+  const [p1Preview, setP1Preview] = useState<string | null>(null);
+  const [criminalRecordFile, setCriminalRecordFile] = useState<File | null>(null);
+  const [criminalRecordPreview, setCriminalRecordPreview] = useState<string | null>(null);
+  
+  // Orijinal değerleri takip et (değişiklik tespiti için)
+  const [originalLicenseType, setOriginalLicenseType] = useState<string | null>(null);
+  const [originalP1Certificate, setOriginalP1Certificate] = useState<string | null>(null);
 
   const avatarOptions = [
     "/images/avatars/kurye/avatar1.svg",
@@ -97,6 +111,10 @@ export default function KuryeDuzenlePage() {
         setCourier({ ...data, working_days: workingDays });
         setFormData({ ...data, working_days: workingDays });
         setAvatarPreview(data.avatar_url);
+        
+        // Orijinal değerleri kaydet (değişiklik tespiti için)
+        setOriginalLicenseType(data.license_type);
+        setOriginalP1Certificate(data.p1_certificate);
       } catch (err) {
         console.error('Error loading courier data:', err);
         setError('Veriler yüklenirken hata oluştu');
@@ -114,6 +132,71 @@ export default function KuryeDuzenlePage() {
       setAvatarFile(file);
       setAvatarPreview(URL.createObjectURL(file));
       setSelectedAvatar(null);
+    }
+  };
+
+  // Ehliyet görseli yükleme
+  const handleLicenseFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setLicenseFile(file);
+      setLicensePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // P1 sertifikası görseli yükleme
+  const handleP1FileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setP1File(file);
+      setP1Preview(URL.createObjectURL(file));
+    }
+  };
+
+  // Sabıka kaydı görseli yükleme
+  const handleCriminalRecordFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setCriminalRecordFile(file);
+      setCriminalRecordPreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Dosya yükleme helper fonksiyonu
+  const uploadDocument = async (file: File, prefix: string): Promise<string | null> => {
+    try {
+      const ALLOWED_MIME = ["image/jpeg", "image/png", "application/pdf"];
+      const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+      if (!ALLOWED_MIME.includes(file.type)) {
+        setError('Sadece JPEG, PNG veya PDF dosyası yükleyebilirsiniz.');
+        return null;
+      }
+      if (file.size > MAX_SIZE) {
+        setError('Dosya boyutu 5MB\'ı geçemez.');
+        return null;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const ext = file.name.split('.').pop() || 'bin';
+      const path = `${prefix}_${user.id}_${Date.now()}.${ext}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(path, file, { upsert: false });
+      
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        return null;
+      }
+      
+      const { data } = supabase.storage.from('documents').getPublicUrl(path);
+      return data.publicUrl || null;
+    } catch (err) {
+      console.error('Upload error:', err);
+      return null;
     }
   };
 
@@ -165,6 +248,22 @@ export default function KuryeDuzenlePage() {
         return;
       }
 
+      // Ehliyet türü değişti mi kontrol et - değiştiyse görsel zorunlu
+      const licenseChanged = originalLicenseType && formData.license_type !== originalLicenseType;
+      if (licenseChanged && !licenseFile) {
+        setError('Ehliyet türünü değiştirdiğiniz için yeni ehliyet görselinizi yüklemeniz gerekmektedir.');
+        setSaving(false);
+        return;
+      }
+
+      // P1 sertifikası "YOK"tan "VAR"a değişti mi kontrol et - değiştiyse görsel zorunlu
+      const p1Changed = originalP1Certificate === 'YOK' && formData.p1_certificate === 'VAR';
+      if (p1Changed && !p1File) {
+        setError('P1 sertifikanız olduğunu belirttiğiniz için P1 sertifika görselinizi yüklemeniz gerekmektedir.');
+        setSaving(false);
+        return;
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -185,6 +284,33 @@ export default function KuryeDuzenlePage() {
         finalAvatarUrl = selectedAvatar;
       }
 
+      // Ehliyet görseli yükle (eğer varsa)
+      let licenseFileUrl = formData.p1_certificate_file_url; // Mevcut değeri koru
+      if (licenseFile) {
+        const uploadedUrl = await uploadDocument(licenseFile, 'ehliyet');
+        if (uploadedUrl) {
+          licenseFileUrl = uploadedUrl;
+        }
+      }
+
+      // P1 sertifikası görseli yükle (eğer varsa)
+      let p1FileUrl = formData.p1_certificate_file_url;
+      if (p1File) {
+        const uploadedUrl = await uploadDocument(p1File, 'p1');
+        if (uploadedUrl) {
+          p1FileUrl = uploadedUrl;
+        }
+      }
+
+      // Sabıka kaydı görseli yükle (eğer varsa)
+      let criminalRecordFileUrl = formData.criminal_record_file_url;
+      if (criminalRecordFile) {
+        const uploadedUrl = await uploadDocument(criminalRecordFile, 'sabka');
+        if (uploadedUrl) {
+          criminalRecordFileUrl = uploadedUrl;
+        }
+      }
+
       const updateData: any = {
         first_name: formData.first_name,
         last_name: formData.last_name,
@@ -192,7 +318,9 @@ export default function KuryeDuzenlePage() {
         gender: formData.gender,
         nationality: formData.nationality,
         avatar_url: finalAvatarUrl,
-        phone: (formData.contact_preference === 'phone' || formData.contact_preference === 'both') ? formData.phone : null,
+        phone: (formData.contact_preference === 'phone' || formData.contact_preference === 'both') 
+          ? (formData.phone || '') 
+          : '',
         experience: formData.experience,
         province: formData.province,
         district: formData.district,
@@ -208,6 +336,8 @@ export default function KuryeDuzenlePage() {
         p1_certificate: formData.p1_certificate,
         criminal_record: formData.criminal_record,
         contact_preference: formData.contact_preference,
+        p1_certificate_file_url: p1FileUrl,
+        criminal_record_file_url: criminalRecordFileUrl,
       };
 
       const { error: updateError } = await supabase
@@ -225,7 +355,25 @@ export default function KuryeDuzenlePage() {
       }, 1500);
     } catch (err: any) {
       console.error('Error saving courier data:', err);
-      setError(err.message || 'Bilgiler güncellenirken hata oluştu');
+      // Hata mesajlarını Türkçeleştir
+      let errorMessage = 'Bilgiler güncellenirken hata oluştu';
+      const errMsg = err?.message || '';
+      
+      if (errMsg.includes('null value in column') && errMsg.includes('phone')) {
+        errorMessage = 'Telefon numarası alanı boş bırakılamaz. Lütfen geçerli bir telefon numarası girin.';
+      } else if (errMsg.includes('violates not-null constraint')) {
+        errorMessage = 'Zorunlu alanlardan biri boş bırakılmış. Lütfen tüm alanları doldurun.';
+      } else if (errMsg.includes('duplicate key')) {
+        errorMessage = 'Bu bilgiler zaten kayıtlı. Lütfen farklı bilgiler deneyin.';
+      } else if (errMsg.includes('network') || errMsg.includes('fetch')) {
+        errorMessage = 'İnternet bağlantısı sorunu. Lütfen bağlantınızı kontrol edin.';
+      } else if (errMsg.includes('permission') || errMsg.includes('policy')) {
+        errorMessage = 'Bu işlemi yapmaya yetkiniz yok.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -712,6 +860,31 @@ export default function KuryeDuzenlePage() {
                   <option value="A (Sınırsız)">A (Sınırsız)</option>
                   <option value="B (Otomobil)">B (Otomobil)</option>
                 </select>
+                {/* Ehliyet değişikliği uyarısı ve dosya yükleme */}
+                {originalLicenseType && formData.license_type !== originalLicenseType && (
+                  <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-700 mb-2 flex items-center gap-2">
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      Ehliyet türünü değiştirdiğiniz için yeni ehliyet görselinizi yükleyiniz.
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,application/pdf"
+                      onChange={handleLicenseFileChange}
+                      className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00]"
+                    />
+                    {licensePreview && (
+                      <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Dosya yüklendi
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
@@ -727,6 +900,31 @@ export default function KuryeDuzenlePage() {
                   <option value="VAR">Var</option>
                   <option value="YOK">Yok</option>
                 </select>
+                {/* P1 sertifikası YOK'tan VAR'a değiştiyse dosya yükleme */}
+                {originalP1Certificate === 'YOK' && formData.p1_certificate === 'VAR' && (
+                  <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-700 mb-2 flex items-center gap-2">
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      P1 sertifikanız olduğunu belirttiğiniz için sertifika görselinizi yükleyiniz.
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,application/pdf"
+                      onChange={handleP1FileChange}
+                      className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00]"
+                    />
+                    {p1Preview && (
+                      <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Dosya yüklendi
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">

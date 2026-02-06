@@ -3,8 +3,23 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+
+// İsim maskeleme fonksiyonları - profildeki ile aynı mantık
+const maskCourierName = (first?: string | null, last?: string | null) => {
+  const f = (first || "").trim();
+  const l = (last || "").trim();
+  const initial = l ? `${l[0].toUpperCase()}.` : "";
+  return [f, initial].filter(Boolean).join(" ") || "Kurye";
+};
+
+const maskBusinessName = (name?: string | null) => {
+  const parts = (name || "").split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "İşletme";
+  // Her kelime için ilk harf + 3 nokta: "Engin Has Lahmacun" → "E... H... L..."
+  return parts.map(p => `${p[0]?.toUpperCase() || ''}...`).join(' ');
+};
 
 interface Conversation {
   id: string;
@@ -21,7 +36,10 @@ interface Conversation {
 export function ChatSidebar({ userId, userRole }: { userId: string; userRole: string }) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const params = useParams();
+  const router = useRouter();
   const activeId = Array.isArray(params?.id) ? params.id[0] : params?.id;
   
   // Realtime subscription
@@ -96,14 +114,14 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
         if (userRole === 'isletme') {
             const courier = couriersMap[c.courier_id];
             other = {
-                name: courier ? `${courier.first_name} ${courier.last_name}` : 'Kurye',
+                name: courier ? maskCourierName(courier.first_name, courier.last_name) : 'Kurye',
                 avatar_url: courier?.avatar_url,
                 role: 'Kurye'
             };
         } else {
             const business = businessesMap[c.business_id];
             other = {
-                name: business?.business_name || 'İşletme',
+                name: maskBusinessName(business?.business_name),
                 avatar_url: business?.avatar_url,
                 role: 'İşletme'
             };
@@ -120,6 +138,48 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
       console.error("Error fetching chats:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteConversation = async (convId: string) => {
+    setDeleting(true);
+    try {
+      // Önce mesajları sil
+      const { error: msgError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', convId);
+      
+      if (msgError) {
+        console.error('Message delete error:', msgError);
+        // Mesaj silme hatası olsa bile sohbeti silmeye devam et
+      }
+      
+      // Sonra sohbeti sil
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', convId);
+      
+      if (error) {
+        console.error('Conversation delete error:', error);
+        throw error;
+      }
+      
+      // Başarılı - Listeden kaldır
+      setConversations(prev => prev.filter(c => c.id !== convId));
+      setDeleteConfirm(null);
+      
+      // Eğer silinen sohbet aktif ise mesajlar ana sayfasına yönlendir
+      if (activeId === convId) {
+        router.push('/mesajlar');
+      }
+    } catch (err: any) {
+      console.error('Error deleting conversation:', err);
+      alert(`Sohbet silinirken bir hata oluştu: ${err?.message || 'Bilinmeyen hata'}. Lütfen Supabase'de DELETE politikasının eklendiğinden emin olun.`);
+      setDeleteConfirm(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -175,17 +235,63 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
         {conversations.map((conv) => {
           const isActive = activeId === conv.id;
           const info = conv.other_party!;
+          const showDeleteConfirm = deleteConfirm === conv.id;
           
           return (
-            <Link 
-              key={conv.id} 
-              href={`/mesajlar/${conv.id}`}
-              className={`flex items-center gap-4 px-4 py-4 border-b border-neutral-50 transition-all duration-200 active:scale-[0.98] ${
+            <div key={conv.id} className="relative">
+              {/* Silme Onay Dialogu */}
+              {showDeleteConfirm && (
+                <div className="absolute inset-0 bg-white z-10 flex items-center justify-center px-4 py-3 border-b border-neutral-100">
+                  <div className="text-center">
+                    <p className="text-sm text-neutral-700 mb-3">Bu sohbeti silmek istediğinize emin misiniz?</p>
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => setDeleteConfirm(null)}
+                        disabled={deleting}
+                        className="px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 rounded-lg hover:bg-neutral-200 transition"
+                      >
+                        İptal
+                      </button>
+                      <button
+                        onClick={() => handleDeleteConversation(conv.id)}
+                        disabled={deleting}
+                        className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition flex items-center gap-1"
+                      >
+                        {deleting ? (
+                          <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Siliniyor...</>
+                        ) : (
+                          <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg> Sil</>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              <div className={`flex items-center gap-4 px-4 py-4 border-b border-neutral-50 transition-all duration-200 ${
                 isActive 
                   ? 'bg-orange-50 border-l-4 border-l-orange-500' 
                   : 'hover:bg-neutral-50 border-l-4 border-l-transparent'
-              }`}
-            >
+              }`}>
+                {/* Sil Butonu */}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setDeleteConfirm(conv.id);
+                  }}
+                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition"
+                  title="Sohbeti Sil"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+                
+                <Link 
+                  href={`/mesajlar/${conv.id}`}
+                  className="flex-1 flex items-center gap-4"
+                >
               {/* Avatar Container - Fixed Size */}
               <div className="relative flex-shrink-0 w-14 h-14">
                 <div className={`w-14 h-14 ring-2 ${isActive ? 'ring-orange-400' : 'ring-neutral-200'} rounded-full overflow-hidden transition-all`}>
@@ -229,7 +335,9 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
               <svg className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-orange-400' : 'text-neutral-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-            </Link>
+                </Link>
+              </div>
+            </div>
           );
         })}
       </div>

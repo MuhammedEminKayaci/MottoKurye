@@ -137,13 +137,13 @@ export default function Page() {
           <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="w-full md:w-1/2">
               <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold max-w-md">
-                İşletmen için en doğru kuryeyi bul.
+                Artık mesaj gruplarında &apos;kurye lazım&apos; yazıp beklemek zorunda değilsiniz.
               </h3>
             </div>
 
             <div className="w-full md:w-1/2">
               <p className="text-sm md:text-sm opacity-80 max-w-lg md:ml-auto">
-                İşletmeler ve kuryelerin iyi bir iş ortaklığı ile "kazan-kazan" modeli oluşturması her iki taraf için yapılan işin verimini arttırmaktadır. Doğru eşleşmeyi sağlayarak her iki tarafın da kazançlı çıkmasını hedefliyoruz.
+                İşletmenizin en kritik halkası olan teslimat ekibini, karmaşık ve güven vermeyen gruplarda kurmaya çalışmayın. PaketServisçi, bu süreci bir &quot;arayış&quot; olmaktan çıkarıp &quot;kurumsal bir seçim&quot; sürecine dönüştürüyor. Gruplardaki bilgi kirliliğini ve zaman kaybını geride bırakın; işletmenize değer katacak profesyonel kuryeler ile geniş datamız içerisinde tanışın.
               </p>
             </div>
           </div>

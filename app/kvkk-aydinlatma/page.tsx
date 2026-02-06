@@ -39,16 +39,16 @@ export default function KVKKAydinlatmaPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verileriniz veri sorumlusu sıfatıyla <strong>MottoKurye</strong> tarafından aşağıda açıklanan kapsamda işlenebilecektir.
+                  6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verileriniz veri sorumlusu sıfatıyla <strong>PaketServisçi</strong> tarafından aşağıda açıklanan kapsamda işlenebilecektir.
                 </p>
                 <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
                   <p className="font-semibold text-black mb-2">Veri Sorumlusu Bilgileri:</p>
                   <ul className="list-none space-y-1 text-sm">
-                    <li><strong>Ünvan:</strong> MottoKurye</li>
+                    <li><strong>Ünvan:</strong> PaketServisçi</li>
                     <li><strong>Adres:</strong> [Şirket Adresi - Güncellenecek]</li>
-                    <li><strong>E-posta:</strong> kvkk@mottokurye.com</li>
+                    <li><strong>E-posta:</strong> kvkk@paketservisci.com</li>
                     <li><strong>Telefon:</strong> +90 555 123 45 67</li>
-                    <li><strong>Web:</strong> www.mottokurye.com</li>
+                    <li><strong>Web:</strong> www.paketservisci.com</li>
                   </ul>
                 </div>
               </div>
@@ -319,7 +319,7 @@ export default function KVKKAydinlatmaPage() {
                     Başvuru Yöntemi:
                   </p>
                   <p className="text-sm">
-                    Haklarınızı kullanmak için <strong>kvkk@mottokurye.com</strong> adresine yazılı başvuru yapabilir veya <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00] font-semibold">iletişim formu</Link>ndan talepte bulunabilirsiniz.
+                    Haklarınızı kullanmak için <strong>kvkk@paketservisci.com</strong> adresine yazılı başvuru yapabilir veya <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00] font-semibold">iletişim formu</Link>ndan talepte bulunabilirsiniz.
                   </p>
                   <p className="text-xs text-neutral-600 mt-2">
                     ⏱️ Başvurularınız <strong>30 gün</strong> içinde ücretsiz olarak yanıtlanır. İşlemin ayrıca bir maliyet gerektirmesi halinde Kişisel Verileri Koruma Kurulu tarafından belirlenen tarifedeki ücret talep edilebilir.
@@ -335,7 +335,7 @@ export default function KVKKAydinlatmaPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  MottoKurye, KVKK m.12 uyarınca kişisel verilerinizin güvenliğini sağlamak için gerekli teknik ve idari tedbirleri almaktadır:
+                  PaketServisçi, KVKK m.12 uyarınca kişisel verilerinizin güvenliğini sağlamak için gerekli teknik ve idari tedbirleri almaktadır:
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-1">
                   <li>SSL/TLS ile şifreli veri iletimi</li>

@@ -74,7 +74,7 @@ export default function UcretPlanlariPage() {
         "Sınırsız ilan verme",
         "Sınırsız kurye profil görüntüleme",
         "Günlük 2 adet kurye iletişim talebi gönderme",
-        "Günlük 1 adet kurye onayı alma"
+        "Sadece uygulama içi mesajlaşma"
       ],
       popular: false,
       buttonText: "Başla",
@@ -90,7 +90,7 @@ export default function UcretPlanlariPage() {
         "Sınırsız ilan verme",
         "Sınırsız kurye profil görüntüleme",
         "Günlük 20 adet kurye iletişim talebi gönderme",
-        "Günlük 10 adet kurye onayı alma"
+        "Sadece uygulama içi mesajlaşma"
       ],
       popular: true,
       buttonText: "Satın Al",
@@ -106,7 +106,7 @@ export default function UcretPlanlariPage() {
         "Sınırsız ilan verme",
         "Sınırsız kurye profil görüntüleme",
         "Günlük sınırsız adet kurye iletişim talebi gönderme",
-        "Günlük sınırsız kurye onayı alma",
+        "Kuryelerle telefon ve WhatsApp ile iletişim kurma",
         "Kurye tarafından görüntülenme ve iletişim kurma talebi alma"
       ],
       popular: false,
