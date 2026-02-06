@@ -225,28 +225,17 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
             {errors.managerName && <p className="text-[10px] text-red-200 mt-1">{errors.managerName.message}</p>}
           </div>
           <div>
-            <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim {(contactPreference === "phone" || contactPreference === "both") && "*"}</label>
-            <Controller
-              name="managerContact"
-              control={control}
-              render={({ field }) => (
-                <input 
-                  className="input-field text-sm" 
-                  value={field.value || ''}
-                  onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
-                  placeholder="0 (5XX) XXX XX XX" 
-                  disabled={contactPreference === "in_app"} 
-                />
-              )}
-            />
-            {errors.managerContact && <p className="text-[10px] text-red-200 mt-1">{errors.managerContact.message}</p>}
-          </div>
-          <div>
             <label className="block text-xs font-medium text-white mb-1">İletişim Tercihi *</label>
             <select className="input-field text-sm" {...register("contactPreference")}>
               <option value="in_app">Uygulama İçi İletişim</option>
               <option value="phone">Telefon ve Uygulama İçi İletişim</option>
             </select>
+            {contactPreference === "in_app" && (
+              <p className="text-[10px] text-blue-200 mt-1 flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Bu seçenekte telefon numaranız gerekmez, kuryeler size uygulama içi mesaj yoluyla ulaşacaktır.
+              </p>
+            )}
             {(contactPreference === "phone" || contactPreference === "both") && (
               <p className="text-[10px] text-yellow-300 mt-1 flex items-center gap-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -254,6 +243,24 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
               </p>
             )}
           </div>
+          {(contactPreference === "phone" || contactPreference === "both") && (
+            <div>
+              <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim *</label>
+              <Controller
+                name="managerContact"
+                control={control}
+                render={({ field }) => (
+                  <input 
+                    className="input-field text-sm" 
+                    value={field.value || ''}
+                    onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
+                    placeholder="0 (5XX) XXX XX XX" 
+                  />
+                )}
+              />
+              {errors.managerContact && <p className="text-[10px] text-red-200 mt-1">{errors.managerContact.message}</p>}
+            </div>
+          )}
         </div>
       </div>
 
