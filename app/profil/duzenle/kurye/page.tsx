@@ -19,7 +19,6 @@ interface CourierData {
   province: string;
   district: string[];
   working_type: string;
-  earning_model: string;
   daily_package_estimate: string;
   working_days: string[];
   license_type: string;
@@ -325,7 +324,6 @@ export default function KuryeDuzenlePage() {
         province: formData.province,
         district: formData.district,
         working_type: formData.working_type,
-        earning_model: formData.earning_model,
         daily_package_estimate: formData.daily_package_estimate,
         working_days: formData.working_days,
         license_type: formData.license_type,
@@ -652,22 +650,6 @@ export default function KuryeDuzenlePage() {
                   <option value="Tam Zamanlı">Tam Zamanlı</option>
                   <option value="Yarı Zamanlı">Yarı Zamanlı</option>
                   <option value="Esnek">Esnek</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Kazanç Modeli <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="earning_model"
-                  value={formData.earning_model || ''}
-                  onChange={handleInputChange}
-                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
-                >
-                  <option value="">Seçiniz</option>
-                  <option value="Saatlik">Saatlik</option>
-                  <option value="Ücret Karyoner">Ücret Karyoner</option>
-                  <option value="Parça Başı">Parça Başı</option>
                 </select>
               </div>
               <div>
