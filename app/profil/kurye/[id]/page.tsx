@@ -5,12 +5,17 @@ import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ContactButtons } from "@/app/_components/ContactButtons";
 import { EditProfileButton } from "@/app/_components/EditProfileButton";
 import { StartChatButton } from "@/app/mesajlar/_components/StartChatButton";
+import { ProfileName } from "@/app/_components/ProfileName";
 
 const maskCourierName = (first?: string | null, last?: string | null) => {
   const f = (first || "").trim();
   const l = (last || "").trim();
   const initial = l ? `${l[0].toUpperCase()}.` : "";
   return [f, initial].filter(Boolean).join(" ") || "Kurye";
+};
+
+const fullCourierName = (first?: string | null, last?: string | null) => {
+  return [first, last].filter(Boolean).join(' ') || 'Kurye';
 };
 
 interface CourierProfileProps {
@@ -61,7 +66,7 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
 
   const avatarUrl = courier.avatar_url || '/images/icon-profile.png';
   const maskedName = maskCourierName(courier.first_name, courier.last_name);
-  const fullName = maskedName;
+  const fullName = fullCourierName(courier.first_name, courier.last_name);
 
   // Format working days
   const formatWorkingDays = (days: any) => {
@@ -82,7 +87,7 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
 
   // Info cards data structure - Telefon bilgisi ContactButtons'da gösteriliyor (premium kontrolü için)
   const infoCards = [
-    { label: 'İsim', value: maskedName, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+    { label: 'İsim', value: maskedName, fullValue: fullName, isName: true, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     { label: 'Yaş', value: courier.age, icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
     { label: 'Cinsiyet', value: courier.gender === 'ERKEK' ? 'Erkek' : courier.gender === 'KADIN' ? 'Kadın' : courier.gender, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     { label: 'Uyruk', value: courier.nationality, icon: 'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9' },
@@ -136,7 +141,13 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
               <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></div>
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-2">{fullName}</h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-2">
+                <ProfileName
+                  targetUserId={courier.user_id}
+                  maskedName={maskedName}
+                  fullName={fullName}
+                />
+              </h2>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-700 text-sm font-semibold rounded-full">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -179,7 +190,15 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
                     {card.label}
                   </p>
                   <p className="text-base font-bold text-neutral-900 break-words">
-                    {card.value || '-'}
+                    {(card as any).isName ? (
+                      <ProfileName
+                        targetUserId={courier.user_id}
+                        maskedName={String(card.value)}
+                        fullName={String((card as any).fullValue)}
+                      />
+                    ) : (
+                      card.value || '-'
+                    )}
                   </p>
                 </div>
               </div>
@@ -187,7 +206,6 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
           ))}
         </div>
 
-        {/* Contact Section - show based on contact preference */}
         {(courier.contact_preference === "in_app" || courier.contact_preference === "both" || courier.phone) && (
           <div className="mt-8 bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl border border-orange-200 p-6 sm:p-8">
             <h3 className="text-xl font-bold text-neutral-800 mb-4">İletişim</h3>

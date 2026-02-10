@@ -5,6 +5,7 @@ import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ContactButtons } from "@/app/_components/ContactButtons";
 import { EditProfileButton } from "@/app/_components/EditProfileButton";
 import { StartChatButton } from "@/app/mesajlar/_components/StartChatButton";
+import { ProfileName } from "@/app/_components/ProfileName";
 
 const maskBusinessName = (name?: string | null) => {
   const parts = (name || "").split(/\s+/).filter(Boolean);
@@ -73,6 +74,7 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
 
   const avatarUrl = business.avatar_url || '/images/icon-business.png';
   const maskedName = maskBusinessName(business.business_name);
+  const fullBusinessName = business.business_name || 'İşletme';
 
   // Format district - max 2 ilçe göster, geri kalanı sayı olarak belirt
   const formatDistrict = (district: any) => {
@@ -101,7 +103,7 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
 
   // Info cards data structure
   const infoCards = [
-    { label: 'İşletme Adı', value: maskedName, icon: 'M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4' },
+    { label: 'İşletme Adı', value: maskedName, fullValue: fullBusinessName, isName: true, icon: 'M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4' },
     { label: 'Sektör', value: business.business_sector, icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
     { label: 'Yetkili Adı', value: formatManagerName(business.manager_name), icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     // Yetkili telefonu sadece premium üyelere gösterilir
@@ -146,7 +148,13 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
               <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></div>
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-2">{maskedName}</h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-2">
+                <ProfileName
+                  targetUserId={business.user_id}
+                  maskedName={maskedName}
+                  fullName={fullBusinessName}
+                />
+              </h2>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -189,7 +197,15 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
                     {card.label}
                   </p>
                   <p className="text-base font-bold text-neutral-900 break-words">
-                    {card.value || '-'}
+                    {(card as any).isName ? (
+                      <ProfileName
+                        targetUserId={business.user_id}
+                        maskedName={String(card.value)}
+                        fullName={String((card as any).fullValue)}
+                      />
+                    ) : (
+                      card.value || '-'
+                    )}
                   </p>
                 </div>
               </div>
@@ -197,7 +213,6 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
           ))}
         </div>
 
-        {/* Contact Section - show based on contact preference and premium status */}
         {/* Premium olmayan işletmelerde İletişim bölümü gösterilmez (sadece in_app tercihinde gösterilir) */}
         {(isPremiumPlan || business.contact_preference === "in_app") && (
           <div className="mt-8 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl border border-blue-200 p-6 sm:p-8">

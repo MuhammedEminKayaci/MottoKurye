@@ -209,9 +209,10 @@ export default function ProfilPage() {
 
   const avatarUrl = profile?.avatar_url && (profile.avatar_url.startsWith('http') || profile.avatar_url.startsWith('/')) ? profile.avatar_url : '/images/icon-profile.png';
   const coverUrl = profile?.cover_photo_url && profile.cover_photo_url.startsWith('http') ? profile.cover_photo_url : null;
+  // Kendi profil sayfamız - isimleri tam göster, maskeleme yapma
   const displayName = role === 'kurye' 
-    ? maskCourierName(profile.first_name, profile.last_name)
-    : maskBusinessName(profile.business_name);
+    ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Kurye'
+    : profile.business_name || 'İşletme';
 
   return (
     <main className="min-h-dvh w-full bg-neutral-50">

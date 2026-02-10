@@ -36,7 +36,7 @@ function IlanlarContent() {
   const [items, setItems] = useState<any[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
-  const pageSize = 6;
+  const pageSize = 10;
 
   const handleGuestClick = () => {
     // Ön izleme mantığı: işletme ilanı ön izlemesinde kurye kaydı, kurye ilanı ön izlemesinde işletme kaydı
@@ -275,7 +275,7 @@ function IlanlarContent() {
                 <p className="text-black/70 text-lg">{message ?? "Henüz kayıt yok."}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
                 {paged.map(it => {
                   console.log('Listing item:', { id: it.id, user_id: it.user_id, role, userRole: role === 'kurye' ? 'isletme' : 'kurye' });
                   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
@@ -31,6 +31,10 @@ interface Conversation {
     avatar_url: string | null;
     role: string;
   };
+  last_message?: string | null;
+  last_message_at?: string | null;
+  last_message_sender_id?: string | null;
+  unread_count?: number;
 }
 
 export function ChatSidebar({ userId, userRole }: { userId: string; userRole: string }) {
@@ -42,30 +46,7 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
   const router = useRouter();
   const activeId = Array.isArray(params?.id) ? params.id[0] : params?.id;
   
-  // Realtime subscription
-  useEffect(() => {
-    fetchConversations();
-
-    const conversationChannel = supabase
-      .channel('sidebar_conversations')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'conversations' },
-        () => fetchConversations()
-      )
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        () => fetchConversations()
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(conversationChannel);
-    };
-  }, [userId]);
-
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     if (!userId) return;
     
     try {
@@ -86,6 +67,7 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
       // 2. Extract IDs for bulk fetching
       const businessIds = [...new Set(rawConvs.map((c: any) => c.business_id))];
       const courierIds = [...new Set(rawConvs.map((c: any) => c.courier_id))];
+      const convIds = rawConvs.map((c: any) => c.id);
 
       // 3. Fetch details manually
       let businessesMap: Record<string, any> = {};
@@ -107,7 +89,43 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
         cData?.forEach((c: any) => { couriersMap[c.user_id] = c; });
       }
 
-      // 4. Merge data
+      // 4. Fetch last message for each conversation & unread counts
+      const lastMessagesPromises = convIds.map((convId: string) =>
+        supabase
+          .from('messages')
+          .select('content, created_at, sender_id')
+          .eq('conversation_id', convId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .then(({ data }: { data: any }) => ({ convId, message: data?.[0] || null }))
+      );
+
+      const unreadCountsPromises = convIds.map((convId: string) =>
+        supabase
+          .from('messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('conversation_id', convId)
+          .eq('is_read', false)
+          .neq('sender_id', userId)
+          .then(({ count }: { count: any }) => ({ convId, count: count || 0 }))
+      );
+
+      const [lastMessagesResults, unreadCountsResults] = await Promise.all([
+        Promise.all(lastMessagesPromises),
+        Promise.all(unreadCountsPromises)
+      ]);
+
+      const lastMessagesMap: Record<string, any> = {};
+      lastMessagesResults.forEach(({ convId, message }) => {
+        lastMessagesMap[convId] = message;
+      });
+
+      const unreadCountsMap: Record<string, number> = {};
+      unreadCountsResults.forEach(({ convId, count }) => {
+        unreadCountsMap[convId] = count;
+      });
+
+      // 5. Merge data
       const processed: Conversation[] = rawConvs.map((c: any) => {
         let other: any = {};
         
@@ -127,10 +145,23 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
             };
         }
 
+        const lastMsg = lastMessagesMap[c.id];
+
         return {
             ...c,
-            other_party: other
+            other_party: other,
+            last_message: lastMsg?.content || null,
+            last_message_at: lastMsg?.created_at || c.updated_at,
+            last_message_sender_id: lastMsg?.sender_id || null,
+            unread_count: unreadCountsMap[c.id] || 0,
         };
+      });
+
+      // 6. Sort by last_message_at descending (newest first)
+      processed.sort((a, b) => {
+        const dateA = new Date(a.last_message_at || a.updated_at).getTime();
+        const dateB = new Date(b.last_message_at || b.updated_at).getTime();
+        return dateB - dateA;
       });
 
       setConversations(processed);
@@ -139,7 +170,35 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, userRole]);
+
+  // Realtime subscription
+  useEffect(() => {
+    fetchConversations();
+
+    const conversationChannel = supabase
+      .channel('sidebar_conversations')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'conversations' },
+        () => fetchConversations()
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        () => fetchConversations()
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'messages' },
+        () => fetchConversations()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(conversationChannel);
+    };
+  }, [userId, fetchConversations]);
 
   const handleDeleteConversation = async (convId: string) => {
     setDeleting(true);
@@ -189,12 +248,29 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
     const now = new Date();
     const isToday = d.toDateString() === now.toDateString();
     
-    return d.toLocaleTimeString('tr-TR', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      day: isToday ? undefined : 'numeric',
-      month: isToday ? undefined : 'short'
-    });
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const isYesterday = d.toDateString() === yesterday.toDateString();
+
+    const diffMs = now.getTime() - d.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (isToday) {
+      return d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    } else if (isYesterday) {
+      return 'Dün';
+    } else if (diffDays < 7) {
+      return d.toLocaleDateString('tr-TR', { weekday: 'short' });
+    } else {
+      return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+    }
+  };
+
+  // Truncate last message for preview
+  const truncateMessage = (msg: string | null | undefined, maxLen: number = 35): string => {
+    if (!msg) return 'Henüz mesaj yok';
+    if (msg.length <= maxLen) return msg;
+    return msg.substring(0, maxLen) + '...';
   };
 
   if (loading) {
@@ -236,6 +312,7 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
           const isActive = activeId === conv.id;
           const info = conv.other_party!;
           const showDeleteConfirm = deleteConfirm === conv.id;
+          const hasUnread = (conv.unread_count || 0) > 0;
           
           return (
             <div key={conv.id} className="relative">
@@ -271,7 +348,9 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
               <div className={`flex items-center gap-4 px-4 py-4 border-b border-neutral-50 transition-all duration-200 ${
                 isActive 
                   ? 'bg-orange-50 border-l-4 border-l-orange-500' 
-                  : 'hover:bg-neutral-50 border-l-4 border-l-transparent'
+                  : hasUnread
+                    ? 'bg-orange-50/40 border-l-4 border-l-orange-300 hover:bg-orange-50/70'
+                    : 'hover:bg-neutral-50 border-l-4 border-l-transparent'
               }`}>
                 {/* Sil Butonu */}
                 <button
@@ -294,7 +373,7 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
                 >
               {/* Avatar Container - Fixed Size */}
               <div className="relative flex-shrink-0 w-14 h-14">
-                <div className={`w-14 h-14 ring-2 ${isActive ? 'ring-orange-400' : 'ring-neutral-200'} rounded-full overflow-hidden transition-all`}>
+                <div className={`w-14 h-14 ring-2 ${isActive ? 'ring-orange-400' : hasUnread ? 'ring-orange-300' : 'ring-neutral-200'} rounded-full overflow-hidden transition-all`}>
                   <Image 
                     src={info.avatar_url && info.avatar_url.trim() !== '' ? info.avatar_url : '/images/icon-profile.png'} 
                     alt={info.name}
@@ -307,34 +386,62 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
                     }}
                   />
                 </div>
-                {/* Online indicator - Fixed Position */}
-                <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                {/* Unread badge on avatar */}
+                {hasUnread && !isActive && (
+                  <div className="absolute -top-1 -right-1 min-w-[22px] h-[22px] bg-[#ff7a00] text-white text-[11px] font-bold rounded-full flex items-center justify-center px-1 border-2 border-white shadow-md">
+                    {(conv.unread_count || 0) > 9 ? '9+' : conv.unread_count}
+                  </div>
+                )}
               </div>
               
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center gap-2">
-                  <h3 className={`font-semibold truncate text-base ${isActive ? 'text-orange-700' : 'text-neutral-900'}`}>
+                  <h3 className={`truncate text-base ${
+                    isActive 
+                      ? 'font-semibold text-orange-700' 
+                      : hasUnread 
+                        ? 'font-bold text-neutral-900' 
+                        : 'font-semibold text-neutral-900'
+                  }`}>
                     {info.name}
                   </h3>
-                  <span className={`text-xs whitespace-nowrap px-2 py-0.5 rounded-full ${isActive ? 'bg-orange-100 text-orange-700 font-semibold' : 'bg-neutral-100 text-neutral-500'}`}>
-                    {formatTime(conv.updated_at)}
+                  <span className={`text-xs whitespace-nowrap px-2 py-0.5 rounded-full ${
+                    isActive 
+                      ? 'bg-orange-100 text-orange-700 font-semibold' 
+                      : hasUnread
+                        ? 'bg-orange-100 text-orange-600 font-semibold'
+                        : 'bg-neutral-100 text-neutral-500'
+                  }`}>
+                    {formatTime(conv.last_message_at || conv.updated_at)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${info.role === 'Kurye' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${info.role === 'Kurye' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
                     {info.role}
                   </span>
-                  <p className={`text-sm truncate ${isActive ? 'text-orange-600' : 'text-neutral-500'}`}>
-                    Sohbete devam et →
+                  <p className={`text-sm truncate ${
+                    isActive 
+                      ? 'text-orange-600' 
+                      : hasUnread 
+                        ? 'text-neutral-800 font-medium' 
+                        : 'text-neutral-500'
+                  }`}>
+                    {conv.last_message_sender_id === userId 
+                      ? `Sen: ${truncateMessage(conv.last_message, 28)}` 
+                      : truncateMessage(conv.last_message)}
                   </p>
                 </div>
               </div>
               
-              {/* Arrow */}
-              <svg className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-orange-400' : 'text-neutral-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              {/* Arrow or unread dot */}
+              {hasUnread && !isActive ? (
+                <div className="flex-shrink-0 w-3 h-3 bg-[#ff7a00] rounded-full shadow-sm shadow-orange-400/50 animate-pulse"></div>
+              ) : (
+                <svg className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-orange-400' : 'text-neutral-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
                 </Link>
               </div>
             </div>

@@ -181,12 +181,22 @@ export function ChatWindow({ conversationId, currentUserId, currentUserRole }: C
           const showDate = index === 0 || 
             new Date(msg.created_at).toDateString() !== new Date(messages[index - 1].created_at).toDateString();
           
+          const formatDateLabel = (dateStr: string) => {
+            const d = new Date(dateStr);
+            const now = new Date();
+            if (d.toDateString() === now.toDateString()) return 'Bugün';
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (d.toDateString() === yesterday.toDateString()) return 'Dün';
+            return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+          };
+
           return (
             <React.Fragment key={msg.id}>
               {showDate && (
                 <div className="flex justify-center my-4">
                   <span className="px-4 py-1.5 bg-neutral-200/60 text-neutral-600 text-xs font-medium rounded-full">
-                    {new Date(msg.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}
+                    {formatDateLabel(msg.created_at)}
                   </span>
                 </div>
               )}
