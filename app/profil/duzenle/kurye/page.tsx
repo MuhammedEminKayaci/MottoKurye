@@ -19,6 +19,7 @@ interface CourierData {
   province: string;
   district: string[];
   working_type: string;
+  earning_model: string;
   daily_package_estimate: string;
   working_days: string[];
   license_type: string;
@@ -324,6 +325,7 @@ export default function KuryeDuzenlePage() {
         province: formData.province,
         district: formData.district,
         working_type: formData.working_type,
+        earning_model: formData.earning_model,
         daily_package_estimate: formData.daily_package_estimate,
         working_days: formData.working_days,
         license_type: formData.license_type,
@@ -488,13 +490,13 @@ export default function KuryeDuzenlePage() {
              </div>
           </div>
 
-          {/* Temel Bilgiler */}
+          {/* KİŞİSEL BİLGİLER */}
           <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
             <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
               <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              Temel Bilgiler
+              KİŞİSEL BİLGİLER
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
               <div>
@@ -507,12 +509,12 @@ export default function KuryeDuzenlePage() {
                   value={formData.first_name || ''}
                   onChange={handleInputChange}
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                  placeholder="Ad"
+                  placeholder="Adınız"
                 />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Soyadı <span className="text-red-500">*</span>
+                  Soyad <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -520,7 +522,7 @@ export default function KuryeDuzenlePage() {
                   value={formData.last_name || ''}
                   onChange={handleInputChange}
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                  placeholder="Soyadı"
+                  placeholder="Soyadınız"
                 />
               </div>
               <div>
@@ -533,7 +535,7 @@ export default function KuryeDuzenlePage() {
                   value={formData.age || ''}
                   onChange={handleInputChange}
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                  placeholder="18+"
+                  placeholder="25"
                   min="18"
                 />
               </div>
@@ -547,39 +549,27 @@ export default function KuryeDuzenlePage() {
                   onChange={handleInputChange}
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
                 >
-                  <option value="">Seçiniz</option>
-                  <option value="ERKEK">Erkek</option>
-                  <option value="KADIN">Kadın</option>
+                  <option value="Erkek">Erkek</option>
+                  <option value="Kadın">Kadın</option>
                 </select>
               </div>
-              <div className="sm:col-span-2">
+              <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Uyruk
+                  Uyruk <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   name="nationality"
                   value={formData.nationality || ''}
                   onChange={handleInputChange}
-                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                  placeholder="Ör: Türk"
-                />
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
+                >
+                  <option value="Türk Vatandaşı">Türk Vatandaşı</option>
+                  <option value="Türk Vatandaşı Olmayan">Türk Vatandaşı Olmayan</option>
+                </select>
               </div>
-            </div>
-          </div>
-
-          {/* İletişim Bilgileri */}
-          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
-            <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
-              İletişim Bilgileri
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  İletişim Şekli <span className="text-red-500">*</span>
+                  İletişim Tercihi <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="contact_preference"
@@ -590,6 +580,12 @@ export default function KuryeDuzenlePage() {
                   <option value="in_app">Uygulama İçi İletişim</option>
                   <option value="phone">Telefon ve Uygulama İçi İletişim</option>
                 </select>
+                {formData.contact_preference === 'in_app' && (
+                  <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
+                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Bu seçenekte telefon numaranız gerekmez, işletmeler size uygulama içi mesaj yoluyla ulaşacaktır.
+                  </p>
+                )}
                 {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && (
                   <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
                     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -597,48 +593,87 @@ export default function KuryeDuzenlePage() {
                   </p>
                 )}
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Telefon Numarası {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && <span className="text-red-500">*</span>}
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))}
-                  disabled={formData.contact_preference === 'in_app'}
-                  className={`w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition ${formData.contact_preference === 'in_app' ? 'bg-neutral-100 cursor-not-allowed opacity-50' : ''}`}
-                  placeholder="0 (5XX) XXX XX XX"
-                />
-              </div>
+              {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && (
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                    Telefon <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))}
+                    className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
+                    placeholder="0 (5XX) XXX XX XX"
+                  />
+                </div>
+              )}
             </div>
           </div>
 
-          {/* İş Bilgileri */}
+          {/* İŞ TECRÜBE */}
           <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
             <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
               <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6h.01M8 6h.01M12 6h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
               </svg>
-              İş Bilgileri
+              İŞ TECRÜBE
+            </h2>
+            <div>
+              <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                Tecrübe Süresi <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="experience"
+                value={formData.experience || ''}
+                onChange={handleInputChange}
+                className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
+              >
+                <option value="">Seçiniz</option>
+                <option value="0-1">0-1 YIL</option>
+                <option value="1-3">1-3 YIL</option>
+                <option value="3-5">3-5 YIL</option>
+                <option value="5-10">5-10 YIL</option>
+                <option value="10+">10 YIL ÜZERİ</option>
+              </select>
+            </div>
+          </div>
+
+          {/* ÇALIŞMA KOŞULLARI */}
+          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
+            <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
+              <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              ÇALIŞMA KOŞULLARI
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Tecrübe <span className="text-red-500">*</span>
+                  Çalışılacak İl <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  name="experience"
-                  value={formData.experience || ''}
-                  onChange={handleInputChange}
-                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                  placeholder="Ör: 2 yıl"
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 bg-neutral-100 cursor-not-allowed transition"
+                  value="İstanbul"
+                  disabled
                 />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  İş Tipi <span className="text-red-500">*</span>
+                  Çalışılacak İlçe <span className="text-red-500">*</span>
+                </label>
+                <MultiSelect
+                  options={ISTANBUL_DISTRICTS}
+                  value={Array.isArray(formData.district) ? formData.district : []}
+                  onChange={handleDistrictChange}
+                  placeholder="İlçe Seçin"
+                  theme="light"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Çalışma Tipi <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="working_type"
@@ -653,7 +688,23 @@ export default function KuryeDuzenlePage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Günlük Paket Tahmini
+                  Kazanç Modeli <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="earning_model"
+                  value={formData.earning_model || ''}
+                  onChange={handleInputChange}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="Saat+Paket Başı">Saat + Paket Başı</option>
+                  <option value="Paket Başı">Paket Başı</option>
+                  <option value="Aylık Sabit">Aylık Sabit</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Tahmini Günlük Paket <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="daily_package_estimate"
@@ -670,7 +721,7 @@ export default function KuryeDuzenlePage() {
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Çalışma Günleri
+                  Çalışma Günleri <span className="text-red-500">*</span>
                 </label>
                 <div className="flex flex-wrap gap-2 min-h-[80px] items-center p-3 border border-neutral-300 rounded-lg bg-white">
                   {days.map(day => {
@@ -686,7 +737,7 @@ export default function KuryeDuzenlePage() {
                             : 'bg-white text-neutral-700 border-neutral-300 hover:border-[#ff7a00]'
                         }`}
                       >
-                        {day.slice(0, 3)}
+                        {day}
                       </button>
                     );
                   })}
@@ -695,133 +746,13 @@ export default function KuryeDuzenlePage() {
             </div>
           </div>
 
-          {/* Hizmet Bölgesi */}
-          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
-            <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              Hizmet Bölgesi
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-              <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  İl <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="province"
-                  value={formData.province || ''}
-                  onChange={handleInputChange}
-                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
-                >
-                  <option value="">Seçiniz</option>
-                  <option value="İstanbul">İstanbul</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  İlçeler <span className="text-red-500">*</span>
-                </label>
-                {formData.province === 'İstanbul' ? (
-                  <MultiSelect
-                    options={ISTANBUL_DISTRICTS}
-                    value={Array.isArray(formData.district) ? formData.district : []}
-                    onChange={handleDistrictChange}
-                    placeholder="İlçe seçiniz..."
-                    theme="light"
-                  />
-                ) : (
-                  <input
-                    type="text"
-                    value={Array.isArray(formData.district) ? formData.district.join(', ') : ''}
-                    onChange={(e) => handleDistrictChange(e.target.value.split(',').map(d => d.trim()))}
-                    className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                    placeholder="Virgülle ayrılmış"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Araç Bilgileri */}
+          {/* MOTORSİKLET BİLGİLERİ */}
           <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
             <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
               <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Araç Bilgileri
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Motorsiklet <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="has_motorcycle"
-                  value={formData.has_motorcycle || ''}
-                  onChange={handleInputChange}
-                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
-                >
-                  <option value="">Seçiniz</option>
-                  <option value="VAR">Var</option>
-                  <option value="YOK">Yok</option>
-                </select>
-              </div>
-              {formData.has_motorcycle === 'VAR' && (
-                <>
-                  <div>
-                    <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                      Motorsiklet Markası
-                    </label>
-                    <input
-                      type="text"
-                      name="moto_brand"
-                      value={formData.moto_brand || ''}
-                      onChange={handleInputChange}
-                      className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                      placeholder="Ör: Honda"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                      Motor CC
-                    </label>
-                    <input
-                      type="text"
-                      name="moto_cc"
-                      value={formData.moto_cc || ''}
-                      onChange={handleInputChange}
-                      className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                      placeholder="Ör: 150"
-                    />
-                  </div>
-                </>
-              )}
-              <div>
-                <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Taşıma Çantası <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="has_bag"
-                  value={formData.has_bag || ''}
-                  onChange={handleInputChange}
-                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
-                >
-                  <option value="">Seçiniz</option>
-                  <option value="VAR">Var</option>
-                  <option value="YOK">Yok</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Ehliyet ve Sertifikalar */}
-          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
-            <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Ehliyet ve Sertifikalar
+              MOTORSİKLET BİLGİLERİ
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -835,11 +766,9 @@ export default function KuryeDuzenlePage() {
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                 >
                   <option value="">Seçiniz</option>
-                  <option value="M (Motorlu Bisiklet)">M (Motorlu Bisiklet)</option>
-                  <option value="A1 (125cc'ye kadar)">A1 (125cc'ye kadar)</option>
-                  <option value="A2 (35kW'a kadar)">A2 (35kW'a kadar)</option>
-                  <option value="A (Sınırsız)">A (Sınırsız)</option>
-                  <option value="B (Otomobil)">B (Otomobil)</option>
+                  <option value="A1">A1</option>
+                  <option value="A">A</option>
+                  <option value="A2">A2</option>
                 </select>
                 {/* Ehliyet değişikliği uyarısı ve dosya yükleme */}
                 {originalLicenseType && formData.license_type !== originalLicenseType && (
@@ -869,7 +798,79 @@ export default function KuryeDuzenlePage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  P1 Sertifikası <span className="text-red-500">*</span>
+                  Motorsiklet Durumu <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="has_motorcycle"
+                  value={formData.has_motorcycle || ''}
+                  onChange={handleInputChange}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="VAR">VAR</option>
+                  <option value="YOK">YOK</option>
+                </select>
+              </div>
+              {formData.has_motorcycle === 'VAR' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      Motorsiklet Marka
+                    </label>
+                    <input
+                      type="text"
+                      name="moto_brand"
+                      value={formData.moto_brand || ''}
+                      onChange={handleInputChange}
+                      className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
+                      placeholder="Yamaha, Honda..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                      Motorsiklet CC
+                    </label>
+                    <input
+                      type="text"
+                      name="moto_cc"
+                      value={formData.moto_cc || ''}
+                      onChange={handleInputChange}
+                      className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
+                      placeholder="125, 150..."
+                    />
+                  </div>
+                </>
+              )}
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Taşıma Çantası <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="has_bag"
+                  value={formData.has_bag || ''}
+                  onChange={handleInputChange}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="VAR">VAR</option>
+                  <option value="YOK">YOK</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* BELGELER */}
+          <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-6">
+            <h2 className="text-xl font-bold text-neutral-800 mb-6 flex items-center gap-2">
+              <svg className="w-6 h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              BELGELER
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  P1 Yetki Belgesi <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="p1_certificate"
@@ -878,8 +879,8 @@ export default function KuryeDuzenlePage() {
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                 >
                   <option value="">Seçiniz</option>
-                  <option value="VAR">Var</option>
-                  <option value="YOK">Yok</option>
+                  <option value="VAR">VAR</option>
+                  <option value="YOK">YOK</option>
                 </select>
                 {/* P1 sertifikası YOK'tan VAR'a değiştiyse dosya yükleme */}
                 {originalP1Certificate === 'YOK' && formData.p1_certificate === 'VAR' && (
@@ -888,7 +889,7 @@ export default function KuryeDuzenlePage() {
                       <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
-                      P1 sertifikanız olduğunu belirttiğiniz için sertifika görselinizi yükleyiniz.
+                      P1 yetki belgeniz olduğunu belirttiğiniz için belge görselinizi yükleyiniz.
                     </p>
                     <input
                       type="file"
@@ -906,8 +907,11 @@ export default function KuryeDuzenlePage() {
                     )}
                   </div>
                 )}
+                {formData.p1_certificate === 'YOK' && (
+                  <p className="text-xs text-neutral-500 mt-2">P1 belgesi yok olarak işaretlendi.</p>
+                )}
               </div>
-              <div className="sm:col-span-2">
+              <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
                   Sabıka Kaydı <span className="text-red-500">*</span>
                 </label>
@@ -918,8 +922,8 @@ export default function KuryeDuzenlePage() {
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                 >
                   <option value="">Seçiniz</option>
-                  <option value="VAR">Var</option>
-                  <option value="YOK">Yok</option>
+                  <option value="VAR">VAR</option>
+                  <option value="YOK">YOK</option>
                 </select>
                 {/* Sabıka kaydı dosya yükleme */}
                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">

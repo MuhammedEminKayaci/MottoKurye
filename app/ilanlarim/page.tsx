@@ -30,7 +30,7 @@ export default function IlanlarimPage() {
   }, []);
 
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ title:"", description:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
+  const [form, setForm] = useState({ title:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
   const WORKING_DAYS = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"];
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
@@ -52,7 +52,7 @@ export default function IlanlarimPage() {
     }
     if (!error && data) setItems(prev => [data, ...prev]);
     setCreating(false);
-    setForm({ title:"", description:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
+    setForm({ title:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
     setSelectedDays([]);
   };
 
@@ -78,7 +78,6 @@ export default function IlanlarimPage() {
             <LabeledInput label="Başlık" value={form.title} onChange={v=>setForm(f=>({...f,title:v}))} placeholder="Örn: Akşam Vardiyası Kuryesi" />
             <LabeledInput label="İl" value={form.province} onChange={v=>setForm(f=>({...f,province:v}))} placeholder="İstanbul" />
             <LabeledInput label="İlçe" value={form.district} onChange={v=>setForm(f=>({...f,district:v}))} placeholder="Kadıköy" />
-            <LabeledTextArea className="md:col-span-3" label="Açıklama" value={form.description} onChange={v=>setForm(f=>({...f,description:v}))} placeholder="İşin detaylarını yazın" />
             <LabeledInput label="Çalışma Tipi" value={form.working_type} onChange={v=>setForm(f=>({...f,working_type:v}))} placeholder="Full Time / Part Time" />
             <LabeledInput label="Çalışma Saatleri" value={form.working_hours} onChange={v=>setForm(f=>({...f,working_hours:v}))} placeholder="Gündüz / Gece / 24" />
             <LabeledSelect label="Kazanç Modeli" value={form.earning_model} onChange={v=>setForm(f=>({...f,earning_model:v}))} options={["Saat+Paket Başı","Paket Başı","Aylık Sabit"]} />
@@ -111,7 +110,6 @@ export default function IlanlarimPage() {
               <li key={it.id} className="bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-sm hover:shadow-md transition">
                 <div className="p-5">
                   <div className="font-semibold text-black text-lg mb-1">{it.title}</div>
-                  <div className="text-sm text-black/70 line-clamp-3">{it.description}</div>
                   <div className="text-xs text-black/50 mt-2 flex gap-2 flex-wrap">
                     {[it.province, it.district, it.working_type, it.working_hours, it.earning_model, it.daily_package_estimate].filter(Boolean).map((m:string,idx:number)=>(
                       <span key={idx} className="px-2 py-0.5 rounded-full bg-neutral-100 border border-neutral-200 text-black/70">{m}</span>

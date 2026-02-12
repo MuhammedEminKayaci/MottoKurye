@@ -200,62 +200,131 @@ export function PlanStatusCard({
             </div>
 
             <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(Object.keys(PLAN_LIMITS) as PlanType[]).map((planKey) => {
-                const planData = PLAN_LIMITS[planKey];
-                const isCurrentPlan = planKey === plan;
-                const planColor = PLAN_COLORS[planKey];
+              {([
+                {
+                  planKey: 'free' as PlanType,
+                  name: '1. PAKET',
+                  price: 'Ücretsiz',
+                  priceSuffix: '',
+                  features: [
+                    'Sınırsız ilan verme',
+                    'Sınırsız kurye profil görüntüleme',
+                    'Günlük 2 adet kurye iletişim talebi gönderme',
+                    'Günlük 1 adet kurye onayı alma',
+                    'Sadece uygulama içi mesajlaşma',
+                  ],
+                  notIncluded: [
+                    'Kuryelerle telefon ile iletişim kurma',
+                    'Kuryelerle WhatsApp ile iletişim kurma',
+                    'Kurye tarafından görüntülenme ve iletişim kurma talebi alma',
+                  ],
+                },
+                {
+                  planKey: 'standard' as PlanType,
+                  name: '2. PAKET',
+                  price: '200 TL',
+                  priceSuffix: '/ Aylık',
+                  features: [
+                    'Sınırsız ilan verme',
+                    'Sınırsız kurye profil görüntüleme',
+                    'Günlük 20 adet kurye iletişim talebi gönderme',
+                    'Günlük 10 adet kurye onayı alma',
+                    'Sadece uygulama içi mesajlaşma',
+                  ],
+                  notIncluded: [
+                    'Kuryelerle telefon ile iletişim kurma',
+                    'Kuryelerle WhatsApp ile iletişim kurma',
+                    'Kurye tarafından görüntülenme ve iletişim kurma talebi alma',
+                  ],
+                },
+                {
+                  planKey: 'premium' as PlanType,
+                  name: '3. PAKET',
+                  price: '275 TL',
+                  priceSuffix: '/ Aylık',
+                  features: [
+                    'Sınırsız ilan verme',
+                    'Sınırsız kurye profil görüntüleme',
+                    'Günlük sınırsız adet kurye iletişim talebi gönderme',
+                    'Günlük sınırsız adet kurye onayı alma',
+                    'Kuryelerle telefon ve WhatsApp ile iletişim kurma',
+                    'Kurye tarafından görüntülenme ve iletişim kurma talebi alma',
+                  ],
+                  notIncluded: [],
+                },
+              ]).map((p) => {
+                const isCurrentPlan = p.planKey === plan;
+                const planColor = PLAN_COLORS[p.planKey];
 
                 return (
                   <div
-                    key={planKey}
-                    className={`rounded-xl border-2 p-4 ${
+                    key={p.planKey}
+                    className={`rounded-xl border-2 p-5 flex flex-col ${
                       isCurrentPlan 
                         ? `${planColor.border} ${planColor.bg}` 
                         : 'border-gray-200 hover:border-[#ff7a00]'
                     } transition-colors`}
                   >
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">
-                      {planData.displayName}
+                    {/* Paket İsmi */}
+                    <h3 className="font-bold text-lg text-gray-900 mb-1 text-center">
+                      {p.name}
                     </h3>
-                    <p className="text-2xl font-extrabold text-[#ff7a00] mb-3">
-                      {planData.price === 0 ? 'Ücretsiz' : `${planData.price} TL`}
-                    </p>
-                    <ul className="text-sm text-gray-600 space-y-2 mb-4">
-                      <li className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        {isUnlimited(planData.dailyMessageLimit) 
-                          ? 'Sınırsız mesaj' 
-                          : `Günlük ${planData.dailyMessageLimit} mesaj`}
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        {isUnlimited(planData.dailyApprovalLimit) 
-                          ? 'Sınırsız onay' 
-                          : `Günlük ${planData.dailyApprovalLimit} onay`}
-                      </li>
-                      {planData.canReceiveRequests && (
-                        <li className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    {/* Fiyat */}
+                    <div className="text-center mb-4">
+                      <span className="text-3xl font-extrabold text-[#ff7a00]">{p.price}</span>
+                      {p.priceSuffix && (
+                        <span className="text-sm text-gray-500 ml-1">{p.priceSuffix}</span>
+                      )}
+                    </div>
+
+                    {/* Dahil Özellikler */}
+                    <ul className="text-sm text-gray-700 space-y-2.5 mb-3 flex-1">
+                      {p.features.map((f, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <svg className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
-                          Kuryelerden talep al
+                          <span>{f}</span>
                         </li>
-                      )}
+                      ))}
                     </ul>
+
+                    {/* Dahil Olmayan Özellikler */}
+                    {p.notIncluded.length > 0 && (
+                      <ul className="text-sm text-gray-400 space-y-2 mb-4 border-t border-gray-100 pt-3">
+                        {p.notIncluded.map((f, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <svg className="w-4 h-4 text-red-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span className="line-through">{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {/* Mevcut Plan Badge */}
+                    {isCurrentPlan && (
+                      <div className="mb-3 text-center">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                          Mevcut Planınız
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Buton */}
                     <button
-                      onClick={() => handleUpgrade(planKey)}
+                      onClick={() => handleUpgrade(p.planKey)}
                       disabled={isCurrentPlan || upgrading}
-                      className={`w-full py-2 rounded-full font-medium transition-colors ${
+                      className={`w-full py-2.5 rounded-full font-semibold transition-colors mt-auto ${
                         isCurrentPlan
                           ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                           : 'bg-[#ff7a00] text-white hover:bg-[#e66a00]'
                       }`}
                     >
-                      {upgrading ? 'Güncelleniyor...' : isCurrentPlan ? 'Mevcut Plan' : 'Seç'}
+                      {upgrading ? 'Güncelleniyor...' : isCurrentPlan ? 'Mevcut Plan' : 'Bu Paketi Seç'}
                     </button>
                   </div>
                 );
