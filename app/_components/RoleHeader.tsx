@@ -98,8 +98,21 @@ export function RoleHeader() {
 
   const handleLogout = async () => {
     setLoggingOut(true);
-    await supabase.auth.signOut();
-    window.location.href = "/";
+    try {
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch (err) {
+      console.error('Çıkış hatası:', err);
+    } finally {
+      // Oturum bilgilerini manuel temizle
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('supabase.auth.token');
+        // sb-* anahtarlarını temizle
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('sb-')) localStorage.removeItem(key);
+        });
+      }
+      window.location.href = "/";
+    }
   };
 
   // Role-based navigation
@@ -116,6 +129,7 @@ export function RoleHeader() {
     { label: "İlanlar", href: "/ilanlar" },
     { label: "İlanlarım", href: "/ilanlarim" },
     { label: "Mesajlar", href: "/mesajlar" },
+    { label: "Ücret Planları", href: "/ucret-planlari" },
   ];
 
   const navItems = role === "kurye" ? courierNav : role === "isletme" ? businessNav : courierNav;

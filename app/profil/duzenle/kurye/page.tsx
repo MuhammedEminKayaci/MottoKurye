@@ -647,9 +647,8 @@ export default function KuryeDuzenlePage() {
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
                 >
                   <option value="">Seçiniz</option>
-                  <option value="Tam Zamanlı">Tam Zamanlı</option>
-                  <option value="Yarı Zamanlı">Yarı Zamanlı</option>
-                  <option value="Esnek">Esnek</option>
+                  <option value="Full Time">Full Time</option>
+                  <option value="Part Time">Part Time</option>
                 </select>
               </div>
               <div>
@@ -910,7 +909,7 @@ export default function KuryeDuzenlePage() {
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Adli Sicil Kaydı <span className="text-red-500">*</span>
+                  Sabıka Kaydı <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="criminal_record"
@@ -919,9 +918,40 @@ export default function KuryeDuzenlePage() {
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                 >
                   <option value="">Seçiniz</option>
-                  <option value="TEMİZ">Temiz</option>
-                  <option value="VAR">Kayıt Var</option>
+                  <option value="VAR">Var</option>
+                  <option value="YOK">Yok</option>
                 </select>
+                {/* Sabıka kaydı dosya yükleme */}
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-700 mb-2 flex items-center gap-2">
+                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Sabıka kaydı belgenizi yükleyiniz (JPEG, PNG veya PDF).
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,application/pdf"
+                    onChange={handleCriminalRecordFileChange}
+                    className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00]"
+                  />
+                  {criminalRecordPreview && (
+                    <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Dosya yüklendi
+                    </div>
+                  )}
+                  {formData.criminal_record_file_url && !criminalRecordFile && (
+                    <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Mevcut belge yüklü
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

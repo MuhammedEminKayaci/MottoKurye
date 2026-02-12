@@ -275,7 +275,7 @@ function IlanlarContent() {
                 <p className="text-black/70 text-lg">{message ?? "Henüz kayıt yok."}</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
+              <div className="flex flex-col gap-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4">
                 {paged.map(it => {
                   console.log('Listing item:', { id: it.id, user_id: it.user_id, role, userRole: role === 'kurye' ? 'isletme' : 'kurye' });
                   return (
@@ -287,9 +287,10 @@ function IlanlarContent() {
                       subtitle={role === 'kurye' ? (it.description ?? '') : ''}
                       metaParts={[
                         it.province,
-                        Array.isArray(it.district) ? it.district.join(', ') : it.district,
-                        role === 'isletme' ? it.license_type : it.working_type,
-                        role === 'isletme' ? it.working_type : null
+                        Array.isArray(it.district) ? it.district.slice(0, 2).join(', ') : it.district,
+                        role === 'isletme' ? it.license_type : null,
+                        it.working_type,
+                        role === 'isletme' ? it.experience : it.earning_model,
                       ].filter(Boolean)}
                       imageUrl={role === 'kurye' ? it.image_url : (it.avatar_url ?? null)}
                       fallbackImageUrl={role === 'kurye' ? (it.businesses?.[0]?.avatar_url ?? null) : null}
