@@ -278,13 +278,29 @@ function IlanlarContent() {
                         ? maskCourierName(it.first_name, it.last_name) 
                         : maskBusinessName(it.businesses?.[0]?.business_name) || (it.title ?? 'Başlık')}
                       subtitle={role === 'kurye' ? (it.description ?? '') : ''}
-                      metaParts={[
-                        it.province,
-                        Array.isArray(it.district) ? it.district.slice(0, 2).join(', ') : it.district,
-                        role === 'isletme' ? it.license_type : null,
-                        it.working_type,
-                        role === 'isletme' ? it.experience : it.earning_model,
-                      ].filter(Boolean)}
+                      metaParts={role === 'kurye'
+                        ? [
+                            it.province,
+                            Array.isArray(it.district) ? it.district.slice(0, 2).join(', ') : it.district,
+                            it.businesses?.[0]?.business_sector,
+                            it.working_type,
+                            it.earning_model,
+                            it.working_hours,
+                            it.daily_package_estimate,
+                            Array.isArray(it.working_days) && it.working_days.length > 0
+                              ? it.working_days.length === 7 ? 'Her Gün' : it.working_days.slice(0, 3).join(', ') + (it.working_days.length > 3 ? ` +${it.working_days.length - 3}` : '')
+                              : null,
+                          ].filter(Boolean)
+                        : [
+                            it.province,
+                            Array.isArray(it.district) ? it.district.slice(0, 2).join(', ') : it.district,
+                            it.license_type,
+                            it.working_type,
+                            it.experience,
+                            it.working_hours,
+                            it.daily_package_estimate,
+                          ].filter(Boolean)
+                      }
                       imageUrl={role === 'kurye' ? it.image_url : (it.avatar_url ?? null)}
                       fallbackImageUrl={role === 'kurye' ? (it.businesses?.[0]?.avatar_url ?? null) : null}
                       phone={role === 'isletme' ? (it.phone ?? null) : null}

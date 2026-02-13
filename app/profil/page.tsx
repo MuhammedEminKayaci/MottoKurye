@@ -341,7 +341,7 @@ export default function ProfilPage() {
                   className={`inline-flex items-center gap-2 px-6 py-3 ${
                     role === 'kurye'
                       ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700'
-                      : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700'
+                      : 'bg-gradient-to-r from-neutral-800 to-neutral-900 hover:from-neutral-900 hover:to-black'
                   } text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all`}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

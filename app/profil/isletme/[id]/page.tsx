@@ -60,7 +60,7 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
           <p className="text-neutral-600 mb-6">Bu işletme profili bulunamadı veya silinmiş.</p>
           <Link
             href="/ilanlar"
-            className="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg"
+            className="inline-block px-6 py-3 bg-gradient-to-r from-neutral-800 to-neutral-900 text-white font-semibold rounded-xl hover:from-neutral-900 hover:to-black transition-all shadow-md hover:shadow-lg"
           >
             İlanlara Dön
           </Link>
@@ -140,7 +140,7 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
                 src={avatarUrl}
                 alt={maskedName}
                 size={160}
-                borderColor="blue-100"
+                borderColor="neutral-200"
               />
               <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></div>
             </div>
@@ -153,7 +153,7 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
                 />
               </h2>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 text-sm font-semibold rounded-full">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-200 text-neutral-800 text-sm font-semibold rounded-full">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M13 7H7v6h6V7z"></path>
                   </svg>
@@ -181,11 +181,11 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
           {infoCards.map((card, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-xl border border-neutral-200 p-5 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group"
+              className="bg-white rounded-xl border border-neutral-200 p-5 shadow-sm hover:shadow-md hover:border-orange-300 transition-all group"
             >
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-100 transition-colors">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-orange-100 to-orange-50 flex items-center justify-center group-hover:from-orange-200 group-hover:to-orange-100 transition-colors">
+                  <svg className="w-5 h-5 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={card.icon} />
                   </svg>
                 </div>
@@ -212,7 +212,7 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
 
         {/* Premium olmayan işletmelerde İletişim bölümü gösterilmez (sadece in_app tercihinde gösterilir) */}
         {(isPremiumPlan || business.contact_preference === "in_app") && (
-          <div className="mt-8 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl border border-blue-200 p-6 sm:p-8">
+          <div className="mt-8 bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl border border-orange-200 p-6 sm:p-8">
             <h3 className="text-xl font-bold text-neutral-800 mb-4">İletişim</h3>
             <ContactButtons
               phone={business.manager_contact || ""}

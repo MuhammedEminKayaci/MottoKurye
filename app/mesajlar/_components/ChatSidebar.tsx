@@ -410,7 +410,7 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${info.role === 'Kurye' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${info.role === 'Kurye' ? 'bg-orange-50 text-orange-600' : 'bg-neutral-100 text-neutral-700'}`}>
                     {info.role}
                   </span>
                   <p className={`text-sm truncate ${

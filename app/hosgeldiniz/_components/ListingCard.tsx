@@ -73,23 +73,24 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
   };
 
   // Role-based accent
+  // Renk düzeni: Kurye = turuncu, İşletme = siyah/koyu tonlar (mavi YOK)
   const accent = isBusiness
     ? {
-        avatarBorder: 'border-blue-200',
-        avatarBg: 'from-blue-50 to-indigo-50',
-        avatarIcon: 'text-blue-400',
-        badgeBg: 'bg-blue-50',
-        badgeText: 'text-blue-600',
-        badgeBorder: 'border-blue-100',
-        chipBg: 'bg-blue-50/80',
-        chipText: 'text-blue-700',
-        chipBorder: 'border-blue-100',
-        hoverTitle: 'group-hover:text-blue-600',
-        accentBar: 'from-blue-400 to-indigo-500',
-        arrowHover: 'group-hover:text-blue-500',
-        arrowBg: 'group-hover:bg-blue-50',
-        hoverBorder: 'hover:border-blue-300',
-        shadowHover: 'hover:shadow-blue-100/50',
+        avatarBorder: 'border-neutral-300',
+        avatarBg: 'from-neutral-100 to-neutral-50',
+        avatarIcon: 'text-neutral-500',
+        badgeBg: 'bg-neutral-100',
+        badgeText: 'text-neutral-700',
+        badgeBorder: 'border-neutral-200',
+        chipBg: 'bg-neutral-100/80',
+        chipText: 'text-neutral-700',
+        chipBorder: 'border-neutral-200',
+        hoverTitle: 'group-hover:text-[#ff7a00]',
+        accentBar: 'from-neutral-700 to-neutral-900',
+        arrowHover: 'group-hover:text-[#ff7a00]',
+        arrowBg: 'group-hover:bg-orange-50',
+        hoverBorder: 'hover:border-neutral-400',
+        shadowHover: 'hover:shadow-neutral-200/50',
       }
     : {
         avatarBorder: 'border-orange-200',
@@ -129,7 +130,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       // Ücretsiz plan olan işletme → sadece mesaj gönder
       if (viewerPlan === 'free') {
         return (
-          <button onClick={handleInAppChat} className={`${btnBase} bg-blue-500 hover:bg-blue-600 text-white shadow-sm hover:shadow-md`}>
+          <button onClick={handleInAppChat} className={`${btnBase} bg-[#ff7a00] hover:bg-[#e66e00] text-white shadow-sm hover:shadow-md`}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
             Mesaj Gönder
           </button>
@@ -138,7 +139,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
 
       if (contactPreference === "in_app") {
         return (
-          <button onClick={handleInAppChat} className={`${btnBase} bg-blue-500 hover:bg-blue-600 text-white shadow-sm hover:shadow-md`}>
+          <button onClick={handleInAppChat} className={`${btnBase} bg-[#ff7a00] hover:bg-[#e66e00] text-white shadow-sm hover:shadow-md`}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
             Mesaj Gönder
           </button>
@@ -161,7 +162,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       }
 
       return (
-        <button onClick={handleInAppChat} className={`${btnBase} bg-blue-500 hover:bg-blue-600 text-white shadow-sm hover:shadow-md`}>
+        <button onClick={handleInAppChat} className={`${btnBase} bg-[#ff7a00] hover:bg-[#e66e00] text-white shadow-sm hover:shadow-md`}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
           Mesaj Gönder
         </button>
@@ -187,7 +188,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       <div className={`h-[3px] w-full bg-gradient-to-r ${accent.accentBar} opacity-80 group-hover:opacity-100 transition-opacity flex-shrink-0`} />
 
       {/* ═══════ CARD BODY — unified for mobile & desktop ═══════ */}
-      <div className="flex items-start gap-3 p-3 sm:p-4 flex-1">
+      <div className="flex items-start gap-3 p-3 sm:p-4 flex-1 min-h-[120px]">
         {/* Avatar — rounded square */}
         <div className={`relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-gradient-to-br ${accent.avatarBg} border-2 ${accent.avatarBorder} shadow-sm group-hover:shadow-md transition-shadow`}>
           {showImage ? (
@@ -241,8 +242,8 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
 
           {/* Row 3: Chips — max 2 lines */}
           {chips.length > 0 && (
-            <div className="flex flex-wrap gap-1 sm:gap-1.5 max-h-[52px] overflow-hidden">
-              {chips.slice(0, 4).map((c, i) => (
+            <div className="flex flex-wrap gap-1 sm:gap-1.5 max-h-[72px] overflow-hidden">
+              {chips.slice(0, 7).map((c, i) => (
                 <span
                   key={i}
                   className={`text-[10px] sm:text-[11px] font-medium px-2 py-0.5 sm:py-1 rounded-lg ${accent.chipBg} ${accent.chipText} border ${accent.chipBorder} truncate max-w-[120px]`}
@@ -250,9 +251,9 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
                   {c}
                 </span>
               ))}
-              {chips.length > 4 && (
+              {chips.length > 7 && (
                 <span className="text-[10px] sm:text-[11px] font-medium px-2 py-0.5 sm:py-1 rounded-lg bg-neutral-100 text-neutral-500 border border-neutral-200">
-                  +{chips.length - 4}
+                  +{chips.length - 7}
                 </span>
               )}
             </div>

@@ -237,7 +237,7 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
             </select>
             {contactPreference === "in_app" && (
               <p className="text-[10px] mt-1.5 flex items-center gap-1 bg-white/90 text-neutral-800 px-2 py-1 rounded-lg">
-                <svg className="w-3 h-3 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <svg className="w-3 h-3 flex-shrink-0 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Bu seçenekte telefon numaranız gerekmez, kuryeler size uygulama içi mesaj yoluyla ulaşacaktır.
               </p>
             )}

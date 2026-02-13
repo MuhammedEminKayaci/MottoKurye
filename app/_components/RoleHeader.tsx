@@ -99,18 +99,10 @@ export function RoleHeader() {
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
-      await supabase.auth.signOut({ scope: 'local' });
+      await supabase.auth.signOut();
     } catch (err) {
       console.error('Çıkış hatası:', err);
     } finally {
-      // Oturum bilgilerini manuel temizle
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('supabase.auth.token');
-        // sb-* anahtarlarını temizle
-        Object.keys(localStorage).forEach((key) => {
-          if (key.startsWith('sb-')) localStorage.removeItem(key);
-        });
-      }
       window.location.href = "/";
     }
   };

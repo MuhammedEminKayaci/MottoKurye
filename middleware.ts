@@ -1,3 +1,4 @@
+import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Korumalı rotalar - sadece oturum açmış kullanıcılar erişebilir
@@ -9,21 +10,44 @@ const PROTECTED_ROUTES = [
 ];
 
 // Auth sayfaları - zaten giriş yapmış kullanıcılar erişmemeli
-const AUTH_ROUTES = ["/giris", "/kayit-ol", "/sifremi-unuttum"];
+// Not: /kayit-ol dahil değil çünkü Google ile giriş yapan kullanıcıların profil oluşturması gerekebilir
+const AUTH_ROUTES = ["/giris", "/sifremi-unuttum"];
 
 export async function middleware(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          supabaseResponse = NextResponse.next({
+            request,
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  // Session'ı yenile (token refresh) - ÖNEMLİ: getUser kullan, getSession değil
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { pathname } = request.nextUrl;
-
-  // Supabase auth token'ı cookie'den oku
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  // sb-<project_ref>-auth-token cookie'sinden session kontrol
-  const projectRef = supabaseUrl.match(/https:\/\/(.+?)\.supabase\.co/)?.[1];
-  const authCookieName = `sb-${projectRef}-auth-token`;
-  const authCookie = request.cookies.get(authCookieName);
-
-  const hasSession = !!authCookie?.value;
+  const hasSession = !!user;
 
   // Korumalı sayfalara auth olmadan erişim engelle
   const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
@@ -43,7 +67,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/profil", request.url));
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {
@@ -54,7 +78,6 @@ export const config = {
     "/ilanlarim/:path*",
     // Auth rotaları
     "/giris",
-    "/kayit-ol",
     "/sifremi-unuttum",
   ],
 };
