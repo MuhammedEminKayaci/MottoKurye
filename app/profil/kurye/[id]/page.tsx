@@ -23,7 +23,6 @@ interface CourierProfileProps {
 }
 
 async function getCourierProfile(userId: string) {
-  console.log('Fetching courier profile for user_id:', userId);
   const { data, error } = await supabaseServer
     .from("couriers")
     .select("*")
@@ -35,7 +34,6 @@ async function getCourierProfile(userId: string) {
     return null;
   }
   if (!data) {
-    console.warn('No courier found for user_id:', userId);
     return null;
   }
   return data;
@@ -43,7 +41,6 @@ async function getCourierProfile(userId: string) {
 
 export default async function KuryeProfilPage({ params }: CourierProfileProps) {
   const { id } = await params;
-  console.log('Courier profile page - received id:', id);
   const courier = await getCourierProfile(id);
 
 

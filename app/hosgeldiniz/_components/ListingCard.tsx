@@ -17,9 +17,10 @@ interface ListingCardProps {
   onGuestClick?: () => void;
   userId?: string;
   userRole?: 'kurye' | 'isletme';
+  viewerPlan?: 'free' | 'standard' | 'premium' | null;
 }
 
-export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, fallbackImageUrl, phone, contactPreference = "phone", showActions, isGuest, onGuestClick, userId, userRole }: ListingCardProps) {
+export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, fallbackImageUrl, phone, contactPreference = "phone", showActions, isGuest, onGuestClick, userId, userRole, viewerPlan }: ListingCardProps) {
   const chips = (metaParts && metaParts.length ? metaParts : (meta ? meta.split(" • ") : [])).filter(Boolean);
   const finalImageUrl = imageUrl || fallbackImageUrl;
   const showImage = !!finalImageUrl;
@@ -45,7 +46,13 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
     if (isGuest && onGuestClick) { onGuestClick(); return; }
     if (!canContact) { alert("İletişim 08:00-20:00 arasında mümkündür."); return; }
     if (!phone) return;
-    const cleaned = phone.replace(/\D/g, '');
+    let cleaned = phone.replace(/\D/g, '');
+    // 0 ile başlıyorsa Türkiye kodu ekle: 05XX -> 905XX
+    if (cleaned.startsWith('0')) {
+      cleaned = '90' + cleaned.slice(1);
+    } else if (!cleaned.startsWith('90')) {
+      cleaned = '90' + cleaned;
+    }
     const msg = encodeURIComponent(`Merhaba ${title}, kurye ilanınız hakkında bilgi almak istiyorum.`);
     window.open(`https://wa.me/${cleaned}?text=${msg}`, '_blank');
   };
@@ -119,6 +126,16 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
     const btnBase = "flex-1 flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all active:scale-[0.97]";
 
     const renderButtons = () => {
+      // Ücretsiz plan olan işletme → sadece mesaj gönder
+      if (viewerPlan === 'free') {
+        return (
+          <button onClick={handleInAppChat} className={`${btnBase} bg-blue-500 hover:bg-blue-600 text-white shadow-sm hover:shadow-md`}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+            Mesaj Gönder
+          </button>
+        );
+      }
+
       if (contactPreference === "in_app") {
         return (
           <button onClick={handleInAppChat} className={`${btnBase} bg-blue-500 hover:bg-blue-600 text-white shadow-sm hover:shadow-md`}>
@@ -172,7 +189,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
       {/* ═══════ CARD BODY — unified for mobile & desktop ═══════ */}
       <div className="flex items-start gap-3 p-3 sm:p-4 flex-1">
         {/* Avatar — rounded square */}
-        <div className={`relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-gradient-to-br ${accent.avatarBg} border-2 ${accent.avatarBorder} shadow-sm group-hover:shadow-md transition-shadow`}>
+        <div className={`relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-gradient-to-br ${accent.avatarBg} border-2 ${accent.avatarBorder} shadow-sm group-hover:shadow-md transition-shadow`}>
           {showImage ? (
             <Image
               src={finalImageUrl!}

@@ -41,7 +41,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   </div>;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white">
+    <div className="flex flex-col h-dvh overflow-hidden bg-white">
       <Header />
       <div className="flex-1 min-h-0">
         <ChatLayoutClient sidebar={<ChatSidebar userId={userId!} userRole={role} />}>

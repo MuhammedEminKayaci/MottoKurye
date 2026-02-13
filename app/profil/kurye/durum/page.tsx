@@ -122,30 +122,64 @@ export default function KuryeDurumPage() {
 
         <div className="bg-white rounded-2xl shadow-md border border-neutral-200 p-8">
           <div className="flex flex-col items-center justify-center text-center gap-6">
-            <div>
+            <div className="w-full max-w-sm">
               <h2 className="text-2xl font-bold text-neutral-900 mb-3">İş Tekliflerine Açık mısınız?</h2>
-              <p className="text-neutral-600 text-base mb-6">
+              <p className="text-neutral-600 text-base mb-8">
                 {isAcceptingOffers
                   ? 'İşletmeler sizi görebiliyor ve iş teklifi gönderebiliyor'
                   : 'İşletmeler sizi göremiyor, ilanlar sayfasında çıkmıyorsunuz'}
               </p>
 
-              {/* Simple Button Toggle */}
-              <button
-                onClick={handleToggle}
-                disabled={saving}
-                className={`px-8 py-4 rounded-xl font-bold text-white text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:cursor-not-allowed ${
-                  isAcceptingOffers
-                    ? 'bg-green-500 hover:bg-green-600 active:bg-green-700'
-                    : 'bg-red-500 hover:bg-red-600 active:bg-red-700'
-                } ${saving ? 'opacity-70' : ''}`}
-              >
-                {saving ? 'Güncelleniyor...' : (isAcceptingOffers ? (
-                  <span className="flex items-center gap-2"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> AÇIK</span>
-                ) : (
-                  <span className="flex items-center gap-2"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg> KAPALI</span>
-                ))}
-              </button>
+              {/* Neon Toggle Switch */}
+              <div className="flex items-center justify-center">
+                <button
+                  onClick={handleToggle}
+                  disabled={saving}
+                  className="relative flex items-center w-full max-w-xs h-14 rounded-full p-1 transition-all duration-500 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed"
+                  style={{
+                    background: isAcceptingOffers
+                      ? 'linear-gradient(135deg, #10b981, #059669)'
+                      : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    boxShadow: isAcceptingOffers
+                      ? '0 0 20px rgba(16, 185, 129, 0.5), 0 0 40px rgba(16, 185, 129, 0.2)'
+                      : '0 0 20px rgba(239, 68, 68, 0.5), 0 0 40px rgba(239, 68, 68, 0.2)',
+                  }}
+                >
+                  {/* Labels */}
+                  <span className={`flex-1 text-sm font-bold z-10 transition-colors duration-300 ${
+                    isAcceptingOffers ? 'text-white' : 'text-white/50'
+                  }`}>
+                    İş Arıyorum
+                  </span>
+                  <span className={`flex-1 text-sm font-bold z-10 transition-colors duration-300 ${
+                    !isAcceptingOffers ? 'text-white' : 'text-white/50'
+                  }`}>
+                    Aramıyorum
+                  </span>
+
+                  {/* Sliding Knob */}
+                  <div
+                    className={`absolute top-1 h-12 w-[calc(50%-4px)] bg-white rounded-full shadow-lg transition-all duration-500 ease-in-out ${
+                      isAcceptingOffers ? 'left-1' : 'left-[calc(50%+3px)]'
+                    }`}
+                    style={{
+                      boxShadow: isAcceptingOffers
+                        ? '0 0 12px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0,0,0,0.1)'
+                        : '0 0 12px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    <div className="flex items-center justify-center h-full">
+                      {saving ? (
+                        <div className="w-5 h-5 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin"></div>
+                      ) : isAcceptingOffers ? (
+                        <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                      ) : (
+                        <svg className="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
 

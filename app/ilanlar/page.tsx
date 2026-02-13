@@ -36,6 +36,7 @@ function IlanlarContent() {
   const [items, setItems] = useState<any[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
+  const [viewerPlan, setViewerPlan] = useState<'free' | 'standard' | 'premium' | null>(null);
   const pageSize = 10;
 
   const handleGuestClick = () => {
@@ -63,34 +64,30 @@ function IlanlarContent() {
         }
         
         const uid = auth.session?.user?.id;
-        console.log('Auth session uid:', uid);
         
         if (uid) {
           // User is authenticated, check their role
           setIsAuthenticated(true);
           const { data: c, error: curierError } = await supabase.from("couriers").select("id").eq("user_id", uid).limit(1);
           if (curierError) console.error('Courier check error:', curierError);
-          if (c?.length) { 
-            console.log('User is courier');
+          if (c?.length) {
             setActualRole("kurye");
             setRole((viewParam as Role) || "kurye"); 
             setLoading(false); 
             return; 
           }
-          const { data: b, error: businessError } = await supabase.from("businesses").select("id").eq("user_id", uid).limit(1);
+          const { data: b, error: businessError } = await supabase.from("businesses").select("id,plan").eq("user_id", uid).limit(1);
           if (businessError) console.error('Business check error:', businessError);
-          if (b?.length) { 
-            console.log('User is business');
+          if (b?.length) {
             setActualRole("isletme");
+            setViewerPlan((b[0] as any).plan || 'free');
             setRole((viewParam as Role) || "isletme"); 
             setLoading(false); 
             return; 
           }
-          console.log('User is neither courier nor business');
           setLoading(false);
         } else {
           // User is not authenticated - show guest view based on URL param
-          console.log('User not authenticated');
           setIsAuthenticated(false);
           // Check type param first (from redirect), then view param, default to kurye
           setRole((typeParam as Role) || (viewParam as Role) || "kurye");
@@ -145,12 +142,11 @@ function IlanlarContent() {
               if (filters.province) q2 = q2.eq("province", filters.province);
               
               const res2 = await q2;
-              data = res2.data || [];
+              data = (res2.data as any) || [];
               error = res2.error || null;
             }
           }
           if (error) throw error;
-          console.log('Business ads fetched:', data?.length || 0, 'items');
           
           // Get business info for each ad and filter by seeking_couriers
           const adsWithBusinessInfo = await Promise.all(
@@ -177,8 +173,7 @@ function IlanlarContent() {
                   ...ad,
                   businesses: [business]
                 };
-              } catch (err) {
-                console.warn('Failed to fetch business info for ad:', ad.id, err);
+              } catch {
                 return null;
               }
             })
@@ -276,9 +271,7 @@ function IlanlarContent() {
               </div>
             ) : (
               <div className="flex flex-col gap-3 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4">
-                {paged.map(it => {
-                  console.log('Listing item:', { id: it.id, user_id: it.user_id, role, userRole: role === 'kurye' ? 'isletme' : 'kurye' });
-                  return (
+                {paged.map(it => (
                     <ListingCard
                       key={it.id}
                       title={role === 'isletme' 
@@ -296,7 +289,7 @@ function IlanlarContent() {
                       fallbackImageUrl={role === 'kurye' ? (it.businesses?.[0]?.avatar_url ?? null) : null}
                       phone={role === 'isletme' ? (it.phone ?? null) : null}
                       contactPreference={(it as any).contact_preference ?? 'phone'}
-                      showActions={role === 'isletme'}
+                      showActions={true}
                       isGuest={!isAuthenticated || (isAuthenticated && role !== actualRole)}
                       onGuestClick={() => {
                         if (!isAuthenticated) {
@@ -315,9 +308,9 @@ function IlanlarContent() {
                       time={it.created_at ? new Date(it.created_at).toLocaleDateString() : undefined}
                       userId={it.user_id}
                       userRole={role === 'kurye' ? 'isletme' : 'kurye'}
+                      viewerPlan={viewerPlan}
                     />
-                  );
-                })}
+                  ))}
               </div>
             )}
             <Pagination total={items.length} page={page} pageSize={pageSize} onPage={setPage} />

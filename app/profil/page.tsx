@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Header } from "../_components/Header";
 import { PlanStatusCard } from "../_components/PlanStatusCard";
 import { supabase } from "../../lib/supabase";
@@ -29,6 +30,7 @@ const formatDistrict = (district: any) => {
 };
 
 export default function ProfilPage() {
+  const router = useRouter();
   const [role, setRole] = useState<"kurye"|"isletme"|null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -196,12 +198,13 @@ export default function ProfilPage() {
   }
 
   if (!profile) {
+    // Güvenli yönlendirme - dangerouslySetInnerHTML yerine useEffect
+    setTimeout(() => router.push('/kayit-ol'), 1200);
     return (
       <main className="min-h-dvh w-full bg-neutral-50">
         <Header />
         <div className="max-w-2xl mx-auto px-4 py-20 text-center">
           <p className="text-black/70 text-lg">Profil bulunamadı. Kayıt sayfasına yönlendiriliyorsunuz...</p>
-          <script dangerouslySetInnerHTML={{__html:`setTimeout(()=>{ window.location.href='/kayit-ol'; },1200);`}} />
         </div>
       </main>
     );

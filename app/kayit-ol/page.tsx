@@ -260,7 +260,7 @@ export default function KayitOlPage() {
         const ipData = await ipResponse.json();
         ipAddress = ipData.ip;
       } catch (e) {
-        console.warn('IP capture failed:', e);
+        // IP capture failed silently
       }
       
       const insert = {
@@ -327,7 +327,7 @@ export default function KayitOlPage() {
         const ipData = await ipResponse.json();
         ipAddress = ipData.ip;
       } catch (e) {
-        console.warn('IP capture failed:', e);
+        // IP capture failed silently
       }
       
       const insert = {
@@ -354,7 +354,6 @@ export default function KayitOlPage() {
       if (error) throw error;
       
       // İşletme için otomatik bir başlangıç ilanı oluştur
-      console.log('Creating auto ad for user_id:', sessionUserId);
       const adInsert = {
         user_id: sessionUserId,
         title: `${data.businessName} - Kurye Aranıyor`,
@@ -370,8 +369,6 @@ export default function KayitOlPage() {
       const { data: adData, error: adError } = await supabase.from("business_ads").insert(adInsert).select();
       if (adError) {
         console.error('Otomatik ilan oluşturulamadı:', adError);
-      } else {
-        console.log('Otomatik ilan oluşturuldu:', adData);
       }
       
       router.push("/hosgeldiniz");

@@ -32,8 +32,7 @@ export function PlanStatusCard({
 
   // Uyarı seviyeleri
   const messageWarning = !isUnlimited(dailyMessageLimit) && messagesLeft <= 1;
-  const approvalWarning = !isUnlimited(dailyApprovalLimit) && approvalsLeft <= 1;
-  const showWarning = messageWarning || approvalWarning;
+  const showWarning = messageWarning;
 
   const handleUpgrade = async (newPlan: PlanType) => {
     if (newPlan === plan) return;
@@ -112,11 +111,7 @@ export function PlanStatusCard({
               <p className="text-sm font-medium text-amber-800">
                 {messagesLeft === 0 
                   ? 'Günlük mesaj hakkınız doldu!' 
-                  : messagesLeft === 1 
-                    ? 'Sadece 1 mesaj hakkınız kaldı!'
-                    : approvalsLeft === 0
-                      ? 'Günlük onay hakkınız doldu!'
-                      : 'Sadece 1 onay hakkınız kaldı!'}
+                  : 'Sadece 1 mesaj hakkınız kaldı!'}
               </p>
               <p className="text-xs text-amber-600 mt-1">
                 Daha fazla hak için planınızı yükseltin.
@@ -126,7 +121,7 @@ export function PlanStatusCard({
         )}
 
         {/* Haklar */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {/* Mesaj Hakkı */}
           <div className="bg-white rounded-lg p-3 border border-gray-200">
             <div className="flex items-center gap-2 mb-2">
@@ -143,27 +138,6 @@ export function PlanStatusCard({
                 <div 
                   className={`h-full rounded-full transition-all ${messagesLeft === 0 ? 'bg-red-500' : 'bg-[#ff7a00]'}`}
                   style={{ width: `${(messagesLeft / dailyMessageLimit) * 100}%` }}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Onay Hakkı */}
-          <div className="bg-white rounded-lg p-3 border border-gray-200">
-            <div className="flex items-center gap-2 mb-2">
-              <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-xs text-gray-500 font-medium">Onay Hakkı</span>
-            </div>
-            <p className={`text-lg font-bold ${approvalsLeft === 0 ? 'text-red-500' : 'text-gray-800'}`}>
-              {formatRemainingLimit(approvalsLeft, dailyApprovalLimit)}
-            </p>
-            {!isUnlimited(dailyApprovalLimit) && (
-              <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full rounded-full transition-all ${approvalsLeft === 0 ? 'bg-red-500' : 'bg-green-500'}`}
-                  style={{ width: `${(approvalsLeft / dailyApprovalLimit) * 100}%` }}
                 />
               </div>
             )}
@@ -210,7 +184,6 @@ export function PlanStatusCard({
                     'Sınırsız ilan verme',
                     'Sınırsız kurye profil görüntüleme',
                     'Günlük 2 adet kurye iletişim talebi gönderme',
-                    'Günlük 1 adet kurye onayı alma',
                     'Sadece uygulama içi mesajlaşma',
                   ],
                   notIncluded: [
@@ -228,12 +201,10 @@ export function PlanStatusCard({
                     'Sınırsız ilan verme',
                     'Sınırsız kurye profil görüntüleme',
                     'Günlük 20 adet kurye iletişim talebi gönderme',
-                    'Günlük 10 adet kurye onayı alma',
-                    'Sadece uygulama içi mesajlaşma',
+                    'Kuryelerle telefon ve WhatsApp ile iletişim kurma',
+                    'Uygulama içi mesajlaşma',
                   ],
                   notIncluded: [
-                    'Kuryelerle telefon ile iletişim kurma',
-                    'Kuryelerle WhatsApp ile iletişim kurma',
                     'Kurye tarafından görüntülenme ve iletişim kurma talebi alma',
                   ],
                 },
@@ -246,7 +217,6 @@ export function PlanStatusCard({
                     'Sınırsız ilan verme',
                     'Sınırsız kurye profil görüntüleme',
                     'Günlük sınırsız adet kurye iletişim talebi gönderme',
-                    'Günlük sınırsız adet kurye onayı alma',
                     'Kuryelerle telefon ve WhatsApp ile iletişim kurma',
                     'Kurye tarafından görüntülenme ve iletişim kurma talebi alma',
                   ],

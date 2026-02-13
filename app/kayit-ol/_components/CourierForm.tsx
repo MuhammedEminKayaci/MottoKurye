@@ -79,7 +79,12 @@ const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartes
 // Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
 const formatPhoneNumber = (value: string): string => {
   // Sadece rakamları al
-  const digits = value.replace(/\D/g, '');
+  let digits = value.replace(/\D/g, '');
+  
+  // 5 ile başlıyorsa otomatik 0 ekle
+  if (digits.length > 0 && digits[0] === '5') {
+    digits = '0' + digits;
+  }
   
   // Max 11 rakam (0 + 10 hane)
   const limited = digits.slice(0, 11);
@@ -294,14 +299,14 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
               <option value="phone">Telefon ve Uygulama İçi İletişim</option>
             </select>
             {contactPreference === "in_app" && (
-              <p className="text-[10px] text-blue-200 mt-1 flex items-center gap-1">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <p className="text-[10px] mt-1.5 flex items-center gap-1 bg-white/90 text-neutral-800 px-2 py-1 rounded-lg">
+                <svg className="w-3 h-3 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Bu seçenekte telefon numaranız gerekmez, işletmeler size uygulama içi mesaj yoluyla ulaşacaktır.
               </p>
             )}
             {(contactPreference === "phone" || contactPreference === "both") && (
-              <p className="text-[10px] text-yellow-300 mt-1 flex items-center gap-1">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <p className="text-[10px] mt-1.5 flex items-center gap-1 bg-white/90 text-neutral-800 px-2 py-1 rounded-lg">
+                <svg className="w-3 h-3 flex-shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Telefon numaranız 08:00-20:00 saatleri arasında işletmelere gösterilecektir.
               </p>
             )}
@@ -363,6 +368,7 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="İlçe Seçin"
+                  theme="registration"
                 />
               )}
             />

@@ -31,7 +31,6 @@ interface BusinessProfileProps {
 }
 
 async function getBusinessProfile(userId: string) {
-  console.log('Fetching business profile for user_id:', userId);
   const { data, error } = await supabaseServer
     .from("businesses")
     .select("*")
@@ -43,7 +42,6 @@ async function getBusinessProfile(userId: string) {
     return null;
   }
   if (!data) {
-    console.warn('No business found for user_id:', userId);
     return null;
   }
   return data;
@@ -51,7 +49,6 @@ async function getBusinessProfile(userId: string) {
 
 export default async function IsletmeProfilPage({ params }: BusinessProfileProps) {
   const { id } = await params;
-  console.log('Business profile page - received id:', id);
   const business = await getBusinessProfile(id);
 
 

@@ -27,13 +27,13 @@ export default function RolSecPage() {
         const { data: courier } = await supabase.from("couriers").select("id").eq("user_id", userId).limit(1);
         const { data: business } = await supabase.from("businesses").select("id").eq("user_id", userId).limit(1);
 
-        if (courier?.length > 0) {
+        if ((courier?.length ?? 0) > 0) {
           // Kurye profili var, direkt profil sayfasına yönlendir
           router.push("/profil");
           return;
         }
         
-        if (business?.length > 0) {
+        if ((business?.length ?? 0) > 0) {
           // İşletme profili var, direkt profil sayfasına yönlendir
           router.push("/profil");
           return;

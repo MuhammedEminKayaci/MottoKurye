@@ -79,8 +79,8 @@ export function ContactButtons({ phone, name, role, contactPreference, businessP
     ? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700" 
     : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700";
 
-  // İşletme profili görüntülenirken: sadece premium işletmeler telefon gösterir
-  const shouldShowPhoneForBusinessProfile = role === "isletme" && businessPlan === "premium";
+  // İşletme profili görüntülenirken: standard ve premium işletmeler telefon gösterir
+  const shouldShowPhoneForBusinessProfile = role === "isletme" && (businessPlan === "standard" || businessPlan === "premium");
 
   if (loading) {
     return (
@@ -92,8 +92,8 @@ export function ContactButtons({ phone, name, role, contactPreference, businessP
 
   // ===== KURYE PROFİLİ GÖRÜNTÜLENIRKEN =====
   if (role === "kurye") {
-    // İşletme görüntülüyorsa ve premium değilse - sadece "Mesaj Gönder" göster
-    if (isViewerBusiness && viewerPlan !== "premium") {
+    // İşletme görüntülüyorsa ve ücretsiz planda ise - sadece "Mesaj Gönder" göster
+    if (isViewerBusiness && viewerPlan === "free") {
       return (
         <div className="flex flex-col items-center gap-3 p-4 bg-neutral-100 rounded-xl border border-neutral-200">
           <svg className="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +128,13 @@ export function ContactButtons({ phone, name, role, contactPreference, businessP
         <a
           href="#"
           onClick={(e) => handleAction(e, () => {
-            const cleaned = phone.replace(/\D/g, '');
+            let cleaned = phone.replace(/\D/g, '');
+            // 0 ile başlıyorsa Türkiye kodu ekle: 05XX -> 905XX
+            if (cleaned.startsWith('0')) {
+              cleaned = '90' + cleaned.slice(1);
+            } else if (!cleaned.startsWith('90')) {
+              cleaned = '90' + cleaned;
+            }
             const msg = encodeURIComponent(`Merhaba ${name}, ilanınız hakkında bilgi almak istiyorum.`);
             window.open(`https://wa.me/${cleaned}?text=${msg}`, '_blank');
           })}
@@ -182,7 +188,12 @@ export function ContactButtons({ phone, name, role, contactPreference, businessP
       <a
         href="#"
         onClick={(e) => handleAction(e, () => {
-          const cleaned = phone.replace(/\D/g, '');
+          let cleaned = phone.replace(/\D/g, '');
+          if (cleaned.startsWith('0')) {
+            cleaned = '90' + cleaned.slice(1);
+          } else if (!cleaned.startsWith('90')) {
+            cleaned = '90' + cleaned;
+          }
           const msg = encodeURIComponent(`Merhaba ${name}, işletmeniz hakkında bilgi almak istiyorum.`);
           window.open(`https://wa.me/${cleaned}?text=${msg}`, '_blank');
         })}

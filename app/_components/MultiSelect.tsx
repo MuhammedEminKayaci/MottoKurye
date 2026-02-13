@@ -7,7 +7,7 @@ interface MultiSelectProps {
   onChange: (value: string[]) => void;
   placeholder?: string;
   disabled?: boolean;
-  theme?: "dark" | "light";
+  theme?: "dark" | "light" | "registration";
 }
 
 export function MultiSelect({ options, value, onChange, placeholder = "Seçiniz", disabled = false, theme = "dark" }: MultiSelectProps) {
@@ -43,28 +43,41 @@ export function MultiSelect({ options, value, onChange, placeholder = "Seçiniz"
     }
   };
 
-  const dropdownClass = theme === "dark"
-    ? "bg-[#1a1a1a] border-white/10"
-    : "bg-white border-neutral-200";
+  const isRegistration = theme === "registration";
+  const isDark = theme === "dark";
 
-  const optionHoverClass = theme === "dark"
-    ? "hover:bg-white/5"
-    : "hover:bg-neutral-50";
+  const dropdownClass = isRegistration
+    ? "bg-white border-neutral-200 shadow-xl"
+    : isDark
+      ? "bg-[#1a1a1a] border-white/10"
+      : "bg-white border-neutral-200";
 
-  const checkboxBorderClass = theme === "dark"
-    ? "border-white/30"
-    : "border-neutral-400";
+  const optionHoverClass = isRegistration
+    ? "hover:bg-neutral-50"
+    : isDark
+      ? "hover:bg-white/5"
+      : "hover:bg-neutral-50";
 
-  const textColor = theme === "dark" ? "text-white" : "text-neutral-900";
-  const iconColor = theme === "dark" ? "text-white/50" : "text-neutral-500";
+  const checkboxBorderClass = isRegistration
+    ? "border-neutral-400"
+    : isDark
+      ? "border-white/30"
+      : "border-neutral-400";
+
+  const textColor = isRegistration ? "text-neutral-900" : isDark ? "text-white" : "text-neutral-900";
+  const iconColor = isRegistration ? "text-neutral-500" : isDark ? "text-white/50" : "text-neutral-500";
   
-  const buttonClass = theme === "dark"
-    ? "bg-[#1a1a1a] border-white/10 text-white"
-    : "bg-white border-neutral-300 text-neutral-900";
+  const buttonClass = isRegistration
+    ? "bg-white/90 border-white/40 text-black"
+    : isDark
+      ? "bg-[#1a1a1a] border-white/10 text-white"
+      : "bg-white border-neutral-300 text-neutral-900";
 
   // Filtre panellerinde 52px, profil düzenleme gibi sayfalarda 60px - tema bazlı
-  const heightClass = theme === "dark" ? "h-[52px]" : "h-[60px]";
-  const borderClass = theme === "dark" ? "border-2 border-[#ff7a00] rounded-xl" : "border border-neutral-300 rounded-lg";
+  const heightClass = isRegistration ? "h-[40px]" : isDark ? "h-[52px]" : "h-[60px]";
+  const borderClass = isRegistration
+    ? "border border-white/40 rounded-xl"
+    : isDark ? "border-2 border-[#ff7a00] rounded-xl" : "border border-neutral-300 rounded-lg";
 
   return (
     <div className="relative" ref={containerRef}>
@@ -94,7 +107,7 @@ export function MultiSelect({ options, value, onChange, placeholder = "Seçiniz"
 
       {isOpen && (
         <div className={`absolute z-50 w-full mt-2 border rounded-xl shadow-xl max-h-60 overflow-y-auto ${dropdownClass}`}>
-          <div className={`p-2 sticky top-0 border-b z-10 ${theme === "dark" ? "bg-[#1a1a1a] border-white/10" : "bg-white border-neutral-200"}`}>
+          <div className={`p-2 sticky top-0 border-b z-10 ${isRegistration ? "bg-white border-neutral-200" : isDark ? "bg-[#1a1a1a] border-white/10" : "bg-white border-neutral-200"}`}>
              <button
               type="button"
               onClick={handleSelectAll}

@@ -51,10 +51,12 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
     
     try {
       // 1. Fetch raw conversations
+      const deleteFilter = userRole === 'isletme' ? 'deleted_by_business' : 'deleted_by_courier';
       const { data: rawConvs, error: convError } = await supabase
         .from("conversations")
         .select("*")
         .or(`business_id.eq.${userId},courier_id.eq.${userId}`)
+        .or(`${deleteFilter}.is.null,${deleteFilter}.eq.false`)
         .order("updated_at", { ascending: false });
 
       if (convError) throw convError;
@@ -203,25 +205,16 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
   const handleDeleteConversation = async (convId: string) => {
     setDeleting(true);
     try {
-      // Önce mesajları sil
-      const { error: msgError } = await supabase
-        .from('messages')
-        .delete()
-        .eq('conversation_id', convId);
+      // Soft delete: sadece bu kullanıcı için sohbeti gizle
+      const deleteColumn = userRole === 'isletme' ? 'deleted_by_business' : 'deleted_by_courier';
       
-      if (msgError) {
-        console.error('Message delete error:', msgError);
-        // Mesaj silme hatası olsa bile sohbeti silmeye devam et
-      }
-      
-      // Sonra sohbeti sil
       const { error } = await supabase
         .from('conversations')
-        .delete()
+        .update({ [deleteColumn]: true })
         .eq('id', convId);
       
       if (error) {
-        console.error('Conversation delete error:', error);
+        console.error('Conversation soft delete error:', error);
         throw error;
       }
       
@@ -235,7 +228,7 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
       }
     } catch (err: any) {
       console.error('Error deleting conversation:', err);
-      alert(`Sohbet silinirken bir hata oluştu: ${err?.message || 'Bilinmeyen hata'}. Lütfen Supabase'de DELETE politikasının eklendiğinden emin olun.`);
+      alert(`Sohbet silinirken bir hata oluştu: ${err?.message || 'Bilinmeyen hata'}`);
       setDeleteConfirm(null);
     } finally {
       setDeleting(false);
@@ -369,7 +362,7 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
                 
                 <Link 
                   href={`/mesajlar/${conv.id}`}
-                  className="flex-1 flex items-center gap-4"
+                  className="flex-1 flex items-center gap-4 min-w-0"
                 >
               {/* Avatar Container - Fixed Size */}
               <div className="relative flex-shrink-0 w-14 h-14">
