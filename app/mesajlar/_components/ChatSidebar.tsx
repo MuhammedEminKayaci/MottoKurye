@@ -92,25 +92,45 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
       }
 
       // 4. Fetch last message for each conversation & unread counts
-      const lastMessagesPromises = convIds.map((convId: string) =>
-        supabase
+      // cleared_at: kullanıcı sohbeti sildiyse, silme tarihinden sonraki mesajları göster
+      const clearedAtCol = userRole === 'isletme' ? 'business_cleared_at' : 'courier_cleared_at';
+      
+      const lastMessagesPromises = convIds.map((convId: string) => {
+        const conv = rawConvs.find((c: any) => c.id === convId);
+        const clearedAt = conv?.[clearedAtCol];
+        
+        let query = supabase
           .from('messages')
           .select('content, created_at, sender_id')
-          .eq('conversation_id', convId)
+          .eq('conversation_id', convId);
+        
+        if (clearedAt) {
+          query = query.gt('created_at', clearedAt);
+        }
+        
+        return query
           .order('created_at', { ascending: false })
           .limit(1)
-          .then(({ data }: { data: any }) => ({ convId, message: data?.[0] || null }))
-      );
+          .then(({ data }: { data: any }) => ({ convId, message: data?.[0] || null }));
+      });
 
-      const unreadCountsPromises = convIds.map((convId: string) =>
-        supabase
+      const unreadCountsPromises = convIds.map((convId: string) => {
+        const conv = rawConvs.find((c: any) => c.id === convId);
+        const clearedAt = conv?.[clearedAtCol];
+        
+        let query = supabase
           .from('messages')
           .select('id', { count: 'exact', head: true })
           .eq('conversation_id', convId)
           .eq('is_read', false)
-          .neq('sender_id', userId)
-          .then(({ count }: { count: any }) => ({ convId, count: count || 0 }))
-      );
+          .neq('sender_id', userId);
+        
+        if (clearedAt) {
+          query = query.gt('created_at', clearedAt);
+        }
+        
+        return query.then(({ count }: { count: any }) => ({ convId, count: count || 0 }));
+      });
 
       const [lastMessagesResults, unreadCountsResults] = await Promise.all([
         Promise.all(lastMessagesPromises),
@@ -205,12 +225,16 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
   const handleDeleteConversation = async (convId: string) => {
     setDeleting(true);
     try {
-      // Soft delete: sadece bu kullanıcı için sohbeti gizle
+      // Soft delete: sadece bu kullanıcı için sohbeti gizle + silme zamanını kaydet
       const deleteColumn = userRole === 'isletme' ? 'deleted_by_business' : 'deleted_by_courier';
+      const clearedAtColumn = userRole === 'isletme' ? 'business_cleared_at' : 'courier_cleared_at';
       
       const { error } = await supabase
         .from('conversations')
-        .update({ [deleteColumn]: true })
+        .update({ 
+          [deleteColumn]: true,
+          [clearedAtColumn]: new Date().toISOString()
+        })
         .eq('id', convId);
       
       if (error) {

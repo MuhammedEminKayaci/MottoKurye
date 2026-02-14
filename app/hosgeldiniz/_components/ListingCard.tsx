@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import { StartChatButton } from "@/app/mesajlar/_components/StartChatButton";
 
 interface ListingCardProps {
   title: string;
@@ -16,11 +17,12 @@ interface ListingCardProps {
   isGuest?: boolean;
   onGuestClick?: () => void;
   userId?: string;
+  targetId?: string;
   userRole?: 'kurye' | 'isletme';
   viewerPlan?: 'free' | 'standard' | 'premium' | null;
 }
 
-export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, fallbackImageUrl, phone, contactPreference = "phone", showActions, isGuest, onGuestClick, userId, userRole, viewerPlan }: ListingCardProps) {
+export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, fallbackImageUrl, phone, contactPreference = "phone", showActions, isGuest, onGuestClick, userId, targetId, userRole, viewerPlan }: ListingCardProps) {
   const chips = (metaParts && metaParts.length ? metaParts : (meta ? meta.split(" • ") : [])).filter(Boolean);
   const finalImageUrl = imageUrl || fallbackImageUrl;
   const showImage = !!finalImageUrl;
@@ -38,7 +40,6 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
     e.stopPropagation();
     if (isGuest && onGuestClick) { onGuestClick(); return; }
     if (!canContact) { alert("İletişim 08:00-20:00 arasında mümkündür."); return; }
-    alert("Uygulama içi sohbet yakında eklenecek.");
   };
 
   const handleWhatsApp = (e: React.MouseEvent) => {
@@ -129,21 +130,29 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
     const renderButtons = () => {
       // Ücretsiz plan olan işletme → sadece mesaj gönder
       if (viewerPlan === 'free') {
-        return (
-          <button onClick={handleInAppChat} className={`${btnBase} bg-[#ff7a00] hover:bg-[#e66e00] text-white shadow-sm hover:shadow-md`}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-            Mesaj Gönder
-          </button>
-        );
+        return targetId && userId && userRole ? (
+          <div onClick={(e) => e.stopPropagation()}>
+            <StartChatButton
+              targetId={targetId}
+              targetRole={userRole}
+              targetUserId={userId}
+              className={`${btnBase} bg-[#ff7a00] hover:bg-[#e66e00] text-white shadow-sm hover:shadow-md w-full`}
+            />
+          </div>
+        ) : null;
       }
 
       if (contactPreference === "in_app") {
-        return (
-          <button onClick={handleInAppChat} className={`${btnBase} bg-[#ff7a00] hover:bg-[#e66e00] text-white shadow-sm hover:shadow-md`}>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-            Mesaj Gönder
-          </button>
-        );
+        return targetId && userId && userRole ? (
+          <div onClick={(e) => e.stopPropagation()}>
+            <StartChatButton
+              targetId={targetId}
+              targetRole={userRole}
+              targetUserId={userId}
+              className={`${btnBase} bg-[#ff7a00] hover:bg-[#e66e00] text-white shadow-sm hover:shadow-md w-full`}
+            />
+          </div>
+        ) : null;
       }
 
       if (phone) {
@@ -161,12 +170,16 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
         );
       }
 
-      return (
-        <button onClick={handleInAppChat} className={`${btnBase} bg-[#ff7a00] hover:bg-[#e66e00] text-white shadow-sm hover:shadow-md`}>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-          Mesaj Gönder
-        </button>
-      );
+      return targetId && userId && userRole ? (
+        <div onClick={(e) => e.stopPropagation()}>
+          <StartChatButton
+            targetId={targetId}
+            targetRole={userRole}
+            targetUserId={userId}
+            className={`${btnBase} bg-[#ff7a00] hover:bg-[#e66e00] text-white shadow-sm hover:shadow-md w-full`}
+          />
+        </div>
+      ) : null;
     };
 
     return (

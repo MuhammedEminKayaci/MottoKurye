@@ -323,6 +323,7 @@ function IlanlarContent() {
                       }}
                       time={it.created_at ? new Date(it.created_at).toLocaleDateString() : undefined}
                       userId={it.user_id}
+                      targetId={it.id}
                       userRole={role === 'kurye' ? 'isletme' : 'kurye'}
                       viewerPlan={viewerPlan}
                     />

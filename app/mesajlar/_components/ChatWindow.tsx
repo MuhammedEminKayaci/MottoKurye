@@ -23,13 +23,29 @@ export function ChatWindow({ conversationId, currentUserId, currentUserRole }: C
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [clearedAt, setClearedAt] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Fetch initial messages and subscribe
   useEffect(() => {
     if (!conversationId) return;
 
-    fetchMessages();
+    // Önce sohbetin cleared_at bilgisini al
+    const fetchClearedAt = async () => {
+      const clearedAtCol = currentUserRole === 'kurye' ? 'courier_cleared_at' : 'business_cleared_at';
+      const { data: convData } = await supabase
+        .from('conversations')
+        .select(clearedAtCol)
+        .eq('id', conversationId)
+        .single();
+      
+      if (convData && (convData as any)[clearedAtCol]) {
+        setClearedAt((convData as any)[clearedAtCol]);
+      }
+    };
+    
+    fetchClearedAt().then(() => fetchMessages());
+    
     const channel = supabase
       .channel(`chat:${conversationId}`)
       .on(
@@ -64,11 +80,17 @@ export function ChatWindow({ conversationId, currentUserId, currentUserRole }: C
 
   const fetchMessages = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from('messages')
       .select('*')
-      .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: true });
+      .eq('conversation_id', conversationId);
+    
+    // Eğer kullanıcı daha önce sohbeti sildiyse, sadece silme tarihinden sonraki mesajları göster
+    if (clearedAt) {
+      query = query.gt('created_at', clearedAt);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: true });
 
     if (error) {
       console.error('Error fetching messages:', error);
@@ -120,10 +142,14 @@ export function ChatWindow({ conversationId, currentUserId, currentUserRole }: C
         throw error;
       };
       
-      // Update updated_at of conversation
+      // Update updated_at of conversation + karşı tarafın silme flag'ini kaldır (mesaj aldığında sohbet tekrar gözüksün)
+      const otherDeleteColumn = currentUserRole === 'kurye' ? 'deleted_by_business' : 'deleted_by_courier';
       await supabase
         .from('conversations')
-        .update({ updated_at: new Date().toISOString() })
+        .update({ 
+          updated_at: new Date().toISOString(),
+          [otherDeleteColumn]: false
+        })
         .eq('id', conversationId);
 
       setNewMessage("");

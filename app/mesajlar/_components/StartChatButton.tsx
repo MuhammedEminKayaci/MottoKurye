@@ -128,7 +128,7 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
       // Note: RLS ensures we can only select if we are part of it
       const { data: existing, error: fetchError } = await supabase
         .from('conversations')
-        .select('id')
+        .select('id, deleted_by_business, deleted_by_courier')
         .eq('business_id', businessUserId)
         .eq('courier_id', courierUserId)
         .maybeSingle();
@@ -139,6 +139,24 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
       }
 
       if (existing) {
+        // Eğer mevcut kullanıcı bu sohbeti daha önce sildiyse, tekrar aktif et
+        const iAmBusiness = businessUserId === myUserId;
+        const wasDeletedByMe = iAmBusiness ? existing.deleted_by_business : existing.deleted_by_courier;
+        
+        if (wasDeletedByMe) {
+          const reactivateColumn = iAmBusiness ? 'deleted_by_business' : 'deleted_by_courier';
+          const clearedAtColumn = iAmBusiness ? 'business_cleared_at' : 'courier_cleared_at';
+          
+          await supabase
+            .from('conversations')
+            .update({ 
+              [reactivateColumn]: false,
+              [clearedAtColumn]: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existing.id);
+        }
+        
         router.push(`/mesajlar/${existing.id}`);
       } else {
         // Yeni konuşma oluşturmadan önce mesaj sayacını güncelle (sadece işletmeler için)
