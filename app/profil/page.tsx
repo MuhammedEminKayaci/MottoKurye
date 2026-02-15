@@ -298,41 +298,97 @@ export default function ProfilPage() {
                   <button
                     onClick={handleStatusToggle}
                     disabled={savingStatus}
-                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all hover:scale-105 ${
-                      profile.is_accepting_offers
-                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                        : 'bg-red-100 text-red-700 hover:bg-red-200'
-                    } ${savingStatus ? 'opacity-50' : ''}`}
+                    className="relative flex items-center w-72 h-14 rounded-full p-1 transition-all duration-500 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed"
+                    style={{
+                      background: profile.is_accepting_offers
+                        ? 'linear-gradient(135deg, #10b981, #059669)'
+                        : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                      boxShadow: profile.is_accepting_offers
+                        ? '0 0 20px rgba(16, 185, 129, 0.4), 0 4px 15px rgba(16, 185, 129, 0.3)'
+                        : '0 0 20px rgba(239, 68, 68, 0.4), 0 4px 15px rgba(239, 68, 68, 0.3)',
+                    }}
                   >
-                    {savingStatus ? (
-                      <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> Güncelleniyor...</>
-                    ) : profile.is_accepting_offers ? (
-                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> İş Arıyorum</>
-                    ) : (
-                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg> İş Aramıyorum</>
-                    )}
+                    {/* Labels */}
+                    <span className={`flex-1 text-sm font-bold z-10 transition-colors duration-300 ${
+                      profile.is_accepting_offers ? 'text-white/50' : 'text-white'
+                    }`}>
+                      İş Arıyorum
+                    </span>
+                    <span className={`flex-1 text-sm font-bold z-10 transition-colors duration-300 ${
+                      !profile.is_accepting_offers ? 'text-white/50' : 'text-white'
+                    }`}>
+                      İş Aramıyorum
+                    </span>
+
+                    {/* Sliding Knob */}
+                    <div
+                      className={`absolute top-1 h-12 w-[calc(50%-4px)] bg-white rounded-full shadow-lg transition-all duration-500 ease-in-out flex items-center justify-center ${
+                        profile.is_accepting_offers ? 'left-1' : 'left-[calc(50%+3px)]'
+                      }`}
+                      style={{
+                        boxShadow: profile.is_accepting_offers
+                          ? '0 0 12px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0,0,0,0.15)'
+                          : '0 0 12px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(0,0,0,0.15)',
+                      }}
+                    >
+                      {savingStatus ? (
+                        <div className="w-5 h-5 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin"></div>
+                      ) : (
+                        <span className={`text-xs font-bold ${profile.is_accepting_offers ? 'text-green-600' : 'text-red-500'}`}>
+                          {profile.is_accepting_offers ? 'İş Arıyorum' : 'İş Aramıyorum'}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 ) : (
                   <button
                     onClick={handleStatusToggle}
                     disabled={savingStatus}
-                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold cursor-pointer transition-all hover:scale-105 ${
-                      profile.seeking_couriers
-                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                        : 'bg-red-100 text-red-700 hover:bg-red-200'
-                    } ${savingStatus ? 'opacity-50' : ''}`}
+                    className="relative flex items-center w-72 h-14 rounded-full p-1 transition-all duration-500 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed"
+                    style={{
+                      background: profile.seeking_couriers
+                        ? 'linear-gradient(135deg, #10b981, #059669)'
+                        : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                      boxShadow: profile.seeking_couriers
+                        ? '0 0 20px rgba(16, 185, 129, 0.4), 0 4px 15px rgba(16, 185, 129, 0.3)'
+                        : '0 0 20px rgba(239, 68, 68, 0.4), 0 4px 15px rgba(239, 68, 68, 0.3)',
+                    }}
                   >
-                    {savingStatus ? (
-                      <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div> Güncelleniyor...</>
-                    ) : profile.seeking_couriers ? (
-                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Kurye Arıyorum</>
-                    ) : (
-                      <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg> Kurye Aramıyorum</>
-                    )}
+                    {/* Labels */}
+                    <span className={`flex-1 text-sm font-bold z-10 transition-colors duration-300 ${
+                      profile.seeking_couriers ? 'text-white/50' : 'text-white'
+                    }`}>
+                      Kurye Arıyorum
+                    </span>
+                    <span className={`flex-1 text-sm font-bold z-10 transition-colors duration-300 ${
+                      !profile.seeking_couriers ? 'text-white/50' : 'text-white'
+                    }`}>
+                      Aramıyorum
+                    </span>
+
+                    {/* Sliding Knob */}
+                    <div
+                      className={`absolute top-1 h-12 w-[calc(50%-4px)] bg-white rounded-full shadow-lg transition-all duration-500 ease-in-out flex items-center justify-center ${
+                        profile.seeking_couriers ? 'left-1' : 'left-[calc(50%+3px)]'
+                      }`}
+                      style={{
+                        boxShadow: profile.seeking_couriers
+                          ? '0 0 12px rgba(16, 185, 129, 0.4), 0 2px 8px rgba(0,0,0,0.15)'
+                          : '0 0 12px rgba(239, 68, 68, 0.4), 0 2px 8px rgba(0,0,0,0.15)',
+                      }}
+                    >
+                      {savingStatus ? (
+                        <div className="w-5 h-5 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin"></div>
+                      ) : (
+                        <span className={`text-xs font-bold ${profile.seeking_couriers ? 'text-green-600' : 'text-red-500'}`}>
+                          {profile.seeking_couriers ? 'Kurye Arıyorum' : 'Aramıyorum'}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 )}
               </div>
-              <p className="text-xs text-neutral-500 mb-4">Durumu değiştirmek için butona tıklayın</p>
+              <p className="text-xs text-neutral-500 mb-4">Durumu değiştirmek için switch'e tıklayın</p>
               
               {/* Edit Button */}
               <div className="mt-4">

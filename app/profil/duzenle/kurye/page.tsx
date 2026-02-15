@@ -33,16 +33,30 @@ interface CourierData {
   avatar_url?: string | null;
   p1_certificate_file_url?: string | null;
   criminal_record_file_url?: string | null;
+  is_accepting_offers?: boolean;
 }
 
 const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
 // Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
 const formatPhoneNumber = (value: string): string => {
-  const digits = value.replace(/\D/g, '');
+  let digits = value.replace(/\D/g, '');
+  
+  // Eğer boşsa veya sadece 0 varsa, 0 döndür
+  if (digits.length === 0) return '0';
+  
+  // 5 ile başlıyorsa otomatik 0 ekle
+  if (digits[0] === '5') {
+    digits = '0' + digits;
+  }
+  
+  // 0 ile başlamıyorsa 0 ekle
+  if (digits[0] !== '0') {
+    digits = '0' + digits;
+  }
+  
   const limited = digits.slice(0, 11);
   
-  if (limited.length === 0) return '';
   if (limited.length <= 1) return limited;
   if (limited.length <= 4) return `${limited[0]} (${limited.slice(1)}`;
   if (limited.length <= 7) return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4)}`;
@@ -57,6 +71,7 @@ export default function KuryeDuzenlePage() {
   const [error, setError] = useState<string | null>(null);
   const [courier, setCourier] = useState<CourierData | null>(null);
   const [formData, setFormData] = useState<Partial<CourierData>>({});
+  const [isAcceptingOffers, setIsAcceptingOffers] = useState(true);
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -111,6 +126,7 @@ export default function KuryeDuzenlePage() {
         setCourier({ ...data, working_days: workingDays });
         setFormData({ ...data, working_days: workingDays });
         setAvatarPreview(data.avatar_url);
+        setIsAcceptingOffers(data.is_accepting_offers ?? true);
         
         // Orijinal değerleri kaydet (değişiklik tespiti için)
         setOriginalLicenseType(data.license_type);
@@ -338,6 +354,7 @@ export default function KuryeDuzenlePage() {
         contact_preference: formData.contact_preference,
         p1_certificate_file_url: p1FileUrl,
         criminal_record_file_url: criminalRecordFileUrl,
+        is_accepting_offers: isAcceptingOffers,
       };
 
       const { error: updateError } = await supabase
@@ -601,7 +618,7 @@ export default function KuryeDuzenlePage() {
                   <input
                     type="tel"
                     name="phone"
-                    value={formData.phone || ''}
+                    value={formData.phone || '0'}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))}
                     className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
                     placeholder="0 (5XX) XXX XX XX"

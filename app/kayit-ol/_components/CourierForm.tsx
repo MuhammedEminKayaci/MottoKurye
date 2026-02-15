@@ -81,8 +81,16 @@ const formatPhoneNumber = (value: string): string => {
   // Sadece rakamları al
   let digits = value.replace(/\D/g, '');
   
+  // Eğer boşsa veya sadece 0 varsa, 0 döndür
+  if (digits.length === 0) return '0';
+  
   // 5 ile başlıyorsa otomatik 0 ekle
-  if (digits.length > 0 && digits[0] === '5') {
+  if (digits[0] === '5') {
+    digits = '0' + digits;
+  }
+  
+  // 0 ile başlamıyorsa 0 ekle
+  if (digits[0] !== '0') {
     digits = '0' + digits;
   }
   
@@ -90,7 +98,6 @@ const formatPhoneNumber = (value: string): string => {
   const limited = digits.slice(0, 11);
   
   // Format uygula
-  if (limited.length === 0) return '';
   if (limited.length <= 1) return limited;
   if (limited.length <= 4) return `${limited[0]} (${limited.slice(1)}`;
   if (limited.length <= 7) return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4)}`;
@@ -317,10 +324,11 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
               <Controller
                 name="phone"
                 control={control}
+                defaultValue="0"
                 render={({ field }) => (
                   <input 
                     className="input-field text-sm" 
-                    value={field.value || ''}
+                    value={field.value || '0'}
                     onChange={(e) => field.onChange(formatPhoneNumber(e.target.value))}
                     placeholder="0 (5XX) XXX XX XX" 
                   />

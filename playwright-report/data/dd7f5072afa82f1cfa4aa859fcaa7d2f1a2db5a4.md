@@ -1,0 +1,204 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - alert [ref=e11]
+  - main [ref=e12]:
+    - generic [ref=e13]:
+      - link "Ana Sayfa" [ref=e15] [cursor=pointer]:
+        - /url: /
+        - img "PaketServisi Logo" [ref=e16]
+      - generic [ref=e17]:
+        - navigation "Ana menü" [ref=e18]:
+          - link "Ana Sayfa" [ref=e19] [cursor=pointer]:
+            - /url: /
+          - link "Profil" [ref=e21] [cursor=pointer]:
+            - /url: /profil
+          - link "Mesajlar" [ref=e23] [cursor=pointer]:
+            - /url: /mesajlar
+          - link "İlanlar" [ref=e25] [cursor=pointer]:
+            - /url: /ilanlar
+        - button "Çıkış Yap" [ref=e26] [cursor=pointer]
+    - generic [ref=e27]:
+      - complementary [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - heading "Filtreler" [level=3] [ref=e31]
+            - button "Temizle" [ref=e32] [cursor=pointer]
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]: İlçe
+              - button "Tüm İlçeler" [ref=e37] [cursor=pointer]:
+                - generic [ref=e38]: Tüm İlçeler
+                - img [ref=e39]
+            - generic [ref=e41]:
+              - generic [ref=e42]: Çalışma Tipi
+              - combobox [ref=e43]:
+                - option "Tümü" [selected]
+                - option "Full Time"
+                - option "Part Time"
+            - generic [ref=e44]:
+              - generic [ref=e45]: Kazanç Modeli
+              - combobox [ref=e46]:
+                - option "Tümü" [selected]
+                - option "Saat+Paket Başı"
+                - option "Paket Başı"
+                - option "Aylık Sabit"
+            - generic [ref=e47]:
+              - generic [ref=e48]: Çalışma Günleri
+              - generic [ref=e49]:
+                - button "Paz" [ref=e50] [cursor=pointer]
+                - button "Sal" [ref=e51] [cursor=pointer]
+                - button "Çar" [ref=e52] [cursor=pointer]
+                - button "Per" [ref=e53] [cursor=pointer]
+                - button "Cum" [ref=e54] [cursor=pointer]
+                - button "Cum" [ref=e55] [cursor=pointer]
+                - button "Paz" [ref=e56] [cursor=pointer]
+            - generic [ref=e57]:
+              - generic [ref=e58]: Ehliyet Türü
+              - combobox [ref=e59]:
+                - option "Tümü" [selected]
+                - option "A1"
+                - option "A"
+                - option "A2"
+            - generic [ref=e60]:
+              - generic [ref=e61]: Motosiklet Durumu
+              - combobox [ref=e62]:
+                - option "Tümü" [selected]
+                - option "Var"
+                - option "Yok"
+            - generic [ref=e63]:
+              - generic [ref=e64]: Taşıma Çantası
+              - combobox [ref=e65]:
+                - option "Tümü" [selected]
+                - option "Var"
+                - option "Yok"
+            - generic [ref=e66]:
+              - generic [ref=e67]: P1 Yetki Belgesi
+              - combobox [ref=e68]:
+                - option "Tümü" [selected]
+                - option "Var"
+                - option "Yok"
+            - generic [ref=e69]:
+              - generic [ref=e70]: Sabıka Kaydı
+              - combobox [ref=e71]:
+                - option "Tümü" [selected]
+                - option "Var"
+                - option "Yok"
+            - generic [ref=e72]:
+              - generic [ref=e73]: Günlük Paket Tahmini
+              - combobox [ref=e74]:
+                - option "Tümü" [selected]
+                - option "0-15 Paket"
+                - option "15-25 Paket"
+                - option "25-40 Paket"
+                - option "40 ve üzeri"
+      - generic [ref=e76]:
+        - heading "KURYELER - ÖN İZLEME" [level=1] [ref=e77]
+        - paragraph [ref=e79]:
+          - strong [ref=e80]: "Ön İzleme Modu:"
+          - text: Kurye ilanlarını görüntülüyorsunuz. Kayıt olmak için işletme kaydı yapın.
+          - button "İşletme Olarak Kayıt Ol" [ref=e81] [cursor=pointer]
+        - generic [ref=e82]:
+          - generic [ref=e83] [cursor=pointer]:
+            - generic [ref=e85]:
+              - img "Ahmet K." [ref=e87]
+              - generic [ref=e88]:
+                - generic [ref=e89]:
+                  - heading "Ahmet K." [level=4] [ref=e90]
+                  - generic [ref=e91]:
+                    - img [ref=e92]
+                    - text: Kurye
+                  - generic [ref=e94]: 2/15/2026
+                - generic [ref=e95]:
+                  - generic [ref=e96]: İstanbul
+                  - generic [ref=e97]: Kağıthane
+                  - generic [ref=e98]: A
+                  - generic [ref=e99]: Full Time
+                  - generic [ref=e100]: 1-3
+                  - generic [ref=e101]: 15-25 PAKET
+              - img [ref=e103]
+            - generic [ref=e107]: İletişim için kayıt olun
+          - generic [ref=e108] [cursor=pointer]:
+            - generic [ref=e110]:
+              - img "Sezen A." [ref=e112]
+              - generic [ref=e113]:
+                - generic [ref=e114]:
+                  - heading "Sezen A." [level=4] [ref=e115]
+                  - generic [ref=e116]:
+                    - img [ref=e117]
+                    - text: Kurye
+                  - generic [ref=e119]: 2/6/2026
+                - generic [ref=e120]:
+                  - generic [ref=e121]: İstanbul
+                  - generic [ref=e122]: Zeytinburnu
+                  - generic [ref=e123]: A
+                  - generic [ref=e124]: Full Time
+                  - generic [ref=e125]: 0-1
+                  - generic [ref=e126]: 15-25 PAKET
+              - img [ref=e128]
+            - generic [ref=e132]: İletişim için kayıt olun
+          - generic [ref=e133] [cursor=pointer]:
+            - generic [ref=e135]:
+              - img "Kenan D." [ref=e137]
+              - generic [ref=e138]:
+                - generic [ref=e139]:
+                  - heading "Kenan D." [level=4] [ref=e140]
+                  - generic [ref=e141]:
+                    - img [ref=e142]
+                    - text: Kurye
+                  - generic [ref=e144]: 2/5/2026
+                - generic [ref=e145]:
+                  - generic [ref=e146]: İstanbul
+                  - generic [ref=e147]: Ataşehir
+                  - generic [ref=e148]: A
+                  - generic [ref=e149]: Full Time
+                  - generic [ref=e150]: 0-1
+                  - generic [ref=e151]: 15-25 PAKET
+              - img [ref=e153]
+            - generic [ref=e157]: İletişim için kayıt olun
+          - generic [ref=e158] [cursor=pointer]:
+            - generic [ref=e160]:
+              - img "hazar Ö." [ref=e162]
+              - generic [ref=e163]:
+                - generic [ref=e164]:
+                  - heading "hazar Ö." [level=4] [ref=e165]
+                  - generic [ref=e166]:
+                    - img [ref=e167]
+                    - text: Kurye
+                  - generic [ref=e169]: 2/5/2026
+                - generic [ref=e170]:
+                  - generic [ref=e171]: İstanbul
+                  - generic [ref=e172]: Kağıthane, Sarıyer
+                  - generic [ref=e173]: A
+                  - generic [ref=e174]: Full Time
+                  - generic [ref=e175]: 3-5
+                  - generic [ref=e176]: 15-25 PAKET
+              - img [ref=e178]
+            - generic [ref=e182]: İletişim için kayıt olun
+          - generic [ref=e183] [cursor=pointer]:
+            - generic [ref=e185]:
+              - img "Muhammed Emin K." [ref=e187]
+              - generic [ref=e188]:
+                - generic [ref=e189]:
+                  - heading "Muhammed Emin K." [level=4] [ref=e190]
+                  - generic [ref=e191]:
+                    - img [ref=e192]
+                    - text: Kurye
+                  - generic [ref=e194]: 2/4/2026
+                - generic [ref=e195]:
+                  - generic [ref=e196]: İstanbul
+                  - generic [ref=e197]: Bağcılar, Bahçelievler
+                  - generic [ref=e198]: A
+                  - generic [ref=e199]: Full Time
+                  - generic [ref=e200]: 1-3
+                  - generic [ref=e201]: 25-40 PAKET
+              - img [ref=e203]
+            - generic [ref=e207]: İletişim için kayıt olun
+        - generic [ref=e209]:
+          - button "←" [disabled] [ref=e210]
+          - button "1" [ref=e211] [cursor=pointer]
+          - button "→" [disabled] [ref=e212]
+```

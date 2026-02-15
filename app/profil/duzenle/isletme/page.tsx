@@ -21,6 +21,7 @@ interface BusinessData {
   daily_package_estimate: string;
   contact_preference: 'phone' | 'in_app' | 'both';
   avatar_url?: string | null;
+  is_looking_for_courier?: boolean;
 }
 
 const businessSectors = [
@@ -40,10 +41,23 @@ const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartes
 
 // Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
 const formatPhoneNumber = (value: string): string => {
-  const digits = value.replace(/\D/g, '');
+  let digits = value.replace(/\D/g, '');
+  
+  // Eğer boşsa veya sadece 0 varsa, 0 döndür
+  if (digits.length === 0) return '0';
+  
+  // 5 ile başlıyorsa otomatik 0 ekle
+  if (digits[0] === '5') {
+    digits = '0' + digits;
+  }
+  
+  // 0 ile başlamıyorsa 0 ekle
+  if (digits[0] !== '0') {
+    digits = '0' + digits;
+  }
+  
   const limited = digits.slice(0, 11);
   
-  if (limited.length === 0) return '';
   if (limited.length <= 1) return limited;
   if (limited.length <= 4) return `${limited[0]} (${limited.slice(1)}`;
   if (limited.length <= 7) return `${limited[0]} (${limited.slice(1, 4)}) ${limited.slice(4)}`;
@@ -58,6 +72,7 @@ export default function IsletmeDuzenlePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [business, setBusiness] = useState<BusinessData | null>(null);
+  const [isLookingForCourier, setIsLookingForCourier] = useState(true);
   
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -101,6 +116,7 @@ export default function IsletmeDuzenlePage() {
         setBusiness({ ...data, working_days: workingDays });
         setFormData({ ...data, working_days: workingDays });
         setAvatarPreview(data.avatar_url);
+        setIsLookingForCourier(data.is_looking_for_courier ?? true);
       } catch (err) {
         console.error('Error loading business data:', err);
         setError('Veriler yüklenirken hata oluştu');
@@ -203,6 +219,7 @@ export default function IsletmeDuzenlePage() {
         daily_package_estimate: formData.daily_package_estimate,
         contact_preference: formData.contact_preference,
         avatar_url: finalAvatarUrl,
+        is_looking_for_courier: isLookingForCourier,
       };
 
       const { error: updateError } = await supabase
@@ -445,7 +462,7 @@ export default function IsletmeDuzenlePage() {
                 <input
                   type="tel"
                   name="manager_contact"
-                  value={formData.manager_contact || ''}
+                  value={formData.manager_contact || '0'}
                   onChange={(e) => setFormData(prev => ({ ...prev, manager_contact: formatPhoneNumber(e.target.value) }))}
                   disabled={formData.contact_preference === 'in_app'}
                   className={`w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white ${formData.contact_preference === 'in_app' ? '!bg-neutral-100 cursor-not-allowed opacity-60' : ''}`}

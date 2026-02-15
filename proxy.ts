@@ -13,7 +13,7 @@ const PROTECTED_ROUTES = [
 // Not: /kayit-ol dahil değil çünkü Google ile giriş yapan kullanıcıların profil oluşturması gerekebilir
 const AUTH_ROUTES = ["/giris", "/sifremi-unuttum"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
