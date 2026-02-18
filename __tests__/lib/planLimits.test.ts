@@ -19,7 +19,7 @@ describe('Plan Limits', () => {
         name: 'free',
         displayName: 'Ücretsiz',
         price: 0,
-        dailyMessageLimit: 2,
+        totalMessageLimit: 2,
         dailyApprovalLimit: 1,
         canReceiveRequests: false,
       });
@@ -30,7 +30,7 @@ describe('Plan Limits', () => {
         name: 'standard',
         displayName: 'Standart',
         price: 200,
-        dailyMessageLimit: 20,
+        totalMessageLimit: 30,
         dailyApprovalLimit: 10,
         canReceiveRequests: false,
       });
@@ -41,7 +41,7 @@ describe('Plan Limits', () => {
         name: 'premium',
         displayName: 'Premium',
         price: 275,
-        dailyMessageLimit: 999999,
+        totalMessageLimit: 999999,
         dailyApprovalLimit: 999999,
         canReceiveRequests: true,
       });
@@ -59,7 +59,7 @@ describe('Plan Limits', () => {
         expect(plan).toHaveProperty('name');
         expect(plan).toHaveProperty('displayName');
         expect(plan).toHaveProperty('price');
-        expect(plan).toHaveProperty('dailyMessageLimit');
+        expect(plan).toHaveProperty('totalMessageLimit');
         expect(plan).toHaveProperty('dailyApprovalLimit');
         expect(plan).toHaveProperty('canReceiveRequests');
         expect(plan).toHaveProperty('description');
@@ -72,8 +72,8 @@ describe('Plan Limits', () => {
     });
 
     it('plan limitleri artan sırada olmalı', () => {
-      expect(PLAN_LIMITS.free.dailyMessageLimit).toBeLessThan(PLAN_LIMITS.standard.dailyMessageLimit);
-      expect(PLAN_LIMITS.standard.dailyMessageLimit).toBeLessThan(PLAN_LIMITS.premium.dailyMessageLimit);
+      expect(PLAN_LIMITS.free.totalMessageLimit).toBeLessThan(PLAN_LIMITS.standard.totalMessageLimit);
+      expect(PLAN_LIMITS.standard.totalMessageLimit).toBeLessThan(PLAN_LIMITS.premium.totalMessageLimit);
     });
   });
 

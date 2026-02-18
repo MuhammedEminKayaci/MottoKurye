@@ -29,8 +29,10 @@ const courierSchema = z.object({
   motoCc: z.string().optional(),
   hasBag: z.enum(["VAR", "YOK"]),
   p1Certificate: z.enum(["VAR", "YOK"], { required_error: "P1 yetki belgesi durumu gerekli" }),
+  srcCertificate: z.enum(["VAR", "YOK"], { required_error: "SRC belgesi durumu gerekli" }),
   criminalRecord: z.enum(["VAR", "YOK"], { required_error: "Sabıka kaydı durumu gerekli" }),
   p1CertificateFile: z.any(),
+  srcCertificateFile: z.any(),
   criminalRecordFile: z.any(),
   acceptTerms: z.literal(true, { errorMap: () => ({ message: "Kullanım şartlarını kabul etmelisiniz" }) }),
   acceptPrivacy: z.literal(true, { errorMap: () => ({ message: "Gizlilik politikasını kabul etmelisiniz" }) }),
@@ -48,7 +50,7 @@ const courierSchema = z.object({
       });
     }
   }
-  const validateFile = (fileList: FileList | undefined | null, field: "p1CertificateFile" | "criminalRecordFile") => {
+  const validateFile = (fileList: FileList | undefined | null, field: "p1CertificateFile" | "srcCertificateFile" | "criminalRecordFile") => {
     if (!fileList || (fileList as any).length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Belge yüklemek zorunlu", path: [field] });
       return;
@@ -63,6 +65,11 @@ const courierSchema = z.object({
   // Only validate P1 file if P1 certificate is VAR
   if (val.p1Certificate === "VAR") {
     validateFile(val.p1CertificateFile as FileList, "p1CertificateFile");
+  }
+
+  // Only validate SRC file if SRC certificate is VAR
+  if (val.srcCertificate === "VAR") {
+    validateFile(val.srcCertificateFile as FileList, "srcCertificateFile");
   }
   
   // Criminal record file is always required
@@ -130,8 +137,10 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
       gender: "Erkek",
       contactPreference: "in_app",
       p1Certificate: "YOK",
+      srcCertificate: "YOK",
       criminalRecord: "YOK",
       p1CertificateFile: undefined,
+      srcCertificateFile: undefined,
       criminalRecordFile: undefined,
       acceptTerms: false,
       acceptPrivacy: false,
@@ -143,7 +152,9 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
   const hasMotorcycle = watch("hasMotorcycle");
   const contactPreference = watch("contactPreference");
   const p1Certificate = watch("p1Certificate");
+  const srcCertificate = watch("srcCertificate");
   const criminalRecord = watch("criminalRecord");
+  const gender = watch("gender");
   // Always use Istanbul districts
   const districts = ISTANBUL_DISTRICTS;
   
@@ -151,28 +162,38 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
   const selectedAvatar = watch("selectedAvatar");
 
   const p1FileWatch = watch("p1CertificateFile");
+  const srcFileWatch = watch("srcCertificateFile");
   const criminalFileWatch = watch("criminalRecordFile");
   const [preview, setPreview] = useState<string | null>(null);
   
   // File upload status states
   const [p1FileUploaded, setP1FileUploaded] = useState(false);
+  const [srcFileUploaded, setSrcFileUploaded] = useState(false);
   const [criminalFileUploaded, setCriminalFileUploaded] = useState(false);
   
   // Track file upload status
   useEffect(() => {
     setP1FileUploaded(!!(p1FileWatch && p1FileWatch.length > 0));
   }, [p1FileWatch]);
+
+  useEffect(() => {
+    setSrcFileUploaded(!!(srcFileWatch && srcFileWatch.length > 0));
+  }, [srcFileWatch]);
   
   useEffect(() => {
     setCriminalFileUploaded(!!(criminalFileWatch && criminalFileWatch.length > 0));
   }, [criminalFileWatch]);
 
-  const avatarOptions = [
-    "/images/avatars/kurye/avatar1.svg",
-    "/images/avatars/kurye/avatar2.svg",
-    "/images/avatars/kurye/avatar3.svg",
-    "/images/avatars/kurye/avatar4.svg",
-  ];
+  // Avatar options based on gender
+  const avatarOptions = gender === "Kadın" 
+    ? [
+        "/images/avatars/kurye/kadin1.jpeg",
+        "/images/avatars/kurye/kadin2.jpeg",
+      ]
+    : [
+        "/images/avatars/kurye/erkek1.jpeg",
+        "/images/avatars/kurye/erkek2.jpeg",
+      ];
   
   useEffect(() => {
     if (avatarWatch && avatarWatch.length > 0) {
@@ -467,6 +488,7 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
       <div className="space-y-3">
         <h3 className="text-white font-bold text-sm border-b border-white/30 pb-1">BELGELER</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* P1 Yetki Belgesi */}
           <div>
             <label className="block text-xs font-medium text-white mb-1">P1 Yetki Belgesi *</label>
             <select className="input-field text-sm" {...register("p1Certificate")}>
@@ -500,7 +522,44 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
               <p className="text-[10px] text-white/50 mt-2">P1 belgesi yok olarak işaretlendi.</p>
             )}
           </div>
+
+          {/* SRC Belgesi */}
           <div>
+            <label className="block text-xs font-medium text-white mb-1">SRC Belgesi *</label>
+            <select className="input-field text-sm" {...register("srcCertificate")}>
+              <option value="VAR">VAR</option>
+              <option value="YOK">YOK</option>
+            </select>
+            {errors.srcCertificate && <p className="text-[10px] text-red-200 mt-1">{(errors.srcCertificate as any).message}</p>}
+            {srcCertificate === "VAR" && (
+              <>
+                <div className="relative mt-2">
+                  <input 
+                    type="file" 
+                    accept=".jpg,.jpeg,.png,.pdf" 
+                    className={`input-field text-xs ${srcFileUploaded ? 'opacity-0 absolute inset-0 w-full h-full cursor-pointer' : ''}`}
+                    {...register("srcCertificateFile")}
+                  />
+                  {srcFileUploaded && (
+                    <div className="input-field text-xs flex items-center gap-2 bg-green-500/20 border-green-400/50">
+                      <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-green-200">Belge yüklendi</span>
+                    </div>
+                  )}
+                </div>
+                {errors.srcCertificateFile && <p className="text-[10px] text-red-200 mt-1">{(errors.srcCertificateFile as any).message}</p>}
+                <p className="text-[10px] text-white/70 mt-1">JPEG, PNG veya PDF yüklenmelidir.</p>
+              </>
+            )}
+            {srcCertificate === "YOK" && (
+              <p className="text-[10px] text-white/50 mt-2">SRC belgesi yok olarak işaretlendi.</p>
+            )}
+          </div>
+
+          {/* Sabıka Kaydı */}
+          <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-white mb-1">Sabıka Kaydı *</label>
             <select className="input-field text-sm" {...register("criminalRecord")}>
               <option value="VAR">VAR</option>

@@ -28,8 +28,10 @@ export interface CourierRegistration {
   
   // Belgeler
   p1Certificate: string; // VAR | YOK
+  srcCertificate: string; // VAR | YOK
   criminalRecord: string; // VAR | YOK
   p1CertificateFile?: FileList;
+  srcCertificateFile?: FileList;
   criminalRecordFile?: FileList;
   
   // Onaylar

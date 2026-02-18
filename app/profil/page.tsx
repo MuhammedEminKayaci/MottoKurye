@@ -40,7 +40,7 @@ export default function ProfilPage() {
   const [planStatus, setPlanStatus] = useState<{
     plan: PlanType;
     messagesLeft: number;
-    dailyMessageLimit: number;
+    totalMessageLimit: number;
     approvalsLeft: number;
     dailyApprovalLimit: number;
   } | null>(null);
@@ -79,19 +79,31 @@ export default function ProfilPage() {
     }
   };
 
-  const fetchPlanStatus = async (businessId: string, businessPlan: PlanType, messagesSent: number, approvalsSent: number, lastReset: string | null) => {
+  const fetchPlanStatus = async (businessId: string, businessPlan: PlanType, messagesSentTotal: number, approvalsSent: number, lastReset: string | null, planUpdatedAt: string | null) => {
     const planLimits = PLAN_LIMITS[businessPlan] || PLAN_LIMITS.free;
-    const today = new Date().toISOString().split('T')[0];
-    const lastResetDate = lastReset ? lastReset.split('T')[0] : null;
+    const now = new Date();
+    const planUpdatedDate = planUpdatedAt ? new Date(planUpdatedAt) : now;
     
-    // Günlük sıfırlama kontrolü
-    const actualMessagesSent = lastResetDate === today ? messagesSent : 0;
+    // Mesaj sayısı hesaplaması - artık toplam bazlı
+    let actualMessagesSent = messagesSentTotal || 0;
+    
+    // Standard plan için aylık sıfırlama
+    if (businessPlan === 'standard') {
+      const monthsSincePlanUpdate = (now.getFullYear() - planUpdatedDate.getFullYear()) * 12 + (now.getMonth() - planUpdatedDate.getMonth());
+      if (monthsSincePlanUpdate >= 1) {
+        actualMessagesSent = 0;
+      }
+    }
+    
+    // Günlük sıfırlama kontrolü (approvals için)
+    const today = now.toISOString().split('T')[0];
+    const lastResetDate = lastReset ? lastReset.split('T')[0] : null;
     const actualApprovalsSent = lastResetDate === today ? approvalsSent : 0;
     
     setPlanStatus({
       plan: businessPlan,
-      messagesLeft: planLimits.dailyMessageLimit - actualMessagesSent,
-      dailyMessageLimit: planLimits.dailyMessageLimit,
+      messagesLeft: planLimits.totalMessageLimit - actualMessagesSent,
+      totalMessageLimit: planLimits.totalMessageLimit,
       approvalsLeft: planLimits.dailyApprovalLimit - actualApprovalsSent,
       dailyApprovalLimit: planLimits.dailyApprovalLimit
     });
@@ -116,9 +128,10 @@ export default function ProfilPage() {
         await fetchPlanStatus(
           b[0].id, 
           (b[0].plan || 'free') as PlanType, 
-          b[0].messages_sent_today || 0,
+          b[0].messages_sent_total || 0,
           b[0].approvals_today || 0,
-          b[0].last_usage_reset
+          b[0].last_usage_reset,
+          b[0].plan_updated_at
         );
       }
       setLoading(false);
@@ -426,7 +439,7 @@ export default function ProfilPage() {
             <PlanStatusCard
               plan={planStatus.plan}
               messagesLeft={planStatus.messagesLeft}
-              dailyMessageLimit={planStatus.dailyMessageLimit}
+              totalMessageLimit={planStatus.totalMessageLimit}
               approvalsLeft={planStatus.approvalsLeft}
               dailyApprovalLimit={planStatus.dailyApprovalLimit}
               businessId={profile.id}
@@ -438,9 +451,10 @@ export default function ProfilPage() {
                   await fetchPlanStatus(
                     b.id,
                     (b.plan || 'free') as PlanType,
-                    b.messages_sent_today || 0,
+                    b.messages_sent_total || 0,
                     b.approvals_today || 0,
-                    b.last_usage_reset
+                    b.last_usage_reset,
+                    b.plan_updated_at
                   );
                 }
               }}

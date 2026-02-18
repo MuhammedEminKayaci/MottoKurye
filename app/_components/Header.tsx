@@ -113,14 +113,13 @@ export function Header() {
     }
   };
 
-  // İlanlarım only for businesses
+  // Navigation items - İlanlarım şuanlık devre dışı
   const navItems = [
     { label: "Ana Sayfa", href: "/" },
     { label: "Profil", href: "/profil" },
     { label: "Mesajlar", href: "/mesajlar" },
     { label: "İlanlar", href: "/ilanlar" },
     ...(userRole === "isletme" ? [
-      { label: "İlanlarım", href: "/ilanlarim" },
       { label: "Ücret Planları", href: "/ucret-planlari" },
     ] : []),
   ];

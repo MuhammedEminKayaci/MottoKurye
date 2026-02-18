@@ -113,7 +113,6 @@ function IlanlarContent() {
           // Show business ads (both for logged-in couriers and guests)
           let query = supabase.from("business_ads")
             .select("id,title,description,province,district,working_type,working_hours,earning_model,working_days,daily_package_estimate,created_at,image_url,user_id")
-            .eq("is_available", true)
             .order("created_at", { ascending: false }).limit(60);
           
           // Apply filters
@@ -153,14 +152,19 @@ function IlanlarContent() {
             (data || []).map(async (ad: any) => {
               if (!ad.user_id) return null; // No user_id, skip this ad
               try {
-                const { data: business } = await supabase
+                const { data: business, error: bizError } = await supabase
                   .from("businesses")
-                  .select("id,business_name,avatar_url,user_id,seeking_couriers,business_sector")
+                  .select("id,business_name,avatar_url,user_id,seeking_couriers,business_sector,plan,manager_contact")
                   .eq("user_id", ad.user_id)
-                  .single();
+                  .maybeSingle();
                 
-                // Only include ads from businesses that are seeking couriers
-                if (!business || !business.seeking_couriers) {
+                // İşletme bulunamadıysa ilanı gösterme
+                if (bizError || !business) {
+                  return null;
+                }
+                
+                // seeking_couriers false ise (açıkça false ayarlanmışsa) gösterme, null veya true ise göster
+                if (business.seeking_couriers === false) {
                   return null;
                 }
                 
@@ -171,7 +175,9 @@ function IlanlarContent() {
                 
                 return {
                   ...ad,
-                  businesses: [business]
+                  businesses: [business],
+                  businessPlan: business.plan || 'free',
+                  businessPhone: business.manager_contact
                 };
               } catch {
                 return null;
@@ -185,7 +191,7 @@ function IlanlarContent() {
         } else {
           // Show couriers for business perspective
           let query = supabase.from("couriers")
-            .select("id,user_id,first_name,last_name,avatar_url,phone,province,district,license_type,working_type,earning_model,daily_package_estimate,has_motorcycle,has_bag,experience,created_at,is_accepting_offers")
+            .select("id,user_id,first_name,last_name,avatar_url,phone,province,district,license_type,working_type,earning_model,daily_package_estimate,has_motorcycle,has_bag,experience,created_at,is_accepting_offers,contact_preference")
             .eq("is_accepting_offers", true)
             .order("created_at", { ascending: false }).limit(60);
           
@@ -303,7 +309,7 @@ function IlanlarContent() {
                       }
                       imageUrl={role === 'kurye' ? it.image_url : (it.avatar_url ?? null)}
                       fallbackImageUrl={role === 'kurye' ? (it.businesses?.[0]?.avatar_url ?? null) : null}
-                      phone={role === 'isletme' ? (it.phone ?? null) : null}
+                      phone={role === 'isletme' ? (it.phone ?? null) : (it.businessPhone ?? null)}
                       contactPreference={(it as any).contact_preference ?? 'phone'}
                       showActions={true}
                       isGuest={!isAuthenticated || (isAuthenticated && role !== actualRole)}
@@ -326,6 +332,7 @@ function IlanlarContent() {
                       targetId={it.id}
                       userRole={role === 'kurye' ? 'isletme' : 'kurye'}
                       viewerPlan={viewerPlan}
+                      targetPlan={role === 'kurye' ? (it.businessPlan ?? 'free') : null}
                     />
                   ))}
               </div>

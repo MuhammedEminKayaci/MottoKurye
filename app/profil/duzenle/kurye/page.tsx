@@ -28,10 +28,12 @@ interface CourierData {
   moto_cc: string | null;
   has_bag: string;
   p1_certificate: string;
+  src_certificate: string;
   criminal_record: string;
   contact_preference: 'phone' | 'in_app' | 'both';
   avatar_url?: string | null;
   p1_certificate_file_url?: string | null;
+  src_certificate_file_url?: string | null;
   criminal_record_file_url?: string | null;
   is_accepting_offers?: boolean;
 }
@@ -82,19 +84,27 @@ export default function KuryeDuzenlePage() {
   const [licensePreview, setLicensePreview] = useState<string | null>(null);
   const [p1File, setP1File] = useState<File | null>(null);
   const [p1Preview, setP1Preview] = useState<string | null>(null);
+  const [srcFile, setSrcFile] = useState<File | null>(null);
+  const [srcPreview, setSrcPreview] = useState<string | null>(null);
   const [criminalRecordFile, setCriminalRecordFile] = useState<File | null>(null);
   const [criminalRecordPreview, setCriminalRecordPreview] = useState<string | null>(null);
   
   // Orijinal değerleri takip et (değişiklik tespiti için)
   const [originalLicenseType, setOriginalLicenseType] = useState<string | null>(null);
   const [originalP1Certificate, setOriginalP1Certificate] = useState<string | null>(null);
+  const [originalSrcCertificate, setOriginalSrcCertificate] = useState<string | null>(null);
+  const [originalCriminalRecord, setOriginalCriminalRecord] = useState<string | null>(null);
 
-  const avatarOptions = [
-    "/images/avatars/kurye/avatar1.svg",
-    "/images/avatars/kurye/avatar2.svg",
-    "/images/avatars/kurye/avatar3.svg",
-    "/images/avatars/kurye/avatar4.svg",
-  ];
+  // Avatar options based on gender
+  const avatarOptions = formData.gender === "Kadın" 
+    ? [
+        "/images/avatars/kurye/kadin1.jpeg",
+        "/images/avatars/kurye/kadin2.jpeg",
+      ]
+    : [
+        "/images/avatars/kurye/erkek1.jpeg",
+        "/images/avatars/kurye/erkek2.jpeg",
+      ];
 
   useEffect(() => {
     const loadCourierData = async () => {
@@ -131,6 +141,8 @@ export default function KuryeDuzenlePage() {
         // Orijinal değerleri kaydet (değişiklik tespiti için)
         setOriginalLicenseType(data.license_type);
         setOriginalP1Certificate(data.p1_certificate);
+        setOriginalSrcCertificate(data.src_certificate);
+        setOriginalCriminalRecord(data.criminal_record);
       } catch (err) {
         console.error('Error loading courier data:', err);
         setError('Veriler yüklenirken hata oluştu');
@@ -166,6 +178,15 @@ export default function KuryeDuzenlePage() {
       const file = e.target.files[0];
       setP1File(file);
       setP1Preview(URL.createObjectURL(file));
+    }
+  };
+
+  // SRC sertifikası görseli yükleme
+  const handleSrcFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setSrcFile(file);
+      setSrcPreview(URL.createObjectURL(file));
     }
   };
 
@@ -280,6 +301,22 @@ export default function KuryeDuzenlePage() {
         return;
       }
 
+      // SRC sertifikası "YOK"tan "VAR"a değişti mi kontrol et - değiştiyse görsel zorunlu
+      const srcChanged = originalSrcCertificate === 'YOK' && formData.src_certificate === 'VAR';
+      if (srcChanged && !srcFile) {
+        setError('SRC belgeniz olduğunu belirttiğiniz için SRC belge görselinizi yüklemeniz gerekmektedir.');
+        setSaving(false);
+        return;
+      }
+
+      // Sabıka kaydı "YOK"tan "VAR"a değişti mi kontrol et - değiştiyse görsel zorunlu
+      const criminalChanged = originalCriminalRecord === 'YOK' && formData.criminal_record === 'VAR';
+      if (criminalChanged && !criminalRecordFile) {
+        setError('Sabıka kaydınız olduğunu belirttiğiniz için sabıka kaydı belgenizi yüklemeniz gerekmektedir.');
+        setSaving(false);
+        return;
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -318,6 +355,15 @@ export default function KuryeDuzenlePage() {
         }
       }
 
+      // SRC sertifikası görseli yükle (eğer varsa)
+      let srcFileUrl = formData.src_certificate_file_url;
+      if (srcFile) {
+        const uploadedUrl = await uploadDocument(srcFile, 'src');
+        if (uploadedUrl) {
+          srcFileUrl = uploadedUrl;
+        }
+      }
+
       // Sabıka kaydı görseli yükle (eğer varsa)
       let criminalRecordFileUrl = formData.criminal_record_file_url;
       if (criminalRecordFile) {
@@ -350,9 +396,11 @@ export default function KuryeDuzenlePage() {
         moto_cc: formData.has_motorcycle === 'VAR' ? formData.moto_cc : null,
         has_bag: formData.has_bag,
         p1_certificate: formData.p1_certificate,
+        src_certificate: formData.src_certificate,
         criminal_record: formData.criminal_record,
         contact_preference: formData.contact_preference,
         p1_certificate_file_url: p1FileUrl,
+        src_certificate_file_url: srcFileUrl,
         criminal_record_file_url: criminalRecordFileUrl,
         is_accepting_offers: isAcceptingOffers,
       };
@@ -885,6 +933,7 @@ export default function KuryeDuzenlePage() {
               BELGELER
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* P1 Yetki Belgesi */}
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
                   P1 Yetki Belgesi <span className="text-red-500">*</span>
@@ -924,17 +973,24 @@ export default function KuryeDuzenlePage() {
                     )}
                   </div>
                 )}
-                {formData.p1_certificate === 'YOK' && (
-                  <p className="text-xs text-neutral-500 mt-2">P1 belgesi yok olarak işaretlendi.</p>
+                {formData.p1_certificate === 'VAR' && originalP1Certificate === 'VAR' && formData.p1_certificate_file_url && (
+                  <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Belge mevcut
+                  </p>
                 )}
               </div>
+
+              {/* SRC Belgesi */}
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Sabıka Kaydı <span className="text-red-500">*</span>
+                  SRC Belgesi <span className="text-red-500">*</span>
                 </label>
                 <select
-                  name="criminal_record"
-                  value={formData.criminal_record || ''}
+                  name="src_certificate"
+                  value={formData.src_certificate || ''}
                   onChange={handleInputChange}
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                 >
@@ -942,37 +998,99 @@ export default function KuryeDuzenlePage() {
                   <option value="VAR">VAR</option>
                   <option value="YOK">YOK</option>
                 </select>
-                {/* Sabıka kaydı dosya yükleme */}
-                <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                  <p className="text-sm text-orange-700 mb-2 flex items-center gap-2">
-                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                {/* SRC belgesi YOK'tan VAR'a değiştiyse dosya yükleme */}
+                {originalSrcCertificate === 'YOK' && formData.src_certificate === 'VAR' && (
+                  <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-700 mb-2 flex items-center gap-2">
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      SRC belgeniz olduğunu belirttiğiniz için belge görselinizi yükleyiniz.
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,application/pdf"
+                      onChange={handleSrcFileChange}
+                      className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00]"
+                    />
+                    {srcPreview && (
+                      <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Dosya yüklendi
+                      </div>
+                    )}
+                  </div>
+                )}
+                {formData.src_certificate === 'VAR' && originalSrcCertificate === 'VAR' && formData.src_certificate_file_url && (
+                  <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    Sabıka kaydı belgenizi yükleyiniz (JPEG, PNG veya PDF).
+                    Belge mevcut
                   </p>
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,application/pdf"
-                    onChange={handleCriminalRecordFileChange}
-                    className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00]"
-                  />
-                  {criminalRecordPreview && (
-                    <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                )}
+              </div>
+
+              {/* Sabıka Kaydı */}
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Sabıka Kaydı <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="criminal_record"
+                  value={formData.criminal_record || ''}
+                  onChange={handleInputChange}
+                  disabled={originalCriminalRecord === 'VAR'}
+                  className={`w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white ${originalCriminalRecord === 'VAR' ? 'opacity-60 cursor-not-allowed' : ''}`}
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="VAR">VAR</option>
+                  <option value="YOK">YOK</option>
+                </select>
+                {/* Sabıka kaydı VAR olarak kaydedildiyse değiştirilemez uyarısı */}
+                {originalCriminalRecord === 'VAR' && (
+                  <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m4-11a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    Sabıka kaydı &quot;VAR&quot; olarak işaretlendikten sonra değiştirilemez.
+                  </p>
+                )}
+                {/* Sabıka kaydı YOK'tan VAR'a değiştiyse dosya yükleme */}
+                {originalCriminalRecord === 'YOK' && formData.criminal_record === 'VAR' && (
+                  <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-700 mb-2 flex items-center gap-2">
+                      <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
-                      Dosya yüklendi
-                    </div>
-                  )}
-                  {formData.criminal_record_file_url && !criminalRecordFile && (
-                    <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      Mevcut belge yüklü
-                    </div>
-                  )}
-                </div>
+                      Sabıka kaydınız olduğunu belirttiğiniz için belge görselinizi yükleyiniz.
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,application/pdf"
+                      onChange={handleCriminalRecordFileChange}
+                      className="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#ff7a00] file:text-white hover:file:bg-[#e66e00]"
+                    />
+                    {criminalRecordPreview && (
+                      <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Dosya yüklendi
+                      </div>
+                    )}
+                  </div>
+                )}
+                {formData.criminal_record === 'VAR' && originalCriminalRecord === 'VAR' && formData.criminal_record_file_url && (
+                  <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Belge mevcut
+                  </p>
+                )}
               </div>
             </div>
           </div>

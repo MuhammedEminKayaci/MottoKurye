@@ -31,13 +31,19 @@ const BUSINESS_SECTORS = [
 
 export function FilterPanel({ role, onChange }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState<Record<string, string>>({ province: "İstanbul" });
+  const [filters, setFilters] = useState<Record<string, string>>({});
   const [selectedWorkingDays, setSelectedWorkingDays] = useState<string[]>([]);
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
 
   const handleFilterChange = (key: string, value: string) => {
-    const newFilters = { ...filters, [key]: value };
+    const newFilters = { ...filters };
+    if (value && value.trim() !== "") {
+      newFilters[key] = value;
+    } else {
+      delete newFilters[key];
+    }
     setFilters(newFilters);
+    return newFilters;
   };
 
   const handleDistrictChange = (districts: string[]) => {
@@ -49,6 +55,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
       delete newFilters.district;
     }
     setFilters(newFilters);
+    return newFilters;
   };
 
   const handleWorkingDayToggle = (day: string) => {
@@ -61,24 +68,32 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
     if (newDays.length > 0) {
       newFilters.working_days = newDays.join(',');
     } else {
-    setSelectedDistricts([]);
       delete newFilters.working_days;
     }
     setFilters(newFilters);
+    return newFilters;
   };
 
   const handleApply = () => {
-    onChange(filters);
+    // Boş değerleri temizle ve sadece dolu olanları gönder
+    const cleanFilters: Record<string, string> = {};
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value.trim() !== "") {
+        cleanFilters[key] = value;
+      }
+    });
+    onChange(cleanFilters);
     setIsOpen(false);
   };
 
   const handleClear = () => {
-    setFilters({ province: "İstanbul" });
+    setFilters({});
     setSelectedWorkingDays([]);
+    setSelectedDistricts([]);
     onChange({});
   };
 
-  const activeFilterCount = Object.keys(filters).filter(k => filters[k]).length;
+  const activeFilterCount = Object.keys(filters).filter(k => filters[k] && filters[k].trim() !== "").length;
 
   return (
     <>
@@ -392,17 +407,11 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                 options={ISTANBUL_DISTRICTS}
                 value={selectedDistricts}
                 onChange={(val) => {
-                  handleDistrictChange(val);
-                  const newFilters = { ...filters };
-                  if (val.length > 0) {
-                    newFilters.district = val.join(',');
-                  } else {
-                    delete newFilters.district;
-                  }
+                  const newFilters = handleDistrictChange(val);
                   onChange(newFilters);
                 }}
                 placeholder="Tüm İlçeler"
-                theme="dark"
+                theme="light"
               />
             </div>
             {role === "isletme" && (
@@ -412,8 +421,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.working_type || ""}
                     onChange={(e) => {
-                      handleFilterChange("working_type", e.target.value);
-                      onChange({ ...filters, working_type: e.target.value });
+                      const newFilters = handleFilterChange("working_type", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -428,8 +437,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.earning_model || ""}
                     onChange={(e) => {
-                      handleFilterChange("earning_model", e.target.value);
-                      onChange({ ...filters, earning_model: e.target.value });
+                      const newFilters = handleFilterChange("earning_model", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -448,16 +457,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                         key={day}
                         type="button"
                         onClick={() => {
-                          handleWorkingDayToggle(day);
-                          const newDays = selectedWorkingDays.includes(day)
-                            ? selectedWorkingDays.filter(d => d !== day)
-                            : [...selectedWorkingDays, day];
-                          const newFilters = { ...filters };
-                          if (newDays.length > 0) {
-                            newFilters.working_days = newDays.join(',');
-                          } else {
-                            delete newFilters.working_days;
-                          }
+                          const newFilters = handleWorkingDayToggle(day);
                           onChange(newFilters);
                         }}
                         className={`h-[44px] px-2 rounded-lg text-xs font-medium transition-all ${
@@ -479,8 +479,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.license_type || ""}
                     onChange={(e) => {
-                      handleFilterChange("license_type", e.target.value);
-                      onChange({ ...filters, license_type: e.target.value });
+                      const newFilters = handleFilterChange("license_type", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -496,8 +496,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.has_motorcycle || ""}
                     onChange={(e) => {
-                      handleFilterChange("has_motorcycle", e.target.value);
-                      onChange({ ...filters, has_motorcycle: e.target.value });
+                      const newFilters = handleFilterChange("has_motorcycle", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -512,8 +512,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.has_bag || ""}
                     onChange={(e) => {
-                      handleFilterChange("has_bag", e.target.value);
-                      onChange({ ...filters, has_bag: e.target.value });
+                      const newFilters = handleFilterChange("has_bag", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -528,8 +528,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.p1_certificate || ""}
                     onChange={(e) => {
-                      handleFilterChange("p1_certificate", e.target.value);
-                      onChange({ ...filters, p1_certificate: e.target.value });
+                      const newFilters = handleFilterChange("p1_certificate", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -544,8 +544,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.criminal_record || ""}
                     onChange={(e) => {
-                      handleFilterChange("criminal_record", e.target.value);
-                      onChange({ ...filters, criminal_record: e.target.value });
+                      const newFilters = handleFilterChange("criminal_record", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -560,8 +560,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.daily_package_estimate || ""}
                     onChange={(e) => {
-                      handleFilterChange("daily_package_estimate", e.target.value);
-                      onChange({ ...filters, daily_package_estimate: e.target.value });
+                      const newFilters = handleFilterChange("daily_package_estimate", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -583,8 +583,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.business_sector || ""}
                     onChange={(e) => {
-                      handleFilterChange("business_sector", e.target.value);
-                      onChange({ ...filters, business_sector: e.target.value });
+                      const newFilters = handleFilterChange("business_sector", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -600,8 +600,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.working_type || ""}
                     onChange={(e) => {
-                      handleFilterChange("working_type", e.target.value);
-                      onChange({ ...filters, working_type: e.target.value });
+                      const newFilters = handleFilterChange("working_type", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -616,8 +616,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.earning_model || ""}
                     onChange={(e) => {
-                      handleFilterChange("earning_model", e.target.value);
-                      onChange({ ...filters, earning_model: e.target.value });
+                      const newFilters = handleFilterChange("earning_model", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
@@ -636,16 +636,7 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                         key={day}
                         type="button"
                         onClick={() => {
-                          handleWorkingDayToggle(day);
-                          const newDays = selectedWorkingDays.includes(day)
-                            ? selectedWorkingDays.filter(d => d !== day)
-                            : [...selectedWorkingDays, day];
-                          const newFilters = { ...filters };
-                          if (newDays.length > 0) {
-                            newFilters.working_days = newDays.join(',');
-                          } else {
-                            delete newFilters.working_days;
-                          }
+                          const newFilters = handleWorkingDayToggle(day);
                           onChange(newFilters);
                         }}
                         className={`h-[44px] px-2 rounded-lg text-xs font-medium transition-all ${
@@ -667,8 +658,8 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                   <select
                     value={filters.daily_package_estimate || ""}
                     onChange={(e) => {
-                      handleFilterChange("daily_package_estimate", e.target.value);
-                      onChange({ ...filters, daily_package_estimate: e.target.value });
+                      const newFilters = handleFilterChange("daily_package_estimate", e.target.value);
+                      onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >

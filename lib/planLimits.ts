@@ -5,9 +5,10 @@ export interface PlanLimits {
   name: PlanType;
   displayName: string;
   price: number;
-  dailyMessageLimit: number;
+  totalMessageLimit: number; // Toplam mesaj hakkı (free: 2, standard: 30/ay, premium: sınırsız)
   dailyApprovalLimit: number;
   canReceiveRequests: boolean;
+  canDirectContact: boolean; // Kuryeler bu işletme ile doğrudan iletişim kurabilir mi (sadece premium)
   description: string;
 }
 
@@ -16,28 +17,31 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     name: 'free',
     displayName: 'Ücretsiz',
     price: 0,
-    dailyMessageLimit: 2,
+    totalMessageLimit: 2, // Toplam 2 mesaj hakkı (tüm süre boyunca)
     dailyApprovalLimit: 1,
     canReceiveRequests: false,
-    description: 'Günlük 2 adet kurye iletişim talebi gönderme, Günlük 1 adet kurye onayı alma'
+    canDirectContact: false,
+    description: 'Toplam 2 adet kurye iletişim talebi gönderme'
   },
   standard: {
     name: 'standard',
     displayName: 'Standart',
     price: 200,
-    dailyMessageLimit: 20,
+    totalMessageLimit: 30, // Aylık toplam 30 mesaj hakkı
     dailyApprovalLimit: 10,
     canReceiveRequests: false,
-    description: 'Günlük 20 adet kurye iletişim talebi gönderme, Günlük 10 adet kurye onayı alma'
+    canDirectContact: false,
+    description: 'Aylık toplam 30 adet kurye iletişim talebi gönderme'
   },
   premium: {
     name: 'premium',
     displayName: 'Premium',
     price: 275,
-    dailyMessageLimit: 999999,
+    totalMessageLimit: 999999, // Sınırsız
     dailyApprovalLimit: 999999,
     canReceiveRequests: true,
-    description: 'Sınırsız iletişim talebi, Sınırsız kurye onayı, Kurye tarafından görüntülenme ve iletişim kurma talebi alma'
+    canDirectContact: true, // Kuryeler bu işletme ile doğrudan iletişim kurabilir
+    description: 'Sınırsız iletişim talebi, Sınırsız kurye onayı, Kurye tarafından görüntülenme ve iletişim kurma talebi alma, Kuryelerle telefon ve WhatsApp ile iletişim'
   }
 };
 
@@ -49,13 +53,14 @@ export interface BusinessPlanStatus {
   plan: PlanType;
   plan_display_name: string;
   plan_price: number;
-  messages_sent_today: number;
-  daily_message_limit: number;
+  messages_sent_total: number; // Toplam gönderilen mesaj sayısı
+  total_message_limit: number; // Toplam mesaj limiti
   messages_left: number;
   approvals_today: number;
   daily_approval_limit: number;
   approvals_left: number;
   can_receive_requests: boolean;
+  can_direct_contact: boolean;
   last_usage_reset: string;
   plan_updated_at: string;
 }
@@ -64,7 +69,7 @@ export interface BusinessPlanStatus {
 export interface MessageLimitCheck {
   canSend: boolean;
   messagesLeft: number;
-  dailyLimit: number;
+  totalLimit: number;
   currentPlan: PlanType;
 }
 

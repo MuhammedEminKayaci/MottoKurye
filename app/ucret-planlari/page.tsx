@@ -73,7 +73,7 @@ export default function UcretPlanlariPage() {
       features: [
         "Sınırsız ilan verme",
         "Sınırsız kurye profil görüntüleme",
-        "Günlük 2 adet kurye iletişim talebi gönderme",
+        "Toplam 2 adet kurye iletişim talebi gönderme",
         "Sadece uygulama içi mesajlaşma"
       ],
       popular: false,
@@ -89,7 +89,7 @@ export default function UcretPlanlariPage() {
       features: [
         "Sınırsız ilan verme",
         "Sınırsız kurye profil görüntüleme",
-        "Günlük 20 adet kurye iletişim talebi gönderme",
+        "Aylık toplam 30 adet kurye iletişim talebi gönderme",
         "Sadece uygulama içi mesajlaşma"
       ],
       popular: true,
@@ -105,7 +105,7 @@ export default function UcretPlanlariPage() {
       features: [
         "Sınırsız ilan verme",
         "Sınırsız kurye profil görüntüleme",
-        "Günlük sınırsız adet kurye iletişim talebi gönderme",
+        "Sınırsız adet kurye iletişim talebi gönderme",
         "Kuryelerle telefon ve WhatsApp ile iletişim kurma",
         "Kurye tarafından görüntülenme ve iletişim kurma talebi alma"
       ],

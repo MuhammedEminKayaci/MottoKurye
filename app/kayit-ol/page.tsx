@@ -244,13 +244,18 @@ export default function KayitOlPage() {
         if (data.selectedAvatar) {
           finalAvatarUrl = data.selectedAvatar;
         } else {
-          // Default assigned avatar
-          const randomNum = Math.floor(Math.random() * 4) + 1;
-          finalAvatarUrl = `/images/avatars/kurye/avatar${randomNum}.svg`;
+          // Default assigned avatar based on gender
+          const randomNum = Math.floor(Math.random() * 2) + 1;
+          if (data.gender === "Erkek") {
+            finalAvatarUrl = `/images/avatars/kurye/erkek${randomNum}.jpeg`;
+          } else {
+            finalAvatarUrl = `/images/avatars/kurye/kadin${randomNum}.jpeg`;
+          }
         }
       }
 
       const p1Url = await uploadDocument(data.p1CertificateFile, "p1");
+      const srcUrl = await uploadDocument(data.srcCertificateFile, "src");
       const criminalUrl = await uploadDocument(data.criminalRecordFile, "sabka");
       
       // Capture IP address for KVKK compliance
@@ -286,8 +291,10 @@ export default function KayitOlPage() {
         moto_cc: data.motoCc || null,
         has_bag: data.hasBag,
         p1_certificate: data.p1Certificate,
+        src_certificate: data.srcCertificate,
         criminal_record: data.criminalRecord,
         p1_certificate_file_url: p1Url,
+        src_certificate_file_url: srcUrl,
         criminal_record_file_url: criminalUrl,
         accept_terms: data.acceptTerms,
         accept_privacy: data.acceptPrivacy,

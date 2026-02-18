@@ -119,7 +119,6 @@ export function RoleHeader() {
     { label: "Ana Sayfa", href: "/" },
     { label: "Profilim", href: "/profil" },
     { label: "İlanlar", href: "/ilanlar" },
-    { label: "İlanlarım", href: "/ilanlarim" },
     { label: "Mesajlar", href: "/mesajlar" },
     { label: "Ücret Planları", href: "/ucret-planlari" },
   ];

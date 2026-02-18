@@ -21,7 +21,7 @@ interface BusinessData {
   daily_package_estimate: string;
   contact_preference: 'phone' | 'in_app' | 'both';
   avatar_url?: string | null;
-  is_looking_for_courier?: boolean;
+  seeking_couriers?: boolean;
 }
 
 const businessSectors = [
@@ -116,7 +116,7 @@ export default function IsletmeDuzenlePage() {
         setBusiness({ ...data, working_days: workingDays });
         setFormData({ ...data, working_days: workingDays });
         setAvatarPreview(data.avatar_url);
-        setIsLookingForCourier(data.is_looking_for_courier ?? true);
+        setIsLookingForCourier(data.seeking_couriers ?? true);
       } catch (err) {
         console.error('Error loading business data:', err);
         setError('Veriler yüklenirken hata oluştu');
@@ -219,7 +219,7 @@ export default function IsletmeDuzenlePage() {
         daily_package_estimate: formData.daily_package_estimate,
         contact_preference: formData.contact_preference,
         avatar_url: finalAvatarUrl,
-        is_looking_for_courier: isLookingForCourier,
+        seeking_couriers: isLookingForCourier,
       };
 
       const { error: updateError } = await supabase

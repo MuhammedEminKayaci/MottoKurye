@@ -12,9 +12,10 @@ interface StartChatButtonProps {
   targetUserId?: string; // Auth user id of the target (to prevent self-chat)
   className?: string;
   label?: string;
+  variant?: 'default' | 'full'; // full = tam genişlikli kart butonu
 }
 
-export function StartChatButton({ targetId, targetRole, targetUserId, className, label = "Mesaj Gönder" }: StartChatButtonProps) {
+export function StartChatButton({ targetId, targetRole, targetUserId, className, label = "Mesaj Gönder", variant = 'default' }: StartChatButtonProps) {
   const [loading, setLoading] = useState(false);
   const [isSelf, setIsSelf] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
@@ -83,7 +84,7 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
         // Target is courier. I must be a business.
         const { data: business, error: businessCheckError } = await supabase
           .from('businesses')
-          .select('id, user_id, plan, messages_sent_today, last_usage_reset')
+          .select('id, user_id, plan, messages_sent_total, last_usage_reset, plan_updated_at')
           .eq('user_id', myUserId)
           .maybeSingle();
 
@@ -93,17 +94,27 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
           return;
         }
 
-        // Plan limit kontrolü - sadece işletmeler için (kurye hedefi)
+        // Plan limit kontrolü - toplam mesaj hakkı
         const planLimits = PLAN_LIMITS[business.plan as PlanType] || PLAN_LIMITS.free;
         
-        // Günlük sıfırlama kontrolü
-        const today = new Date().toISOString().split('T')[0];
-        const lastReset = business.last_usage_reset ? business.last_usage_reset.split('T')[0] : null;
-        const messagesSent = lastReset === today ? business.messages_sent_today : 0;
-        const messagesLeft = planLimits.dailyMessageLimit - messagesSent;
+        // Aylık sıfırlama kontrolü (standard plan için)
+        const now = new Date();
+        const planUpdatedAt = business.plan_updated_at ? new Date(business.plan_updated_at) : now;
+        let messagesSent = business.messages_sent_total || 0;
+        
+        // Standard plan için aylık sıfırlama
+        if (business.plan === 'standard') {
+          const monthsSincePlanUpdate = (now.getFullYear() - planUpdatedAt.getFullYear()) * 12 + (now.getMonth() - planUpdatedAt.getMonth());
+          if (monthsSincePlanUpdate >= 1) {
+            // Yeni ay, sayacı sıfırla
+            messagesSent = 0;
+          }
+        }
+        
+        const messagesLeft = planLimits.totalMessageLimit - messagesSent;
 
         // Limit kontrolü (sınırsız değilse)
-        if (!isUnlimited(planLimits.dailyMessageLimit) && messagesLeft <= 0) {
+        if (!isUnlimited(planLimits.totalMessageLimit) && messagesLeft <= 0) {
           setLimitInfo({ messagesLeft: 0, plan: business.plan as PlanType });
           setShowLimitModal(true);
           setLoading(false);
@@ -163,25 +174,20 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
         if (targetRole === 'kurye') {
           const { data: { user: currentUser } } = await supabase.auth.getUser();
           if (currentUser) {
-            // Günlük sıfırlama ve sayaç artırma
-            const today = new Date().toISOString().split('T')[0];
-            
-            // Önce mevcut durumu kontrol et
+            // Toplam mesaj sayacını artır
             const { data: bizData } = await supabase
               .from('businesses')
-              .select('messages_sent_today, last_usage_reset')
+              .select('messages_sent_total')
               .eq('user_id', currentUser.id)
               .single();
             
             if (bizData) {
-              const lastReset = bizData.last_usage_reset ? bizData.last_usage_reset.split('T')[0] : null;
-              const newCount = lastReset === today ? bizData.messages_sent_today + 1 : 1;
+              const newCount = (bizData.messages_sent_total || 0) + 1;
               
               await supabase
                 .from('businesses')
                 .update({
-                  messages_sent_today: newCount,
-                  last_usage_reset: today
+                  messages_sent_total: newCount
                 })
                 .eq('user_id', currentUser.id);
             }
@@ -237,10 +243,13 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
             </div>
 
             <h2 className="text-xl font-bold text-gray-900 mb-2">
-              Günlük Mesaj Hakkınız Doldu!
+              Mesaj Hakkınız Doldu!
             </h2>
             <p className="text-gray-600 mb-4">
-              Bugün için daha fazla kurye ile iletişime geçemezsiniz. Yarın tekrar deneyebilir veya planınızı yükseltebilirsiniz.
+              {limitInfo.plan === 'free' 
+                ? 'Toplam 2 mesaj hakkınızı kullandınız. Daha fazla kurye ile iletişime geçmek için planınızı yükseltebilirsiniz.'
+                : 'Bu ay için mesaj hakkınız doldu. Yeni ay başladığında hakkınız yenilenecek veya planınızı yükseltebilirsiniz.'
+              }
             </p>
             
             <p className="text-sm text-gray-500 mb-6">

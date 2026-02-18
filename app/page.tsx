@@ -134,18 +134,13 @@ export default function Page() {
         </div>
         {/* Full-width black strip with gradient */}
         <div className="w-full bg-gradient-to-b from-black to-[#2c2c2c] text-white mt-12">
-          <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="w-full md:w-1/2">
-              <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold max-w-md">
-                Artık mesaj gruplarında &apos;kurye lazım&apos; yazıp beklemek zorunda değilsiniz.
-              </h3>
-            </div>
-
-            <div className="w-full md:w-1/2">
-              <p className="text-sm md:text-sm opacity-80 max-w-lg md:ml-auto">
-                İşletmenizin en kritik halkası olan teslimat ekibini, karmaşık ve güven vermeyen gruplarda kurmaya çalışmayın. PaketServisçi, bu süreci bir &quot;arayış&quot; olmaktan çıkarıp &quot;kurumsal bir seçim&quot; sürecine dönüştürüyor. Gruplardaki bilgi kirliliğini ve zaman kaybını geride bırakın; işletmenize değer katacak profesyonel kuryeler ile geniş datamız içerisinde tanışın.
-              </p>
-            </div>
+          <div className="max-w-4xl mx-auto px-6 py-12 text-center">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">
+              Mesaj gruplarının trafiğinde kaybolmayın, doğru iş ortağı ile doğrudan eşleşin.
+            </h3>
+            <p className="text-xl md:text-2xl lg:text-3xl font-bold">
+              Anlık değil, kalıcı çözüm
+            </p>
           </div>
         </div>
 
@@ -153,9 +148,9 @@ export default function Page() {
         <div className="max-w-6xl mx-auto px-6 mt-8">
           <div className="flex items-center justify-center gap-6">
             {[
-              { icon: "/images/icon-kuryee.png", label: "" },
-              { icon: "/images/icon-isletmee.png", label: "" },
-              { icon: "/images/icon-eslesmee.png", label: "" },
+              { icon: "/images/icon-kuryee.png", label: "Nitelikli\nKuryeler" },
+              { icon: "/images/icon-isletmee.png", label: "Saygın\nİşletmeler" },
+              { icon: "/images/icon-eslesmee.png", label: "Doğru\nEşleşmeler" },
             ].map((item, idx) => (
               <div
                 key={idx}

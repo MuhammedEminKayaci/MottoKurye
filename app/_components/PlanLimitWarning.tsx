@@ -6,21 +6,21 @@ import { PlanType, PLAN_LIMITS, isUnlimited } from "@/lib/planLimits";
 
 interface PlanLimitWarningProps {
   messagesLeft: number;
-  dailyMessageLimit: number;
+  totalMessageLimit: number;
   currentPlan: PlanType;
   onUpgradeClick?: () => void;
 }
 
 export function PlanLimitWarning({
   messagesLeft,
-  dailyMessageLimit,
+  totalMessageLimit,
   currentPlan,
   onUpgradeClick
 }: PlanLimitWarningProps) {
   const [dismissed, setDismissed] = useState(false);
 
   // Sınırsız planlarda gösterme
-  if (isUnlimited(dailyMessageLimit)) return null;
+  if (isUnlimited(totalMessageLimit)) return null;
   
   // Dismissed ise gösterme
   if (dismissed) return null;

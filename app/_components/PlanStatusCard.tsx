@@ -8,7 +8,7 @@ import { PlanType, PLAN_LIMITS, PLAN_COLORS, isUnlimited, formatRemainingLimit }
 interface PlanStatusCardProps {
   plan: PlanType;
   messagesLeft: number;
-  dailyMessageLimit: number;
+  totalMessageLimit: number;
   approvalsLeft: number;
   dailyApprovalLimit: number;
   businessId: string;
@@ -18,7 +18,7 @@ interface PlanStatusCardProps {
 export function PlanStatusCard({
   plan,
   messagesLeft,
-  dailyMessageLimit,
+  totalMessageLimit,
   approvalsLeft,
   dailyApprovalLimit,
   businessId,
@@ -31,7 +31,7 @@ export function PlanStatusCard({
   const colors = PLAN_COLORS[plan];
 
   // Uyarı seviyeleri
-  const messageWarning = !isUnlimited(dailyMessageLimit) && messagesLeft <= 1;
+  const messageWarning = !isUnlimited(totalMessageLimit) && messagesLeft <= 1;
   const showWarning = messageWarning;
 
   const handleUpgrade = async (newPlan: PlanType) => {
@@ -110,7 +110,7 @@ export function PlanStatusCard({
             <div>
               <p className="text-sm font-medium text-amber-800">
                 {messagesLeft === 0 
-                  ? 'Günlük mesaj hakkınız doldu!' 
+                  ? 'Mesaj hakkınız doldu!' 
                   : 'Sadece 1 mesaj hakkınız kaldı!'}
               </p>
               <p className="text-xs text-amber-600 mt-1">
@@ -131,13 +131,13 @@ export function PlanStatusCard({
               <span className="text-xs text-gray-500 font-medium">Mesaj Hakkı</span>
             </div>
             <p className={`text-lg font-bold ${messagesLeft === 0 ? 'text-red-500' : 'text-gray-800'}`}>
-              {formatRemainingLimit(messagesLeft, dailyMessageLimit)}
+              {formatRemainingLimit(messagesLeft, totalMessageLimit)}
             </p>
-            {!isUnlimited(dailyMessageLimit) && (
+            {!isUnlimited(totalMessageLimit) && (
               <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div 
                   className={`h-full rounded-full transition-all ${messagesLeft === 0 ? 'bg-red-500' : 'bg-[#ff7a00]'}`}
-                  style={{ width: `${(messagesLeft / dailyMessageLimit) * 100}%` }}
+                  style={{ width: `${(messagesLeft / totalMessageLimit) * 100}%` }}
                 />
               </div>
             )}
