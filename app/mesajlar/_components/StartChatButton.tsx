@@ -34,7 +34,9 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
 
   if (isSelf) return null;
 
-  const handleStartChat = async () => {
+  const handleStartChat = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -64,7 +66,11 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
           .eq('user_id', myUserId)
           .maybeSingle();
         
-        if (courierCheckError || !courier) {
+        if (courierCheckError) {
+          console.error("Kurye sorgu hatası:", courierCheckError);
+        }
+
+        if (!courier) {
           alert("İşletmelerle mesajlaşmak için kurye profiline sahip olmalısınız.");
           setLoading(false);
           return;
@@ -82,28 +88,50 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
 
       } else {
         // Target is courier. I must be a business.
-        const { data: business, error: businessCheckError } = await supabase
+        // Önce basit sorguyla işletme varlığını kontrol et
+        const { data: businessBasic, error: basicCheckError } = await supabase
           .from('businesses')
-          .select('id, user_id, plan, messages_sent_total, last_usage_reset, plan_updated_at')
+          .select('id, user_id, plan')
           .eq('user_id', myUserId)
           .maybeSingle();
 
-        if (businessCheckError || !business) {
+        if (basicCheckError) {
+          console.error("İşletme sorgu hatası:", basicCheckError);
+        }
+
+        if (!businessBasic) {
           alert("Kuryelerle mesajlaşmak için işletme profiline sahip olmalısınız.");
           setLoading(false);
           return;
         }
+
+        // Plan detaylarını ayrı çek (bu sütunlar yoksa bile işletme kontrolü başarılı olsun)
+        let messagesSent = 0;
+        let planUpdatedAt: Date | null = null;
+        try {
+          const { data: planData } = await supabase
+            .from('businesses')
+            .select('messages_sent_total, plan_updated_at')
+            .eq('user_id', myUserId)
+            .maybeSingle();
+          if (planData) {
+            messagesSent = (planData as any).messages_sent_total || 0;
+            planUpdatedAt = (planData as any).plan_updated_at ? new Date((planData as any).plan_updated_at) : null;
+          }
+        } catch (e) {
+          console.warn("Plan detayları alınamadı, varsayılan değerler kullanılıyor:", e);
+        }
+
+        const business = businessBasic;
 
         // Plan limit kontrolü - toplam mesaj hakkı
         const planLimits = PLAN_LIMITS[business.plan as PlanType] || PLAN_LIMITS.free;
         
         // Aylık sıfırlama kontrolü (standard plan için)
         const now = new Date();
-        const planUpdatedAt = business.plan_updated_at ? new Date(business.plan_updated_at) : now;
-        let messagesSent = business.messages_sent_total || 0;
         
         // Standard plan için aylık sıfırlama
-        if (business.plan === 'standard') {
+        if (business.plan === 'standard' && planUpdatedAt) {
           const monthsSincePlanUpdate = (now.getFullYear() - planUpdatedAt.getFullYear()) * 12 + (now.getMonth() - planUpdatedAt.getMonth());
           if (monthsSincePlanUpdate >= 1) {
             // Yeni ay, sayacı sıfırla

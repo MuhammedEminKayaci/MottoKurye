@@ -37,6 +37,9 @@ export default function ProfilPage() {
   const [msg, setMsg] = useState<string|null>(null);
   const [savingStatus, setSavingStatus] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [planStatus, setPlanStatus] = useState<{
     plan: PlanType;
     messagesLeft: number;
@@ -107,6 +110,24 @@ export default function ProfilPage() {
       approvalsLeft: planLimits.dailyApprovalLimit - actualApprovalsSent,
       dailyApprovalLimit: planLimits.dailyApprovalLimit
     });
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'HESABIMI SİL') return;
+    setDeleteLoading(true);
+    try {
+      const res = await fetch('/api/delete-account', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Hesap silinirken bir hata oluştu.');
+      }
+      // Oturumu kapat ve ana sayfaya yönlendir
+      await supabase.auth.signOut();
+      router.push('/');
+    } catch (err: any) {
+      alert(err.message || 'Hesap silinirken bir hata oluştu.');
+      setDeleteLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -524,7 +545,112 @@ export default function ProfilPage() {
             ))}
           </div>
         )}
+
+        {/* ═══════ Hesabı Kaldır Bölümü ═══════ */}
+        <div className="mt-16 mb-8 border-t border-red-200 pt-8">
+          <div className="max-w-xl mx-auto text-center">
+            <h3 className="text-lg font-bold text-red-600 mb-2">Tehlikeli Bölge</h3>
+            <p className="text-sm text-neutral-600 mb-6">
+              Hesabınızı kaldırdığınızda tüm profil bilgileriniz, ilanlarınız ve mesaj geçmişiniz kalıcı olarak silinecektir. Bu işlem geri alınamaz.
+            </p>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-red-300 text-red-600 font-semibold rounded-xl hover:bg-red-50 hover:border-red-400 transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Hesabımı Kaldır
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* ═══════ Hesap Silme Onay Modalı ═══════ */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            {/* Uyarı İkonu */}
+            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+              Hesabını Kaldırmak İstediğine Emin Misin?
+            </h2>
+            <p className="text-sm text-gray-600 text-center mb-4">
+              Bu işlem <span className="font-bold text-red-600">geri alınamaz</span>. Aşağıdaki tüm verileriniz kalıcı olarak silinecektir:
+            </p>
+
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-5">
+              <ul className="text-sm text-red-700 space-y-1.5">
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                  {role === 'kurye' ? 'Kurye profil bilgileriniz' : 'İşletme profil bilgileriniz'}
+                </li>
+                {role === 'isletme' && (
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    Yayınladığınız tüm ilanlar
+                  </li>
+                )}
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                  Tüm mesaj geçmişiniz
+                </li>
+                <li className="flex items-center gap-2">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                  Hesap ve oturum bilgileriniz
+                </li>
+              </ul>
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Onaylamak için <span className="font-bold text-red-600">HESABIMI SİL</span> yazın:
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="HESABIMI SİL"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-center font-semibold focus:outline-none focus:border-red-400 transition-colors"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmText !== 'HESABIMI SİL' || deleteLoading}
+                className="w-full py-3 px-6 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {deleteLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Siliniyor...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Evet, Hesabımı Kalıcı Olarak Sil
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(''); }}
+                disabled={deleteLoading}
+                className="w-full py-3 px-6 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Vazgeç
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

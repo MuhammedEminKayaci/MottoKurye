@@ -161,7 +161,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
         // Sadece in_app mesajlaşma tercih ediyorsa - tam genişlikte mesaj butonu
         if (contactPreference === 'in_app') {
           return (
-            <div className="w-full">
+            <div className="w-full" onClick={e => e.stopPropagation()}>
               <StartChatButton
                 targetUserId={userId || ''}
                 targetId={targetId || ''}
@@ -192,7 +192,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
         // Telefon yok ama both tercih ediyorsa mesaj butonu göster
         if (contactPreference === 'both' && !phone) {
           return (
-            <div className="w-full">
+            <div className="w-full" onClick={e => e.stopPropagation()}>
               <StartChatButton
                 targetUserId={userId || ''}
                 targetId={targetId || ''}
