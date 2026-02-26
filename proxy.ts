@@ -6,8 +6,8 @@ import { NextResponse, type NextRequest } from "next/server";
 // ============================================================
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 dakika
-const MAX_AUTH_REQUESTS = 5; // Dakikada max 5 auth isteği
-const MAX_API_REQUESTS = 30; // Dakikada max 30 API isteği
+const MAX_AUTH_REQUESTS = 15; // Dakikada max 15 auth POST isteği
+const MAX_API_REQUESTS = 60; // Dakikada max 60 API isteği
 
 function getRateLimitKey(ip: string, prefix: string): string {
   return `${prefix}:${ip}`;
@@ -61,7 +61,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ============================================================
-  // RATE LIMITING - Auth endpoint'leri için sıkı kontrol
+  // RATE LIMITING - Sadece POST istekleri için (sayfa yüklemeleri hariç)
   // ============================================================
   const isAuthRoute =
     pathname.startsWith("/giris") ||
@@ -71,7 +71,9 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/email-dogrulama") ||
     pathname.startsWith("/auth/callback");
 
-  if (isAuthRoute && isRateLimited(ip, "auth", MAX_AUTH_REQUESTS)) {
+  const isPostRequest = request.method === "POST";
+
+  if (isAuthRoute && isPostRequest && isRateLimited(ip, "auth", MAX_AUTH_REQUESTS)) {
     return new NextResponse(
       JSON.stringify({
         error: "Çok fazla deneme. Lütfen 1 dakika sonra tekrar deneyin.",
@@ -79,7 +81,7 @@ export async function proxy(request: NextRequest) {
       {
         status: 429,
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json; charset=utf-8",
           "Retry-After": "60",
         },
       }
@@ -93,7 +95,7 @@ export async function proxy(request: NextRequest) {
       {
         status: 429,
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json; charset=utf-8",
           "Retry-After": "60",
         },
       }
