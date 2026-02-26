@@ -32,33 +32,19 @@ export default function Page() {
 
         setIsLoggedIn(true);
 
-        // Check if courier
-        const { data: courierData } = await supabase
-          .from("couriers")
-          .select("id")
-          .eq("user_id", userId)
-          .limit(1);
+        // Paralel sorgu — iki tabloyu aynı anda kontrol et
+        const [courierResult, businessResult] = await Promise.all([
+          supabase.from("couriers").select("id").eq("user_id", userId).limit(1),
+          supabase.from("businesses").select("id").eq("user_id", userId).limit(1),
+        ]);
 
-        if (courierData && courierData.length > 0) {
+        if (courierResult.data && courierResult.data.length > 0) {
           setUserRole("kurye");
-          setIsLoading(false);
-          return;
-        }
-
-        // Check if business
-        const { data: businessData } = await supabase
-          .from("businesses")
-          .select("id")
-          .eq("user_id", userId)
-          .limit(1);
-
-        if (businessData && businessData.length > 0) {
+        } else if (businessResult.data && businessResult.data.length > 0) {
           setUserRole("isletme");
-          setIsLoading(false);
-          return;
+        } else {
+          setUserRole(null);
         }
-
-        setUserRole(null);
         setIsLoading(false);
       } catch (error) {
         console.error("Error checking user role:", error);

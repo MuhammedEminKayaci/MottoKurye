@@ -147,12 +147,18 @@ function EmailDogrulamaContent() {
       inputRefs.current[0]?.focus();
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      setMessage(
-        errMsg.includes("rate")
-          ? "Çok fazla deneme. Lütfen biraz bekleyin."
-          : "Gönderim başarısız. Lütfen tekrar deneyin."
-      );
+      const msg = errMsg.toLowerCase();
+      if (msg.includes("rate") || msg.includes("email rate limit") || msg.includes("over_email_send_rate_limit")) {
+        setMessage("E-posta gönderim limiti aşıldı. Daha önce gelen kodu kullanın veya 1 saat sonra tekrar deneyin.");
+      } else {
+        setMessage("Gönderim başarısız. Lütfen tekrar deneyin.");
+      }
       setMessageType("error");
+      // Rate limit durumunda resend butonunu uzun süre devre dışı bırak
+      if (msg.includes("rate") || msg.includes("limit")) {
+        setCountdown(300); // 5 dakika beklet
+        setCanResend(false);
+      }
     } finally {
       setResendLoading(false);
     }

@@ -11,7 +11,7 @@ import type { RoleType, CourierRegistration, BusinessRegistration } from "../../
 
 export default function KayitOlPage() {
   const router = useRouter();
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://kurye-app-dusky.vercel.app";
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || "https://motto-kurye-beta.vercel.app");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -25,58 +25,111 @@ export default function KayitOlPage() {
 
   // On mount check if already authenticated (Google dönüşü vs.)
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      const urlParams = new URLSearchParams(window.location.search);
-      const roleParam = urlParams.get('role');
-      const typeParam = urlParams.get('type');
-      const googleParam = urlParams.get('google');
-      
-      // Rol parametresi varsa hemen ayarla (auth veya profile aşamasında)
-      const incomingRole = roleParam || typeParam;
-      if (incomingRole && (incomingRole === 'kurye' || incomingRole === 'isletme')) {
-        setRole(incomingRole as RoleType);
+    let isMounted = true;
+
+    // Profil var mı kontrol et — ortak yardımcı
+    const checkProfileExists = async (userId: string): Promise<boolean> => {
+      try {
+        const [courierResult, businessResult] = await Promise.all([
+          supabase.from("couriers").select("id").eq("user_id", userId).limit(1),
+          supabase.from("businesses").select("id").eq("user_id", userId).limit(1),
+        ]);
+        return !!(
+          (courierResult.data && courierResult.data.length > 0) ||
+          (businessResult.data && businessResult.data.length > 0)
+        );
+      } catch (err) {
+        console.error("Profil kontrolü başarısız:", err);
       }
-      
-      if (data.session?.user) {
-        setSessionUserId(data.session.user.id);
-        setSessionEmail(data.session.user.email ?? null);
-        setStage("profile");
-        
-        // Google kullanıcısını tespit et
-        if (googleParam === 'true') {
-          setIsGoogleUser(true);
+      return false;
+    };
+
+    const checkAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error || !isMounted) return;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleParam = urlParams.get('role');
+        const typeParam = urlParams.get('type');
+        const googleParam = urlParams.get('google');
+
+        // Rol parametresi varsa hemen ayarla
+        const incomingRole = roleParam || typeParam;
+        if (incomingRole && (incomingRole === 'kurye' || incomingRole === 'isletme')) {
+          setRole(incomingRole as RoleType);
         }
+
+        if (data.session?.user) {
+          const userId = data.session.user.id;
+
+          const hasProfile = await checkProfileExists(userId);
+          if (!isMounted) return;
+
+          if (hasProfile) {
+            router.push("/profil");
+            return;
+          }
+
+          // Profil yok — profil tamamlama aşamasına geç
+          setSessionUserId(userId);
+          setSessionEmail(data.session.user.email ?? null);
+          setStage("profile");
+
+          if (googleParam === 'true') {
+            setIsGoogleUser(true);
+          }
+        }
+      } catch (err) {
+        console.error("Auth kontrolü başarısız:", err);
       }
     };
-    
+
     checkAuth();
-    
-    const { data: sub } = supabase.auth.onAuthStateChange((event: string, session: any) => {
+
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // INITIAL_SESSION zaten checkAuth tarafından işleniyor — tekrar çalıştırma
+      if (event === "INITIAL_SESSION" || !isMounted) return;
+
       if (session?.user) {
-        setSessionUserId(session.user.id);
-        setSessionEmail(session.user.email ?? null);
-        setStage("profile");
-        
-        // URL parametrelerini tekrar kontrol et
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('google') === 'true') {
-          setIsGoogleUser(true);
+        try {
+          const userId = session.user.id;
+
+          const hasProfile = await checkProfileExists(userId);
+          if (!isMounted) return;
+
+          if (hasProfile) {
+            router.push("/profil");
+            return;
+          }
+
+          setSessionUserId(userId);
+          setSessionEmail(session.user.email ?? null);
+          setStage("profile");
+
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('google') === 'true') {
+            setIsGoogleUser(true);
+          }
+        } catch (err) {
+          console.error("Auth state change hatası:", err);
         }
       }
     });
-    
+
     return () => {
+      isMounted = false;
       sub.subscription?.unsubscribe?.();
     };
-  }, []);
+  }, [router]);
 
   const toTrError = (err: any): string => {
     const msg = String(err?.message || "").toLowerCase();
     if (msg.includes("already registered") || msg.includes("already exists")) return "Bu e‑posta ile hesap zaten var.";
     if (msg.includes("password") && msg.includes("least")) return "Şifre en az 6 karakter olmalıdır.";
     if (msg.includes("invalid email")) return "Geçerli bir e‑posta girin.";
-    if (msg.includes("rate limit")) return "Çok fazla deneme yapıldı, sonra tekrar.";
+    if (msg.includes("rate limit") || msg.includes("email rate limit")) return "E-posta gönderim limiti aşıldı. Lütfen 1 saat sonra tekrar deneyin veya daha önce gelen doğrulama kodunu kullanın.";
+    if (msg.includes("over_email_send_rate_limit")) return "E-posta gönderim limiti aşıldı. Lütfen 1 saat bekleyin.";
     return "Bir hata oluştu. Tekrar deneyin.";
   };
 
@@ -130,7 +183,20 @@ export default function KayitOlPage() {
           data: { role },
         },
       });
-      if (error) throw error;
+
+      // Rate limit hatası — kullanıcı daha önce kayıt olduysa doğrulama sayfasına yönlendir
+      if (error) {
+        const msg = (error.message || "").toLowerCase();
+        if (msg.includes("rate limit") || msg.includes("email rate limit") || msg.includes("over_email_send_rate_limit")) {
+          setMessage("Doğrulama kodu zaten gönderildi. E-posta kutunuzu kontrol edin.");
+          // Yine de doğrulama sayfasına yönlendir — belki kodu zaten almışlardır
+          setTimeout(() => {
+            router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
+          }, 1500);
+          return;
+        }
+        throw error;
+      }
 
       // Supabase zaten kayıtlı (onaylanmış) e-posta için identities boş döner
       if (data.user && data.user.identities && data.user.identities.length === 0) {

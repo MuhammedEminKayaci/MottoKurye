@@ -105,6 +105,33 @@ export async function proxy(request: NextRequest) {
   // ============================================================
   // SUPABASE AUTH - Session yönetimi
   // ============================================================
+
+  // Korumalı route'lar
+  const protectedRoutes = [
+    "/profil",
+    "/mesajlar",
+    "/ilanlarim",
+    "/kurye-bul",
+    "/isletme-bul",
+    "/ilanlar",
+  ];
+
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  const isLoginOnlyRoute =
+    pathname.startsWith("/giris") ||
+    pathname.startsWith("/sifremi-unuttum");
+
+  // Auth kontrolü sadece gerekli rotalar için yapılır (performans)
+  // Public sayfalar (/, /kayit-ol, /iletisim vb.) Supabase'e hiç istek atmaz
+  const needsAuthCheck = isProtectedRoute || isLoginOnlyRoute;
+
+  if (!needsAuthCheck) {
+    return response;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -125,24 +152,9 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  // Session'ı yenile (CSRF token rotation)
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  // Korumalı route'lar - giriş yapmamış kullanıcıları yönlendir
-  const protectedRoutes = [
-    "/profil",
-    "/mesajlar",
-    "/ilanlarim",
-    "/kurye-bul",
-    "/isletme-bul",
-    "/ilanlar",
-  ];
-
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
 
   if (isProtectedRoute && !user) {
     const redirectUrl = request.nextUrl.clone();
@@ -151,8 +163,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Giriş yapmış kullanıcıyı auth sayfalarından yönlendir
-  if (isAuthRoute && user) {
+  // Giriş yapmış kullanıcıyı sadece giris/sifremi-unuttum sayfalarından yönlendir
+  if (isLoginOnlyRoute && user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/";
     return NextResponse.redirect(redirectUrl);

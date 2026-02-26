@@ -9,7 +9,7 @@ import { supabase } from "../../lib/supabase";
 function GirisContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://kurye-app-dusky.vercel.app";
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || "https://motto-kurye-beta.vercel.app");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,14 +38,22 @@ function GirisContent() {
         }
         throw error;
       }
-      // Profile check for redirect logic
+      // Profile check for redirect logic (paralel sorgu)
       const { data: sessionData } = await supabase.auth.getSession();
-      const uid = sessionData.session?.user?.id;
-      let target = "/kayit-ol";
+      const user = sessionData.session?.user;
+      const uid = user?.id;
+      let target = "/ilanlar";
       if (uid) {
-        const { data: c } = await supabase.from("couriers").select("id").eq("user_id", uid).limit(1);
-        const { data: b } = !c?.length ? await supabase.from("businesses").select("id").eq("user_id", uid).limit(1) : { data: [] };
-        if (c?.length || b?.length) target = "/profil";
+        const [courierResult, businessResult] = await Promise.all([
+          supabase.from("couriers").select("id").eq("user_id", uid).limit(1),
+          supabase.from("businesses").select("id").eq("user_id", uid).limit(1),
+        ]);
+        if (courierResult.data?.length || businessResult.data?.length) {
+          target = "/profil";
+        } else {
+          const userRole = user?.user_metadata?.role || "kurye";
+          target = `/kayit-ol?role=${userRole}`;
+        }
       }
       setMessage("Giriş başarılı! Yönlendiriliyorsunuz...");
       setTimeout(() => { router.push(target); }, 400);
