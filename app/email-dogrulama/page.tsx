@@ -23,7 +23,6 @@ function EmailDogrulamaContent() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    // İlk input'a otomatik focus
     inputRefs.current[0]?.focus();
   }, []);
 
@@ -37,19 +36,16 @@ function EmailDogrulamaContent() {
   }, [countdown]);
 
   const handleChange = (index: number, value: string) => {
-    // Sadece rakam kabul et
     if (value && !/^\d$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Otomatik sonraki input'a geç
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Tüm haneler dolduysa otomatik doğrula
     if (value && newOtp.every((d) => d !== "")) {
       handleVerify(newOtp.join(""));
     }
@@ -72,11 +68,9 @@ function EmailDogrulamaContent() {
     }
     setOtp(newOtp);
 
-    // Focus son doldurulan input'a
     const lastFilledIndex = Math.min(pastedData.length, 6) - 1;
     inputRefs.current[lastFilledIndex]?.focus();
 
-    // Tüm haneler dolduysa otomatik doğrula
     if (newOtp.every((d) => d !== "")) {
       handleVerify(newOtp.join(""));
     }
@@ -97,7 +91,7 @@ function EmailDogrulamaContent() {
       const { data, error } = await supabase.auth.verifyOtp({
         email,
         token: code,
-        type: "email",
+        type: "signup",
       });
 
       if (error) throw error;
@@ -105,23 +99,29 @@ function EmailDogrulamaContent() {
       if (data.session) {
         setMessage("E-posta doğrulandı! Yönlendiriliyorsunuz...");
         setMessageType("success");
-        // Kısa gecikme ile kayıt sayfasına yönlendir (profil tamamlama)
         setTimeout(() => {
           router.push(`/kayit-ol?role=${role}`);
         }, 1000);
-      }
-    } catch (err: any) {
-      console.error("OTP verify error:", err);
-      const msg = String(err?.message || "").toLowerCase();
-      if (msg.includes("expired") || msg.includes("token has expired")) {
-        setMessage("Doğrulama kodunun süresi dolmuş. Lütfen yeni kod isteyin.");
-      } else if (msg.includes("invalid") || msg.includes("otp")) {
-        setMessage("Girdiğiniz kod hatalı. Lütfen tekrar deneyin.");
       } else {
         setMessage("Doğrulama başarısız. Lütfen tekrar deneyin.");
+        setMessageType("error");
+        setOtp(["", "", "", "", "", ""]);
+        inputRefs.current[0]?.focus();
+      }
+    } catch (err: unknown) {
+      console.error("OTP verify error:", err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      const msg = errMsg.toLowerCase();
+      if (msg.includes("expired") || msg.includes("token has expired")) {
+        setMessage("Doğrulama kodunun süresi dolmuş. Lütfen yeni kod isteyin.");
+      } else if (msg.includes("invalid") || msg.includes("otp") || msg.includes("token")) {
+        setMessage("Girdiğiniz kod hatalı. Lütfen tekrar deneyin.");
+      } else if (msg.includes("rate") || msg.includes("limit")) {
+        setMessage("Çok fazla deneme. Lütfen biraz bekleyin.");
+      } else {
+        setMessage("Doğrulama başarısız: " + errMsg);
       }
       setMessageType("error");
-      // Hatalı girişte inputları temizle
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
     } finally {
@@ -145,9 +145,10 @@ function EmailDogrulamaContent() {
       setCanResend(false);
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
       setMessage(
-        err?.message?.includes("rate")
+        errMsg.includes("rate")
           ? "Çok fazla deneme. Lütfen biraz bekleyin."
           : "Gönderim başarısız. Lütfen tekrar deneyin."
       );
@@ -177,7 +178,6 @@ function EmailDogrulamaContent() {
             />
           </Link>
 
-          {/* Mail ikonu */}
           <div className="mx-auto w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-6">
             <svg
               className="w-10 h-10 text-white"
@@ -211,12 +211,13 @@ function EmailDogrulamaContent() {
             </div>
           )}
 
-          {/* 6 Haneli Kod Girişi */}
           <div className="flex justify-center gap-2 mb-6" onPaste={handlePaste}>
             {otp.map((digit, index) => (
               <input
                 key={index}
-                ref={(el) => { inputRefs.current[index] = el; }}
+                ref={(el) => {
+                  inputRefs.current[index] = el;
+                }}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
@@ -233,7 +234,6 @@ function EmailDogrulamaContent() {
             ))}
           </div>
 
-          {/* Doğrula butonu */}
           <button
             onClick={() => handleVerify()}
             disabled={verifyLoading || otp.some((d) => d === "")}
@@ -246,8 +246,20 @@ function EmailDogrulamaContent() {
             {verifyLoading ? (
               <span className="flex items-center justify-center gap-2">
                 <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
                 </svg>
                 Doğrulanıyor...
               </span>
@@ -256,7 +268,6 @@ function EmailDogrulamaContent() {
             )}
           </button>
 
-          {/* Mesaj */}
           {message && (
             <div
               className={`mt-4 rounded-xl px-4 py-3 text-sm font-medium ${
@@ -269,7 +280,6 @@ function EmailDogrulamaContent() {
             </div>
           )}
 
-          {/* Tekrar gönder butonu */}
           <div className="mt-6">
             <button
               onClick={handleResend}

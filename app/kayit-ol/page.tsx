@@ -127,13 +127,19 @@ export default function KayitOlPage() {
         email,
         password,
         options: {
-          emailRedirectTo: `${baseUrl}/auth/callback?role=${role}`,
           data: { role },
         },
       });
       if (error) throw error;
+
+      // Supabase zaten kayıtlı (onaylanmış) e-posta için identities boş döner
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        setMessage("Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyin.");
+        return;
+      }
+
       if (data.user) {
-        // Email doğrulama aktif — kullanıcıyı doğrulama sayfasına yönlendir (rol bilgisiyle)
+        // Email doğrulama kodu gönderildi — kullanıcıyı doğrulama sayfasına yönlendir
         router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
         return;
       } else {
