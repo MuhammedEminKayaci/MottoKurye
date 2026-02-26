@@ -1,5 +1,5 @@
 import React from "react";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import Link from "next/link";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ContactButtons } from "@/app/_components/ContactButtons";
@@ -31,7 +31,8 @@ interface BusinessProfileProps {
 }
 
 async function getBusinessProfile(userId: string) {
-  const { data, error } = await supabaseServer
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
     .from("businesses")
     .select("*")
     .eq("user_id", userId)
