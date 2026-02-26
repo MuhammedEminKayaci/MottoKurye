@@ -133,8 +133,8 @@ export default function KayitOlPage() {
       });
       if (error) throw error;
       if (data.user) {
-        // Email doğrulama aktif — kullanıcıyı doğrulama sayfasına yönlendir
-        router.push(`/email-dogrulama?email=${encodeURIComponent(email)}`);
+        // Email doğrulama aktif — kullanıcıyı doğrulama sayfasına yönlendir (rol bilgisiyle)
+        router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
         return;
       } else {
         setMessage("Bir hata oluştu. Lütfen tekrar deneyin.");

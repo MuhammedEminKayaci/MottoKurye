@@ -1,18 +1,31 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 function EmailDogrulamaContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const email = searchParams.get("email") || "";
+  const role = searchParams.get("role") || "kurye";
+
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [verifyLoading, setVerifyLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"error" | "success">("error");
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
+
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    // İlk input'a otomatik focus
+    inputRefs.current[0]?.focus();
+  }, []);
 
   useEffect(() => {
     if (countdown > 0) {
@@ -23,25 +36,122 @@ function EmailDogrulamaContent() {
     }
   }, [countdown]);
 
+  const handleChange = (index: number, value: string) => {
+    // Sadece rakam kabul et
+    if (value && !/^\d$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    // Otomatik sonraki input'a geç
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    // Tüm haneler dolduysa otomatik doğrula
+    if (value && newOtp.every((d) => d !== "")) {
+      handleVerify(newOtp.join(""));
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (pastedData.length === 0) return;
+
+    const newOtp = [...otp];
+    for (let i = 0; i < pastedData.length && i < 6; i++) {
+      newOtp[i] = pastedData[i];
+    }
+    setOtp(newOtp);
+
+    // Focus son doldurulan input'a
+    const lastFilledIndex = Math.min(pastedData.length, 6) - 1;
+    inputRefs.current[lastFilledIndex]?.focus();
+
+    // Tüm haneler dolduysa otomatik doğrula
+    if (newOtp.every((d) => d !== "")) {
+      handleVerify(newOtp.join(""));
+    }
+  };
+
+  const handleVerify = async (token?: string) => {
+    const code = token || otp.join("");
+    if (code.length !== 6) {
+      setMessage("Lütfen 6 haneli kodu eksiksiz girin.");
+      setMessageType("error");
+      return;
+    }
+
+    setVerifyLoading(true);
+    setMessage(null);
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: "email",
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        setMessage("E-posta doğrulandı! Yönlendiriliyorsunuz...");
+        setMessageType("success");
+        // Kısa gecikme ile kayıt sayfasına yönlendir (profil tamamlama)
+        setTimeout(() => {
+          router.push(`/kayit-ol?role=${role}`);
+        }, 1000);
+      }
+    } catch (err: any) {
+      console.error("OTP verify error:", err);
+      const msg = String(err?.message || "").toLowerCase();
+      if (msg.includes("expired") || msg.includes("token has expired")) {
+        setMessage("Doğrulama kodunun süresi dolmuş. Lütfen yeni kod isteyin.");
+      } else if (msg.includes("invalid") || msg.includes("otp")) {
+        setMessage("Girdiğiniz kod hatalı. Lütfen tekrar deneyin.");
+      } else {
+        setMessage("Doğrulama başarısız. Lütfen tekrar deneyin.");
+      }
+      setMessageType("error");
+      // Hatalı girişte inputları temizle
+      setOtp(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+    } finally {
+      setVerifyLoading(false);
+    }
+  };
+
   const handleResend = async () => {
     if (!email || !canResend) return;
     setResendLoading(true);
-    setResendMessage(null);
+    setMessage(null);
     try {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email,
       });
       if (error) throw error;
-      setResendMessage("Doğrulama e-postası tekrar gönderildi!");
+      setMessage("Yeni doğrulama kodu gönderildi!");
+      setMessageType("success");
       setCountdown(60);
       setCanResend(false);
+      setOtp(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
     } catch (err: any) {
-      setResendMessage(
+      setMessage(
         err?.message?.includes("rate")
           ? "Çok fazla deneme. Lütfen biraz bekleyin."
           : "Gönderim başarısız. Lütfen tekrar deneyin."
       );
+      setMessageType("error");
     } finally {
       setResendLoading(false);
     }
@@ -85,12 +195,11 @@ function EmailDogrulamaContent() {
           </div>
 
           <h1 className="text-2xl font-extrabold text-white mb-3">
-            E-postanı Doğrula
+            Doğrulama Kodunu Gir
           </h1>
 
           <p className="text-sm text-white/90 mb-2">
-            Hesabını aktifleştirmek için e-posta adresine gönderdiğimiz
-            doğrulama bağlantısına tıkla.
+            E-posta adresine gönderdiğimiz 6 haneli doğrulama kodunu gir.
           </p>
 
           {email && (
@@ -102,53 +211,82 @@ function EmailDogrulamaContent() {
             </div>
           )}
 
-          <div className="space-y-3 mb-6">
-            <div className="flex items-start gap-3 text-left">
-              <span className="flex-shrink-0 w-6 h-6 bg-white/25 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                1
-              </span>
-              <p className="text-sm text-white/90">
-                E-posta kutunu kontrol et (spam klasörünü de kontrol etmeyi unutma)
-              </p>
-            </div>
-            <div className="flex items-start gap-3 text-left">
-              <span className="flex-shrink-0 w-6 h-6 bg-white/25 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                2
-              </span>
-              <p className="text-sm text-white/90">
-                &quot;E-postanı Doğrula&quot; veya &quot;Confirm your email&quot; bağlantısına tıkla
-              </p>
-            </div>
-            <div className="flex items-start gap-3 text-left">
-              <span className="flex-shrink-0 w-6 h-6 bg-white/25 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                3
-              </span>
-              <p className="text-sm text-white/90">
-                Doğrulamadan sonra profil bilgilerini tamamla
-              </p>
-            </div>
+          {/* 6 Haneli Kod Girişi */}
+          <div className="flex justify-center gap-2 mb-6" onPaste={handlePaste}>
+            {otp.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => { inputRefs.current[index] = el; }}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                disabled={verifyLoading}
+                className={`w-12 h-14 text-center text-2xl font-bold rounded-xl border-2 transition-all outline-none ${
+                  digit
+                    ? "border-white bg-white text-[#ff7a00]"
+                    : "border-white/40 bg-white/10 text-white placeholder-white/40"
+                } focus:border-white focus:bg-white focus:text-[#ff7a00] focus:scale-105 disabled:opacity-50`}
+              />
+            ))}
           </div>
 
-          {/* Tekrar gönder butonu */}
+          {/* Doğrula butonu */}
           <button
-            onClick={handleResend}
-            disabled={!canResend || resendLoading}
-            className={`w-full rounded-full py-2.5 text-sm font-semibold transition-all ${
-              canResend
+            onClick={() => handleVerify()}
+            disabled={verifyLoading || otp.some((d) => d === "")}
+            className={`w-full rounded-full py-3 text-sm font-bold transition-all ${
+              otp.every((d) => d !== "") && !verifyLoading
                 ? "bg-white text-[#ff7a00] hover:translate-y-[1px] shadow-lg"
                 : "bg-white/30 text-white/60 cursor-not-allowed"
             }`}
           >
-            {resendLoading
-              ? "Gönderiliyor..."
-              : canResend
-              ? "Doğrulama E-postasını Tekrar Gönder"
-              : `Tekrar gönder (${countdown}s)`}
+            {verifyLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Doğrulanıyor...
+              </span>
+            ) : (
+              "Doğrula ve Devam Et"
+            )}
           </button>
 
-          {resendMessage && (
-            <p className="mt-3 text-xs text-white/90">{resendMessage}</p>
+          {/* Mesaj */}
+          {message && (
+            <div
+              className={`mt-4 rounded-xl px-4 py-3 text-sm font-medium ${
+                messageType === "success"
+                  ? "bg-green-500/20 text-green-100"
+                  : "bg-red-500/20 text-red-100"
+              }`}
+            >
+              {message}
+            </div>
           )}
+
+          {/* Tekrar gönder butonu */}
+          <div className="mt-6">
+            <button
+              onClick={handleResend}
+              disabled={!canResend || resendLoading}
+              className={`text-sm font-semibold transition-all ${
+                canResend
+                  ? "text-white underline underline-offset-4 hover:text-white/80"
+                  : "text-white/50 cursor-not-allowed"
+              }`}
+            >
+              {resendLoading
+                ? "Gönderiliyor..."
+                : canResend
+                ? "Kodu tekrar gönder"
+                : `Tekrar gönder (${countdown}s)`}
+            </button>
+          </div>
 
           <div className="mt-6 space-y-2">
             <Link

@@ -9,15 +9,16 @@ const confirmationTemplate = `<div style="font-family: -apple-system, BlinkMacSy
     <h1 style="color: #ff7a00; font-size: 24px; margin: 0;">Paket Servisci</h1>
   </div>
   <div style="background: #f9f9f9; border-radius: 12px; padding: 30px; text-align: center;">
-    <h2 style="color: #333; font-size: 20px; margin-bottom: 16px;">E-postanı Doğrula</h2>
+    <h2 style="color: #333; font-size: 20px; margin-bottom: 16px;">E-posta Doğrulama Kodun</h2>
     <p style="color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
-      Paket Servisci'ye hoş geldin! Hesabını aktifleştirmek için aşağıdaki butona tıkla.
+      Paket Servisci'ye hoş geldin! Hesabını aktifleştirmek için aşağıdaki doğrulama kodunu kullan.
     </p>
-    <a href="{{ .ConfirmationURL }}" style="display: inline-block; background: #ff7a00; color: white; text-decoration: none; padding: 12px 32px; border-radius: 25px; font-weight: 600; font-size: 14px;">
-      E-postamı Doğrula
-    </a>
-    <p style="color: #999; font-size: 12px; margin-top: 24px;">
-      Bu bağlantı 1 saat geçerlidir. Eğer bu hesabı sen oluşturmadıysan bu e-postayı görmezden gelebilirsin.
+    <div style="background: #fff3e0; border: 2px dashed #ff7a00; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <p style="color: #999; font-size: 12px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Doğrulama Kodu</p>
+      <p style="color: #ff7a00; font-size: 32px; font-weight: 800; letter-spacing: 8px; margin: 0;">{{ .Token }}</p>
+    </div>
+    <p style="color: #999; font-size: 12px; margin-top: 16px;">
+      Bu kod 1 saat geçerlidir. Eğer bu hesabı sen oluşturmadıysan bu e-postayı görmezden gelebilirsin.
     </p>
   </div>
   <p style="color: #ccc; font-size: 11px; text-align: center; margin-top: 20px;">
@@ -47,7 +48,7 @@ const recoveryTemplate = `<div style="font-family: -apple-system, BlinkMacSystem
 </div>`;
 
 const body = JSON.stringify({
-  mailer_subjects_confirmation: "Paket Servisci - E-postanı Doğrula",
+  mailer_subjects_confirmation: "Paket Servisci - Doğrulama Kodunuz",
   mailer_subjects_recovery: "Paket Servisci - Şifre Sıfırlama",
   mailer_subjects_email_change: "Paket Servisci - E-posta Değişikliği Onayı",
   mailer_subjects_magic_link: "Paket Servisci - Giriş Bağlantısı",
