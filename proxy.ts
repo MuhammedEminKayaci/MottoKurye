@@ -1,23 +1,108 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Korumalı rotalar - sadece oturum açmış kullanıcılar erişebilir
-const PROTECTED_ROUTES = [
-  "/profil",
-  "/mesajlar",
-  "/ilanlarim",
-  "/profil/duzenle",
-];
+// ============================================================
+// RATE LIMITING - IP bazlı (in-memory, edge-compatible)
+// ============================================================
+const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 dakika
+const MAX_AUTH_REQUESTS = 5; // Dakikada max 5 auth isteği
+const MAX_API_REQUESTS = 30; // Dakikada max 30 API isteği
 
-// Auth sayfaları - zaten giriş yapmış kullanıcılar erişmemeli
-// Not: /kayit-ol dahil değil çünkü Google ile giriş yapan kullanıcıların profil oluşturması gerekebilir
-const AUTH_ROUTES = ["/giris", "/sifremi-unuttum"];
+function getRateLimitKey(ip: string, prefix: string): string {
+  return `${prefix}:${ip}`;
+}
+
+function isRateLimited(ip: string, prefix: string, maxRequests: number): boolean {
+  const key = getRateLimitKey(ip, prefix);
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+
+  if (!entry || now - entry.lastReset > RATE_LIMIT_WINDOW_MS) {
+    rateLimitMap.set(key, { count: 1, lastReset: now });
+    return false;
+  }
+
+  entry.count++;
+  if (entry.count > maxRequests) {
+    return true;
+  }
+
+  return false;
+}
+
+// Periyodik temizlik (memory leak önleme)
+if (typeof globalThis !== "undefined") {
+  const cleanup = () => {
+    const now = Date.now();
+    rateLimitMap.forEach((entry, key) => {
+      if (now - entry.lastReset > RATE_LIMIT_WINDOW_MS * 2) {
+        rateLimitMap.delete(key);
+      }
+    });
+  };
+  // Her 5 dakikada temizle
+  setInterval(cleanup, 5 * 60 * 1000);
+}
 
 export async function proxy(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
+  const response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
   });
 
+  // IP adresini al
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
+
+  const { pathname } = request.nextUrl;
+
+  // ============================================================
+  // RATE LIMITING - Auth endpoint'leri için sıkı kontrol
+  // ============================================================
+  const isAuthRoute =
+    pathname.startsWith("/giris") ||
+    pathname.startsWith("/kayit-ol") ||
+    pathname.startsWith("/sifre-sifirla") ||
+    pathname.startsWith("/sifremi-unuttum") ||
+    pathname.startsWith("/email-dogrulama") ||
+    pathname.startsWith("/auth/callback");
+
+  if (isAuthRoute && isRateLimited(ip, "auth", MAX_AUTH_REQUESTS)) {
+    return new NextResponse(
+      JSON.stringify({
+        error: "Çok fazla deneme. Lütfen 1 dakika sonra tekrar deneyin.",
+      }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": "60",
+        },
+      }
+    );
+  }
+
+  // API rate limiting
+  if (pathname.startsWith("/api") && isRateLimited(ip, "api", MAX_API_REQUESTS)) {
+    return new NextResponse(
+      JSON.stringify({ error: "İstek limiti aşıldı." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          "Retry-After": "60",
+        },
+      }
+    );
+  }
+
+  // ============================================================
+  // SUPABASE AUTH - Session yönetimi
+  // ============================================================
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -30,54 +115,55 @@ export async function proxy(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          supabaseResponse = NextResponse.next({
-            request,
-          });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            response.cookies.set(name, value, options)
           );
         },
       },
     }
   );
 
-  // Session'ı yenile (token refresh) - ÖNEMLİ: getUser kullan, getSession değil
+  // Session'ı yenile (CSRF token rotation)
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-  const hasSession = !!user;
+  // Korumalı route'lar - giriş yapmamış kullanıcıları yönlendir
+  const protectedRoutes = [
+    "/profil",
+    "/mesajlar",
+    "/ilanlarim",
+    "/kurye-bul",
+    "/isletme-bul",
+    "/ilanlar",
+  ];
 
-  // Korumalı sayfalara auth olmadan erişim engelle
-  const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
+  const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
 
-  if (isProtectedRoute && !hasSession) {
-    const loginUrl = new URL("/giris", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+  if (isProtectedRoute && !user) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/giris";
+    redirectUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(redirectUrl);
   }
 
-  // Zaten giriş yapmış kullanıcıları auth sayfalarından yönlendir
-  const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
-
-  if (isAuthRoute && hasSession) {
-    return NextResponse.redirect(new URL("/profil", request.url));
+  // Giriş yapmış kullanıcıyı auth sayfalarından yönlendir
+  if (isAuthRoute && user) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/";
+    return NextResponse.redirect(redirectUrl);
   }
 
-  return supabaseResponse;
+  return response;
 }
 
 export const config = {
   matcher: [
-    // Korumalı rotalar
-    "/profil/:path*",
-    "/mesajlar/:path*",
-    "/ilanlarim/:path*",
-    // Auth rotaları
-    "/giris",
-    "/sifremi-unuttum",
+    /*
+     * Statik dosyaları hariç tut
+     */
+    "/((?!_next/static|_next/image|favicon.ico|images/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

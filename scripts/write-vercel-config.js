@@ -1,0 +1,60 @@
+// Vercel CORS ve güvenlik ayarlarını yazar
+const fs = require('fs');
+const path = require('path');
+
+const projectDir = '/Users/eminkayaci07/Desktop/PROJELERİM/KuryeAppBeta-Version.0.0.1';
+
+// vercel.json - CORS ve güvenlik ayarları
+const vercelConfig = {
+  headers: [
+    {
+      source: "/api/(.*)",
+      headers: [
+        {
+          key: "Access-Control-Allow-Origin",
+          value: "https://motto-kurye-beta.vercel.app"
+        },
+        {
+          key: "Access-Control-Allow-Methods",
+          value: "GET,POST,PUT,DELETE,OPTIONS"
+        },
+        {
+          key: "Access-Control-Allow-Headers",
+          value: "Content-Type, Authorization"
+        },
+        {
+          key: "Access-Control-Max-Age",
+          value: "86400"
+        }
+      ]
+    },
+    {
+      source: "/(.*)",
+      headers: [
+        {
+          key: "X-Frame-Options",
+          value: "DENY"
+        },
+        {
+          key: "X-Content-Type-Options",
+          value: "nosniff"
+        },
+        {
+          key: "X-XSS-Protection",
+          value: "1; mode=block"
+        },
+        {
+          key: "Referrer-Policy",
+          value: "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ]
+};
+
+fs.writeFileSync(
+  path.join(projectDir, 'vercel.json'),
+  JSON.stringify(vercelConfig, null, 2),
+  'utf-8'
+);
+console.log('✅ vercel.json yazıldı (CORS kısıtlama + güvenlik başlıkları)');

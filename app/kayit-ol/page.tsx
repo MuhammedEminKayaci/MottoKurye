@@ -126,14 +126,16 @@ export default function KayitOlPage() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${baseUrl}/hosgeldiniz` },
+        options: {
+          emailRedirectTo: `${baseUrl}/auth/callback?role=${role}`,
+          data: { role },
+        },
       });
       if (error) throw error;
       if (data.user) {
-        setSessionUserId(data.user.id);
-        setSessionEmail(data.user.email ?? null);
-        setStage("profile");
-        setMessage("Hesap oluşturuldu. Profil bilgilerinizi tamamlayın.");
+        // Email doğrulama aktif — kullanıcıyı doğrulama sayfasına yönlendir
+        router.push(`/email-dogrulama?email=${encodeURIComponent(email)}`);
+        return;
       } else {
         setMessage("Bir hata oluştu. Lütfen tekrar deneyin.");
       }

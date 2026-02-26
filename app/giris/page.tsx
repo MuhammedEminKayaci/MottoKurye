@@ -2,17 +2,26 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
-export default function GirisPage() {
+function GirisContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "https://kurye-app-dusky.vercel.app";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  // URL'deki hata parametresini kontrol et
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error === "email-dogrulama-basarisiz") {
+      setMessage("E-posta doğrulama başarısız oldu. Lütfen tekrar deneyin.");
+    }
+  }, [searchParams]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +29,15 @@ export default function GirisPage() {
     try {
       setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (error) {
+        // Email doğrulanmamış kullanıcı için özel mesaj
+        if (error.message?.toLowerCase().includes("email not confirmed")) {
+          setMessage("E-posta adresiniz henüz doğrulanmamış. Lütfen e-posta kutunuzu kontrol edin.");
+          setLoading(false);
+          return;
+        }
+        throw error;
+      }
       // Profile check for redirect logic
       const { data: sessionData } = await supabase.auth.getSession();
       const uid = sessionData.session?.user?.id;
@@ -119,5 +136,17 @@ export default function GirisPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function GirisPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-dvh flex items-center justify-center bg-[#ff7a00]">
+        <p className="text-white">Yükleniyor...</p>
+      </main>
+    }>
+      <GirisContent />
+    </Suspense>
   );
 }
