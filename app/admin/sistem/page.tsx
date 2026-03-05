@@ -70,7 +70,10 @@ export default function SystemPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/admin?action=system");
-      if (!res.ok) throw new Error("Sistem verisi alınamadı");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `API Hatası: ${res.status} ${res.statusText}`);
+      }
       const json = await res.json();
       setData(json);
       setError(null);

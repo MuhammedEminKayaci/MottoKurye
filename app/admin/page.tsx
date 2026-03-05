@@ -66,12 +66,16 @@ export default function AdminDashboard() {
   const fetchDashboard = useCallback(async () => {
     try {
       const res = await fetch("/api/admin?action=dashboard");
-      if (!res.ok) throw new Error("Dashboard verisi alınamadı");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `API Hatası: ${res.status} ${res.statusText}`);
+      }
       const json = await res.json();
       setData(json);
       setError(null);
     } catch (err: any) {
-      setError(err.message);
+      console.error("Dashboard fetch error:", err);
+      setError(err.message || "Dashboard verisi alınamadı");
     } finally {
       setLoading(false);
     }

@@ -10,8 +10,13 @@ const ADMIN_EMAILS = [
 ];
 
 async function verifyAdmin() {
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.error("Admin API: SUPABASE_URL or ANON_KEY not set");
+    return null;
+  }
 
   const cookieStore = await cookies();
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -24,28 +29,46 @@ async function verifyAdmin() {
   });
 
   const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) return null;
-  if (!ADMIN_EMAILS.includes(user.email || "")) return null;
+  if (error) {
+    console.error("Admin API: Auth error:", error.message);
+    return null;
+  }
+  if (!user) {
+    console.error("Admin API: No user found in session");
+    return null;
+  }
+  if (!ADMIN_EMAILS.includes(user.email || "")) {
+    console.error("Admin API: User not in admin list:", user.email);
+    return null;
+  }
   return user;
 }
 
 function getAdminClient() {
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!SUPABASE_URL) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL environment variable is not set");
+  }
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY environment variable is not set. Add it to Vercel Environment Variables.");
+  }
+
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
 
 export async function GET(req: NextRequest) {
-  const admin = await verifyAdmin();
-  if (!admin) return NextResponse.json({ error: "Yetkisiz erişim" }, { status: 403 });
-
-  const { searchParams } = new URL(req.url);
-  const action = searchParams.get("action");
-  const db = getAdminClient();
-
   try {
+    const admin = await verifyAdmin();
+    if (!admin) return NextResponse.json({ error: "Yetkisiz erişim. Lütfen admin olarak giriş yapın." }, { status: 403 });
+
+    const { searchParams } = new URL(req.url);
+    const action = searchParams.get("action");
+    const db = getAdminClient();
+
     switch (action) {
       case "dashboard": {
         // Genel istatistikler

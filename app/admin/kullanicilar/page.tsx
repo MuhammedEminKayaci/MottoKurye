@@ -21,10 +21,17 @@ export default function UsersPage() {
     try {
       const params = new URLSearchParams({ action: "users", type: tab, page: page.toString(), search });
       const res = await fetch(`/api/admin?${params}`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error("Users API error:", errData.error || res.statusText);
+        setData([]);
+        return;
+      }
       const json = await res.json();
       setData(json.data || []);
       setTotal(json.total || 0);
-    } catch {
+    } catch (err) {
+      console.error("Users fetch error:", err);
       setData([]);
     } finally {
       setLoading(false);

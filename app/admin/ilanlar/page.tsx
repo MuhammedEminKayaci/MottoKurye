@@ -19,10 +19,17 @@ export default function ListingsPage() {
     try {
       const params = new URLSearchParams({ action: "listings", type: tab, page: page.toString() });
       const res = await fetch(`/api/admin?${params}`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error("Listings API error:", errData.error || res.statusText);
+        setData([]);
+        return;
+      }
       const json = await res.json();
       setData(json.data || []);
       setTotal(json.total || 0);
-    } catch {
+    } catch (err) {
+      console.error("Listings fetch error:", err);
       setData([]);
     } finally {
       setLoading(false);

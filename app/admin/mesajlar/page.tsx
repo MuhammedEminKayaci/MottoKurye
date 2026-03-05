@@ -17,10 +17,17 @@ export default function MessagesPage() {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin?action=messages&page=${page}`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.error("Messages API error:", errData.error || res.statusText);
+        setConversations([]);
+        return;
+      }
       const json = await res.json();
       setConversations(json.data || []);
       setTotal(json.total || 0);
-    } catch {
+    } catch (err) {
+      console.error("Messages fetch error:", err);
       setConversations([]);
     } finally {
       setLoading(false);
