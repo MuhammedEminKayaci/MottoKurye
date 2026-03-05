@@ -17,7 +17,7 @@ interface BusinessData {
   district: string[];
   working_type: string;
   earning_model: string;
-  working_days: string[];
+  working_days: string;
   daily_package_estimate: string;
   contact_preference: 'phone' | 'in_app' | 'both';
   avatar_url?: string | null;
@@ -37,7 +37,13 @@ const businessSectors = [
   "Otomotiv ve Yedek Parça",
 ];
 
-const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+// İsim formatlama: her kelimenin ilk harfi büyük, geri kalanı küçük
+const formatName = (name: string): string => {
+  return name
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
 
 // Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
 const formatPhoneNumber = (value: string): string => {
@@ -79,11 +85,27 @@ export default function IsletmeDuzenlePage() {
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
 
   const avatarOptions = [
-    "/images/avatars/isletme/avatar1.svg",
-    "/images/avatars/isletme/avatar2.svg",
-    "/images/avatars/isletme/avatar3.svg",
-    "/images/avatars/isletme/avatar4.svg",
+    "/images/avatars/isletme/butik.png",
+    "/images/avatars/isletme/cicekci.png",
+    "/images/avatars/isletme/eczane-medikal.png",
+    "/images/avatars/isletme/kargo.png",
+    "/images/avatars/isletme/kurumsal.png",
+    "/images/avatars/isletme/teknoloji.png",
+    "/images/avatars/isletme/yeme-icme.png",
   ];
+
+  const sectorAvatarMap: Record<string, string> = {
+    "E-Ticaret ve Online Satış Firmaları": "/images/avatars/isletme/kargo.png",
+    "Moda, Tekstil ve Aksesuar": "/images/avatars/isletme/butik.png",
+    "Kurumsal ve Ofis Hizmetleri": "/images/avatars/isletme/kurumsal.png",
+    "Finans - Bankacılık - Sigorta": "/images/avatars/isletme/kurumsal.png",
+    "Yeme-İçme": "/images/avatars/isletme/yeme-icme.png",
+    "Sağlık ve Medikal": "/images/avatars/isletme/eczane-medikal.png",
+    "Teknoloji ve Elektronik": "/images/avatars/isletme/teknoloji.png",
+    "Lojistik ve Depolama": "/images/avatars/isletme/kargo.png",
+    "Çiçek & Hediyeli Eşya": "/images/avatars/isletme/cicekci.png",
+    "Otomotiv ve Yedek Parça": "/images/avatars/isletme/kargo.png",
+  };
   const [formData, setFormData] = useState<Partial<BusinessData>>({});
 
   useEffect(() => {
@@ -107,14 +129,8 @@ export default function IsletmeDuzenlePage() {
         if (fetchError) throw fetchError;
         if (!data) throw new Error('İşletme profili bulunamadı');
 
-        // Parse working_days if it's a string
-        let workingDays = data.working_days;
-        if (typeof workingDays === 'string') {
-          workingDays = workingDays.split(',').map((d: string) => d.trim());
-        }
-
-        setBusiness({ ...data, working_days: workingDays });
-        setFormData({ ...data, working_days: workingDays });
+        setBusiness({ ...data });
+        setFormData({ ...data });
         setAvatarPreview(data.avatar_url);
         setIsLookingForCourier(data.seeking_couriers ?? true);
       } catch (err) {
@@ -152,17 +168,6 @@ export default function IsletmeDuzenlePage() {
     }));
   };
 
-  const handleWorkingDaysChange = (day: string) => {
-    setFormData(prev => {
-      const currentDays = Array.isArray(prev.working_days) ? prev.working_days : [];
-      if (currentDays.includes(day)) {
-        return { ...prev, working_days: currentDays.filter(d => d !== day) };
-      } else {
-        return { ...prev, working_days: [...currentDays, day] };
-      }
-    });
-  };
-
   const handleSave = async () => {
     try {
       setError(null);
@@ -180,8 +185,8 @@ export default function IsletmeDuzenlePage() {
         setSaving(false);
         return;
       }
-      if ((formData.contact_preference === 'phone' || formData.contact_preference === 'both') && !formData.manager_contact?.trim()) {
-        setError('Telefon tercihini seçtiyseniz telefon numarası gereklidir');
+      if (!formData.manager_contact?.trim()) {
+        setError('Telefon numarası gereklidir');
         setSaving(false);
         return;
       }
@@ -209,8 +214,8 @@ export default function IsletmeDuzenlePage() {
       const updateData: any = {
         business_name: formData.business_name,
         business_sector: formData.business_sector,
-        manager_name: formData.manager_name,
-        manager_contact: (formData.contact_preference === 'phone' || formData.contact_preference === 'both') ? formData.manager_contact : null,
+        manager_name: formatName(formData.manager_name || ''),
+        manager_contact: formData.manager_contact || '',
         province: formData.province,
         district: formData.district,
         working_type: formData.working_type,
@@ -348,22 +353,28 @@ export default function IsletmeDuzenlePage() {
                     </div>
                     
                     <div>
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">Veya Avatar Seç</label>
-                        <div className="flex gap-4 overflow-x-auto py-2">
-                            {avatarOptions.map((opt, idx) => (
-                                <button
-                                    key={idx}
-                                    type="button"
-                                    onClick={() => {
-                                        setAvatarFile(null);
-                                        setSelectedAvatar(opt);
-                                        setAvatarPreview(opt);
-                                    }}
-                                    className={`w-12 h-12 rounded-full border-2 overflow-hidden shrink-0 transition-transform hover:scale-110 ${selectedAvatar === opt || (!avatarFile && avatarPreview === opt) ? 'border-[#ff7a00] ring-2 ring-[#ff7a00]/30' : 'border-neutral-200'}`}
-                                >
-                                    <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
-                                </button>
-                            ))}
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">Veya Sektör Avatarı Seç</label>
+                        <div className="flex flex-wrap gap-4 py-2">
+                            {avatarOptions.map((opt, idx) => {
+                                const label = opt.split('/').pop()?.replace('.png', '').replace(/-/g, ' ').toUpperCase() || '';
+                                return (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => {
+                                            setAvatarFile(null);
+                                            setSelectedAvatar(opt);
+                                            setAvatarPreview(opt);
+                                        }}
+                                        className={`flex flex-col items-center gap-1 shrink-0 transition-transform hover:scale-110`}
+                                    >
+                                        <div className={`w-12 h-12 rounded-full border-2 overflow-hidden ${selectedAvatar === opt || (!avatarFile && avatarPreview === opt) ? 'border-[#ff7a00] ring-2 ring-[#ff7a00]/30' : 'border-neutral-200'}`}>
+                                            <img src={opt} alt={label} className="w-full h-full object-cover" />
+                                        </div>
+                                        <span className="text-[9px] text-neutral-500 max-w-[56px] text-center leading-tight truncate">{label}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -457,15 +468,15 @@ export default function IsletmeDuzenlePage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                  Telefon Numarası {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && <span className="text-red-500">*</span>}
+                  Telefon Numarası <span className="text-red-500">*</span>
+                  <span className="text-xs text-neutral-500 font-normal ml-1">(bilgi amaçlı alınır)</span>
                 </label>
                 <input
                   type="tel"
                   name="manager_contact"
                   value={formData.manager_contact || '0'}
                   onChange={(e) => setFormData(prev => ({ ...prev, manager_contact: formatPhoneNumber(e.target.value) }))}
-                  disabled={formData.contact_preference === 'in_app'}
-                  className={`w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white ${formData.contact_preference === 'in_app' ? '!bg-neutral-100 cursor-not-allowed opacity-60' : ''}`}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                   placeholder="0 (5XX) XXX XX XX"
                 />
               </div>
@@ -558,9 +569,9 @@ export default function IsletmeDuzenlePage() {
                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
                 >
                   <option value="">Seçiniz</option>
-                  <option value="Saat+Paket Başı">Saat+Paket Başı</option>
-                  <option value="Paket Başı">Paket Başı</option>
-                  <option value="Aylık Sabit">Aylık Sabit</option>
+                  <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                  <option value="Esnaf Kurye - Aylık Sabit">Esnaf Kurye - Aylık Sabit</option>
+                  <option value="Sigortalı - Aylık Sabit">Sigortalı - Aylık Sabit</option>
                 </select>
               </div>
               <div>
@@ -585,25 +596,18 @@ export default function IsletmeDuzenlePage() {
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
                   Çalışma Günleri <span className="text-red-500">*</span>
                 </label>
-                <div className="flex flex-wrap gap-2 h-[80px] items-center">
-                  {days.map(day => {
-                    const isSelected = Array.isArray(formData.working_days) && formData.working_days.includes(day);
-                    return (
-                      <button
-                        key={day}
-                        type="button"
-                        onClick={() => handleWorkingDaysChange(day)}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all ${
-                          isSelected
-                            ? 'bg-[#ff7a00] text-white border-[#ff7a00]'
-                            : 'bg-white text-neutral-700 border-neutral-300 hover:border-[#ff7a00]'
-                        }`}
-                      >
-                        {day.slice(0, 3)}
-                      </button>
-                    );
-                  })}
-                </div>
+                <select
+                  name="working_days"
+                  value={typeof formData.working_days === 'string' ? formData.working_days : ''}
+                  onChange={handleInputChange}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white cursor-pointer appearance-none"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="İzinsiz">İzinsiz</option>
+                  <option value="Haftanın 1 Günü İzin">Haftanın 1 Günü İzin</option>
+                  <option value="Haftanın 2 Günü İzin">Haftanın 2 Günü İzin</option>
+                </select>
               </div>
             </div>
           </div>

@@ -14,14 +14,14 @@ const courierSchema = z.object({
   age: z.number().int().min(18, "18 yaşından büyük olmalısınız").max(80, "Geçerli yaş girin"),
   gender: z.enum(["Erkek", "Kadın"]),
   nationality: z.string().min(1, "Uyruk seçin"),
-  phone: z.string().optional(),
+  phone: z.string().min(10, "Telefon numarası gerekli"),
   contactPreference: z.enum(["in_app", "phone", "both"]),
   experience: z.enum(["0-1", "1-3", "3-5", "5-10", "10+"]),
   province: z.string().min(1, "İl seçin"),
   district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
   workingType: z.enum(["Full Time", "Part Time"]),
-  earningModel: z.enum(["Saat+Paket Başı", "Paket Başı", "Aylık Sabit"]),
-  workingDays: z.array(z.string()).min(1, "En az bir gün seçin"),
+  earningModel: z.enum(["Esnaf Kurye - Saatlik Ücret + Paket Başı", "Esnaf Kurye - Aylık Sabit", "Sigortalı - Aylık Sabit"]),
+  workingDays: z.enum(["İzinsiz", "Haftanın 1 Günü İzin", "Haftanın 2 Günü İzin"]),
   dailyPackageEstimate: z.enum(["0-15 PAKET", "15-25 PAKET", "25-40 PAKET", "40 VE ÜZERİ"]),
   licenseType: z.enum(["A1", "A", "A2"]),
   hasMotorcycle: z.enum(["VAR", "YOK"]),
@@ -41,15 +41,6 @@ const courierSchema = z.object({
   avatarFile: z.any().optional(),
   selectedAvatar: z.string().optional(),
 }).superRefine((val, ctx) => {
-  if (val.contactPreference === "phone" || val.contactPreference === "both") {
-    if (!val.phone || val.phone.trim().length < 10) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Telefon gerekli",
-        path: ["phone"],
-      });
-    }
-  }
   const validateFile = (fileList: FileList | undefined | null, field: "p1CertificateFile" | "srcCertificateFile" | "criminalRecordFile") => {
     if (!fileList || (fileList as any).length === 0) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Belge yüklemek zorunlu", path: [field] });
@@ -81,7 +72,7 @@ export interface CourierFormProps {
   disabled?: boolean;
 }
 
-const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+const workingDaysOptions = ["İzinsiz", "Haftanın 1 Günü İzin", "Haftanın 2 Günü İzin"];
 
 // Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
 const formatPhoneNumber = (value: string): string => {
@@ -127,9 +118,9 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
       district: [],
       nationality: "Türk Vatandaşı",
       workingType: "Full Time",
-      earningModel: "Saat+Paket Başı",
+      earningModel: "Esnaf Kurye - Saatlik Ücret + Paket Başı",
       dailyPackageEstimate: "15-25 PAKET",
-      workingDays: ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"],
+      workingDays: "İzinsiz",
       hasMotorcycle: "VAR",
       hasBag: "VAR",
       licenseType: "A",
@@ -329,7 +320,7 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
             {contactPreference === "in_app" && (
               <p className="text-[10px] mt-1.5 flex items-center gap-1 bg-white/90 text-neutral-800 px-2 py-1 rounded-lg">
                 <svg className="w-3 h-3 flex-shrink-0 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                Bu seçenekte telefon numaranız gerekmez, işletmeler size uygulama içi mesaj yoluyla ulaşacaktır.
+                İşletmeler size uygulama içi mesaj yoluyla ulaşacaktır. Telefon numaranız bilgi amaçlı alınmaktadır.
               </p>
             )}
             {(contactPreference === "phone" || contactPreference === "both") && (
@@ -339,9 +330,8 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
               </p>
             )}
           </div>
-          {(contactPreference === "phone" || contactPreference === "both") && (
-            <div>
-              <label className="block text-xs font-medium text-white mb-1">Telefon *</label>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Telefon *</label>
               <Controller
                 name="phone"
                 control={control}
@@ -357,7 +347,6 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
               />
               {errors.phone && <p className="text-[10px] text-red-200 mt-1">{errors.phone.message}</p>}
             </div>
-          )}
         </div>
       </div>
 
@@ -413,9 +402,9 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
           <div>
             <label className="block text-xs font-medium text-white mb-1">Kazanç Modeli *</label>
             <select className="input-field text-sm" {...register("earningModel")}>
-              <option value="Saat+Paket Başı">Saat + Paket Başı</option>
-              <option value="Paket Başı">Paket Başı</option>
-              <option value="Aylık Sabit">Aylık Sabit</option>
+              <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+              <option value="Esnaf Kurye - Aylık Sabit">Esnaf Kurye - Aylık Sabit</option>
+              <option value="Sigortalı - Aylık Sabit">Sigortalı - Aylık Sabit</option>
             </select>
           </div>
           <div className="sm:col-span-2">
@@ -431,14 +420,11 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
 
         <div>
           <label className="block text-xs font-medium text-white mb-2">Çalışma Günleri *</label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {days.map(day => (
-              <label key={day} className="flex items-center gap-1.5 text-xs text-white bg-white/10 rounded px-2 py-1.5">
-                <input type="checkbox" value={day} {...register("workingDays")} className="accent-[#ff7a00]" />
-                <span>{day}</span>
-              </label>
+          <select className="input-field text-sm" {...register("workingDays")}>
+            {workingDaysOptions.map(opt => (
+              <option key={opt} value={opt}>{opt}</option>
             ))}
-          </div>
+          </select>
           {errors.workingDays && <p className="text-[10px] text-red-200 mt-1">{errors.workingDays.message}</p>}
         </div>
       </div>
@@ -466,11 +452,36 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
             <>
               <div>
                 <label className="block text-xs font-medium text-white mb-1">Motorsiklet Marka</label>
-                <input className="input-field text-sm" {...register("motoBrand")} placeholder="Yamaha, Honda..." />
+                <Controller
+                  name="motoBrand"
+                  control={control}
+                  render={({ field }) => (
+                    <input 
+                      className="input-field text-sm" 
+                      value={field.value || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const formatted = val.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+                        field.onChange(formatted);
+                      }}
+                      placeholder="Yamaha, Honda..." 
+                    />
+                  )}
+                />
               </div>
               <div>
                 <label className="block text-xs font-medium text-white mb-1">Motorsiklet CC</label>
-                <input className="input-field text-sm" {...register("motoCc")} placeholder="125, 150..." />
+                <select className="input-field text-sm" {...register("motoCc")}>
+                  <option value="">Seçiniz</option>
+                  <option value="50">50 CC</option>
+                  <option value="125">125 CC</option>
+                  <option value="150">150 CC</option>
+                  <option value="200">200 CC</option>
+                  <option value="250">250 CC</option>
+                  <option value="400">400 CC</option>
+                  <option value="450">450 CC</option>
+                  <option value="500">500 CC</option>
+                </select>
               </div>
             </>
           )}

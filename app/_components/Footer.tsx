@@ -9,7 +9,7 @@ export function Footer() {
           <div className="flex items-center mb-4 md:mb-0">
             <Image
               src="/images/paketservisci.png"
-              alt="PaketServisi Logo"
+              alt="PaketServisci Logo"
               width={300}
               height={80}
               className="object-contain"

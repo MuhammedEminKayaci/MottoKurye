@@ -99,7 +99,7 @@ export function PublicHeader() {
         <button onClick={handleLogoClick} aria-label="Ana Sayfa" className="flex items-center">
           <Image
             src="/images/paketservisci.png"
-            alt="PaketServisi Logo"
+            alt="PaketServisci Logo"
             width={300}
             height={80}
             priority

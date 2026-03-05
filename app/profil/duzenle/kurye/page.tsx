@@ -21,7 +21,7 @@ interface CourierData {
   working_type: string;
   earning_model: string;
   daily_package_estimate: string;
-  working_days: string[];
+  working_days: string;
   license_type: string;
   has_motorcycle: string;
   moto_brand: string | null;
@@ -38,7 +38,18 @@ interface CourierData {
   is_accepting_offers?: boolean;
 }
 
-const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+// İsim formatlama: her kelimenin ilk harfi büyük, geri kalanı küçük
+const formatName = (name: string): string => {
+  return name
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+// Marka formatlama: ilk harf büyük
+const formatBrand = (brand: string): string => {
+  return brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase();
+};
 
 // Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
 const formatPhoneNumber = (value: string): string => {
@@ -127,14 +138,8 @@ export default function KuryeDuzenlePage() {
         if (fetchError) throw fetchError;
         if (!data) throw new Error('Kurye profili bulunamadı');
 
-        // Parse working_days if it's a string
-        let workingDays = data.working_days;
-        if (typeof workingDays === 'string') {
-          workingDays = workingDays.split(',').map((d: string) => d.trim());
-        }
-
-        setCourier({ ...data, working_days: workingDays });
-        setFormData({ ...data, working_days: workingDays });
+        setCourier({ ...data });
+        setFormData({ ...data });
         setAvatarPreview(data.avatar_url);
         setIsAcceptingOffers(data.is_accepting_offers ?? true);
         
@@ -252,17 +257,6 @@ export default function KuryeDuzenlePage() {
     }));
   };
 
-  const handleWorkingDaysChange = (day: string) => {
-    setFormData(prev => {
-      const currentDays = Array.isArray(prev.working_days) ? prev.working_days : [];
-      if (currentDays.includes(day)) {
-        return { ...prev, working_days: currentDays.filter(d => d !== day) };
-      } else {
-        return { ...prev, working_days: [...currentDays, day] };
-      }
-    });
-  };
-
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -374,15 +368,13 @@ export default function KuryeDuzenlePage() {
       }
 
       const updateData: any = {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
+        first_name: formatName(formData.first_name || ''),
+        last_name: formatName(formData.last_name || ''),
         age: formData.age,
         gender: formData.gender,
         nationality: formData.nationality,
         avatar_url: finalAvatarUrl,
-        phone: (formData.contact_preference === 'phone' || formData.contact_preference === 'both') 
-          ? (formData.phone || '') 
-          : '',
+        phone: formData.phone || '',
         experience: formData.experience,
         province: formData.province,
         district: formData.district,
@@ -392,7 +384,7 @@ export default function KuryeDuzenlePage() {
         working_days: formData.working_days,
         license_type: formData.license_type,
         has_motorcycle: formData.has_motorcycle,
-        moto_brand: formData.has_motorcycle === 'VAR' ? formData.moto_brand : null,
+        moto_brand: formData.has_motorcycle === 'VAR' ? formatBrand(formData.moto_brand || '') : null,
         moto_cc: formData.has_motorcycle === 'VAR' ? formData.moto_cc : null,
         has_bag: formData.has_bag,
         p1_certificate: formData.p1_certificate,
@@ -658,21 +650,20 @@ export default function KuryeDuzenlePage() {
                   </p>
                 )}
               </div>
-              {(formData.contact_preference === 'phone' || formData.contact_preference === 'both') && (
-                <div>
-                  <label className="block text-sm font-semibold text-neutral-900 mb-2">
-                    Telefon <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone || '0'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))}
-                    className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                    placeholder="0 (5XX) XXX XX XX"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-semibold text-neutral-900 mb-2">
+                  Telefon <span className="text-red-500">*</span>
+                  <span className="text-xs text-neutral-500 font-normal ml-1">(bilgi amaçlı alınır)</span>
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone || '0'}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
+                  placeholder="0 (5XX) XXX XX XX"
+                />
+              </div>
             </div>
           </div>
 
@@ -762,9 +753,9 @@ export default function KuryeDuzenlePage() {
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
                 >
                   <option value="">Seçiniz</option>
-                  <option value="Saat+Paket Başı">Saat + Paket Başı</option>
-                  <option value="Paket Başı">Paket Başı</option>
-                  <option value="Aylık Sabit">Aylık Sabit</option>
+                  <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                  <option value="Esnaf Kurye - Aylık Sabit">Esnaf Kurye - Aylık Sabit</option>
+                  <option value="Sigortalı - Aylık Sabit">Sigortalı - Aylık Sabit</option>
                 </select>
               </div>
               <div className="sm:col-span-2">
@@ -788,25 +779,17 @@ export default function KuryeDuzenlePage() {
                 <label className="block text-sm font-semibold text-neutral-900 mb-2">
                   Çalışma Günleri <span className="text-red-500">*</span>
                 </label>
-                <div className="flex flex-wrap gap-2 min-h-[80px] items-center p-3 border border-neutral-300 rounded-lg bg-white">
-                  {days.map(day => {
-                    const isSelected = Array.isArray(formData.working_days) && formData.working_days.includes(day);
-                    return (
-                      <button
-                        key={day}
-                        type="button"
-                        onClick={() => handleWorkingDaysChange(day)}
-                        className={`h-[40px] px-4 text-sm font-medium rounded-lg border transition-all ${
-                          isSelected
-                            ? 'bg-[#ff7a00] text-white border-[#ff7a00]'
-                            : 'bg-white text-neutral-700 border-neutral-300 hover:border-[#ff7a00]'
-                        }`}
-                      >
-                        {day}
-                      </button>
-                    );
-                  })}
-                </div>
+                <select
+                  name="working_days"
+                  value={formData.working_days || ''}
+                  onChange={handleInputChange}
+                  className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="İzinsiz">İzinsiz</option>
+                  <option value="Haftanın 1 Günü İzin">Haftanın 1 Günü İzin</option>
+                  <option value="Haftanın 2 Günü İzin">Haftanın 2 Günü İzin</option>
+                </select>
               </div>
             </div>
           </div>
@@ -895,14 +878,22 @@ export default function KuryeDuzenlePage() {
                     <label className="block text-sm font-semibold text-neutral-900 mb-2">
                       Motorsiklet CC
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="moto_cc"
                       value={formData.moto_cc || ''}
                       onChange={handleInputChange}
-                      className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition"
-                      placeholder="125, 150..."
-                    />
+                      className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
+                    >
+                      <option value="">Seçiniz</option>
+                      <option value="50">50 CC</option>
+                      <option value="125">125 CC</option>
+                      <option value="150">150 CC</option>
+                      <option value="200">200 CC</option>
+                      <option value="250">250 CC</option>
+                      <option value="400">400 CC</option>
+                      <option value="450">450 CC</option>
+                      <option value="500">500 CC</option>
+                    </select>
                   </div>
                 </>
               )}

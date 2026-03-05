@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
+import { PlanType, PLAN_LIMITS, isUnlimited } from "@/lib/planLimits";
 
 interface Message {
   id: string;
@@ -24,6 +25,7 @@ export function ChatWindow({ conversationId, currentUserId, currentUserRole }: C
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [clearedAt, setClearedAt] = useState<string | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Fetch initial messages and subscribe
@@ -128,6 +130,50 @@ export function ChatWindow({ conversationId, currentUserId, currentUserRole }: C
 
     setSending(true);
     try {
+      // İşletme ise mesaj hakkı kontrolü yap
+      if (currentUserRole !== 'kurye') {
+        const { data: bizData } = await supabase
+          .from('businesses')
+          .select('plan, messages_sent_total, plan_updated_at')
+          .eq('user_id', currentUserId)
+          .maybeSingle();
+
+        if (bizData) {
+          const plan = (bizData.plan as PlanType) || 'free';
+          const planLimits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+          let messagesSent = bizData.messages_sent_total || 0;
+
+          // Standard plan için aylık sıfırlama kontrolü
+          if (plan === 'standard' && bizData.plan_updated_at) {
+            const now = new Date();
+            const planUpdatedAt = new Date(bizData.plan_updated_at);
+            const monthsSince = (now.getFullYear() - planUpdatedAt.getFullYear()) * 12 + (now.getMonth() - planUpdatedAt.getMonth());
+            if (monthsSince >= 1) {
+              messagesSent = 0;
+              // Sayacı sıfırla ve plan_updated_at güncelle
+              await supabase
+                .from('businesses')
+                .update({ messages_sent_total: 0, plan_updated_at: new Date().toISOString() })
+                .eq('user_id', currentUserId);
+            }
+          }
+
+          const messagesLeft = planLimits.totalMessageLimit - messagesSent;
+
+          if (!isUnlimited(planLimits.totalMessageLimit) && messagesLeft <= 0) {
+            setLimitReached(true);
+            setSending(false);
+            return;
+          }
+
+          // Mesaj sayacını artır
+          await supabase
+            .from('businesses')
+            .update({ messages_sent_total: messagesSent + 1 })
+            .eq('user_id', currentUserId);
+        }
+      }
+
       const { error } = await supabase
         .from('messages')
         .insert({
@@ -260,6 +306,12 @@ export function ChatWindow({ conversationId, currentUserId, currentUserRole }: C
 
       {/* Input Area */}
       <div className="p-3 md:p-4 bg-white/80 backdrop-blur-md border-t border-neutral-100 safe-area-bottom">
+        {limitReached && (
+          <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-center">
+            <p className="text-sm text-red-700 font-medium">Mesaj hakkınız doldu!</p>
+            <a href="/ucret-planlari" className="text-sm text-orange-600 underline font-semibold">Planınızı yükseltin</a>
+          </div>
+        )}
         <form 
           className="flex items-end gap-2 md:gap-3 w-full"
           onSubmit={handleSend}

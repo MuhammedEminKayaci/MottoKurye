@@ -7,18 +7,26 @@ import { supabase } from "../../lib/supabase";
 
 type UserRole = "kurye" | "isletme" | null;
 
+const ADMIN_EMAILS = ["eminkayaci07@gmail.com"];
+
 export function RoleHeader() {
   const router = useRouter();
   const [role, setRole] = useState<UserRole>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const detectAndFetchMessages = async () => {
       const { data } = await supabase.auth.getSession();
       const uid = data.session?.user?.id;
       if (!uid) return;
+
+      // Admin kontrolü
+      const email = data.session?.user?.email;
+      if (email && ADMIN_EMAILS.includes(email)) setIsAdmin(true);
+
       const { data: c } = await supabase.from("couriers").select("id").eq("user_id", uid).limit(1);
       if (c && c.length) { setRole("kurye"); }
       else {
@@ -113,6 +121,7 @@ export function RoleHeader() {
     { label: "Profilim", href: "/profil" },
     { label: "İlanlar", href: "/ilanlar" },
     { label: "Mesajlar", href: "/mesajlar" },
+    ...(isAdmin ? [{ label: "⚙ Yönetim", href: "/admin" }] : []),
   ];
   
   const businessNav = [
@@ -121,6 +130,7 @@ export function RoleHeader() {
     { label: "İlanlar", href: "/ilanlar" },
     { label: "Mesajlar", href: "/mesajlar" },
     { label: "Ücret Planları", href: "/ucret-planlari" },
+    ...(isAdmin ? [{ label: "⚙ Yönetim", href: "/admin" }] : []),
   ];
 
   const navItems = role === "kurye" ? courierNav : role === "isletme" ? businessNav : courierNav;
@@ -136,7 +146,7 @@ export function RoleHeader() {
         <button onClick={handleLogoClick} aria-label="Ana Sayfa" className="flex items-center">
           <Image
             src="/images/paketservisci.png"
-            alt="PaketServisi Logo"
+            alt="PaketServisci Logo"
             width={300}
             height={80}
             priority

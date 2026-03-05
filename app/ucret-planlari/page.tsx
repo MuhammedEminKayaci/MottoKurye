@@ -69,6 +69,7 @@ export default function UcretPlanlariPage() {
       name: "1. PAKET",
       planKey: "free" as PlanType,
       price: "Ücretsiz",
+      originalPrice: null,
       priceColor: "text-[#ff7a00]",
       features: [
         "Sınırsız ilan verme",
@@ -84,7 +85,8 @@ export default function UcretPlanlariPage() {
       id: 2,
       name: "2. PAKET",
       planKey: "standard" as PlanType,
-      price: "200 TL",
+      price: "Ücretsiz",
+      originalPrice: "200 TL",
       priceColor: "text-[#ff7a00]",
       features: [
         "Sınırsız ilan verme",
@@ -93,14 +95,15 @@ export default function UcretPlanlariPage() {
         "Sadece uygulama içi mesajlaşma"
       ],
       popular: true,
-      buttonText: "Satın Al",
+      buttonText: "Ücretsiz Başla",
       buttonStyle: "bg-[#ff7a00] text-white hover:bg-[#ff6a00] border-2 border-[#ff7a00]"
     },
     {
       id: 3,
       name: "3. PAKET",
       planKey: "premium" as PlanType,
-      price: "275 TL",
+      price: "Ücretsiz",
+      originalPrice: "275 TL",
       priceColor: "text-[#ff7a00]",
       features: [
         "Sınırsız ilan verme",
@@ -110,7 +113,7 @@ export default function UcretPlanlariPage() {
         "Kurye tarafından görüntülenme ve iletişim kurma talebi alma"
       ],
       popular: false,
-      buttonText: "Satın Al",
+      buttonText: "Ücretsiz Başla",
       buttonStyle: "bg-white text-black border-2 border-black hover:bg-black hover:text-white"
     }
   ];
@@ -126,9 +129,16 @@ export default function UcretPlanlariPage() {
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-neutral-900 mb-4">
               İşletme Ücret Planları
             </h1>
-            <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
+            <p className="text-lg text-neutral-600 max-w-2xl mx-auto mb-6">
               İşletmeniz için en uygun paketi seçin ve kurye bulmayı kolaylaştırın.
             </p>
+            {/* Test Dönemi Banner */}
+            <div className="inline-flex items-center gap-2 bg-green-50 border-2 border-green-300 text-green-700 px-6 py-3 rounded-full text-sm md:text-base font-bold shadow-sm">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+              </svg>
+              🎉 Kısa süreliğine tüm planlar ücretsiz!
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
@@ -167,11 +177,18 @@ export default function UcretPlanlariPage() {
 
                   {/* Price */}
                   <div className="text-center mb-6 md:mb-8">
+                    {plan.originalPrice && (
+                      <div className="text-xl md:text-2xl font-bold text-neutral-400 line-through mb-1">
+                        {plan.originalPrice}
+                      </div>
+                    )}
                     <div className={`text-4xl md:text-5xl lg:text-6xl font-extrabold ${plan.priceColor} mb-2`}>
                       {plan.price}
                     </div>
-                    {plan.price !== "Ücretsiz" && (
-                      <p className="text-neutral-500 text-sm">/ Aylık</p>
+                    {plan.originalPrice && (
+                      <span className="inline-block bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">
+                        Test Dönemi
+                      </span>
                     )}
                   </div>
 

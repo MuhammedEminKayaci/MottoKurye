@@ -84,8 +84,8 @@ export default function Page() {
                 disabled={isLoading}
                 className="bg-white text-[#ff7a00] border-2 border-[#ff7a00] px-30 py-3 rounded-full font-semibold transition-colors transition-transform hover:bg-[#ff7a00] hover:text-white hover:translate-y-[1px] hover:shadow-md disabled:opacity-50"
               >
-                {userRole === "isletme"
-                  ? "Kuryelere Gözat"
+                {userRole === "kurye"
+                  ? "Kuryelere Göz At"
                   : "Kurye Bul"}
               </button>
             </div>
@@ -110,8 +110,8 @@ export default function Page() {
                 disabled={isLoading}
                 className="bg-white text-black border-2 border-[#00000] px-30 py-3 rounded-full font-semibold transition-colors transition-transform hover:bg-black hover:text-white hover:translate-y-[1px] hover:shadow-md disabled:opacity-50"
               >
-                {userRole === "kurye" 
-                  ? "İşletmelere Gözat"
+                {userRole === "isletme" 
+                  ? "İşletmelere Göz At"
                   : "İşletme Bul"}
               </button>
             </div>

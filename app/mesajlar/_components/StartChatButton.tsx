@@ -158,13 +158,9 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
 
         businessUserId = myUserId;
         courierUserId = targetUserId;
-
-        // Mesaj sayacını artır (yeni konuşma başlatılacaksa)
-        // Mevcut konuşma kontrolünden sonra yapılacak
       }
 
       // Check existing conversation
-      // Note: RLS ensures we can only select if we are part of it
       const { data: existing, error: fetchError } = await supabase
         .from('conversations')
         .select('id, deleted_by_business, deleted_by_courier')
@@ -198,31 +194,7 @@ export function StartChatButton({ targetId, targetRole, targetUserId, className,
         
         router.push(`/mesajlar/${existing.id}`);
       } else {
-        // Yeni konuşma oluşturmadan önce mesaj sayacını güncelle (sadece işletmeler için)
-        if (targetRole === 'kurye') {
-          const { data: { user: currentUser } } = await supabase.auth.getUser();
-          if (currentUser) {
-            // Toplam mesaj sayacını artır
-            const { data: bizData } = await supabase
-              .from('businesses')
-              .select('messages_sent_total')
-              .eq('user_id', currentUser.id)
-              .single();
-            
-            if (bizData) {
-              const newCount = (bizData.messages_sent_total || 0) + 1;
-              
-              await supabase
-                .from('businesses')
-                .update({
-                  messages_sent_total: newCount
-                })
-                .eq('user_id', currentUser.id);
-            }
-          }
-        }
-
-        // Create new
+        // Create new conversation (credit will be deducted when first message is sent)
         const { data: newConv, error: createError } = await supabase
           .from('conversations')
           .insert({

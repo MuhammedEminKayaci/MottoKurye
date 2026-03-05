@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 
 type UserRole = "kurye" | "isletme" | null;
+const ADMIN_EMAILS = ["eminkayaci07@gmail.com"];
 
 export function Header() {
   const router = useRouter();
@@ -13,13 +14,16 @@ export function Header() {
   const [userRole, setUserRole] = useState<UserRole>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Check user role and unread messages
   useEffect(() => {
     const checkRoleAndMessages = async () => {
       const { data } = await supabase.auth.getSession();
       const uid = data.session?.user?.id;
+      const email = data.session?.user?.email;
       if (!uid) return;
+      if (email && ADMIN_EMAILS.includes(email)) setIsAdmin(true);
       
       const { data: c } = await supabase.from("couriers").select("id").eq("user_id", uid).limit(1);
       if (c && c.length) { setUserRole("kurye"); }
@@ -122,6 +126,9 @@ export function Header() {
     ...(userRole === "isletme" ? [
       { label: "Ücret Planları", href: "/ucret-planlari" },
     ] : []),
+    ...(isAdmin ? [
+      { label: "⚙ Yönetim", href: "/admin" },
+    ] : []),
   ];
 
   const sharedNavLink = "font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-md px-1";
@@ -133,7 +140,7 @@ export function Header() {
         <Link href="/" aria-label="Ana Sayfa" className="flex items-center">
           <Image
             src="/images/paketservisci.png"
-            alt="PaketServisi Logo"
+            alt="PaketServisci Logo"
             width={300}
             height={80}
             priority

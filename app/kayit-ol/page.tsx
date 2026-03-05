@@ -139,6 +139,16 @@ export default function KayitOlPage() {
     return [];
   };
 
+  // İsim formatlama: Her kelimenin ilk harfi büyük, diğerleri küçük
+  const formatName = (name: string): string => {
+    return name.trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  };
+
+  // Motorsiklet markası formatlama: İlk harf büyük
+  const formatBrand = (brand: string): string => {
+    return brand.trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  };
+
   const normalizePhone = (p?: string | null) => p ? p.replace(/\D/g, "") : null;
 
   const assertPhoneUnique = async (phone: string) => {
@@ -309,7 +319,7 @@ export default function KayitOlPage() {
     }
     setLoading(true); setMessage(null);
     try {
-      if (data.contactPreference === "phone" && data.phone) {
+      if (data.phone) {
         await assertPhoneUnique(data.phone);
       }
       
@@ -345,12 +355,12 @@ export default function KayitOlPage() {
       const insert = {
         user_id: sessionUserId,
         role: "kurye",
-        first_name: data.firstName,
-        last_name: data.lastName,
+        first_name: formatName(data.firstName),
+        last_name: formatName(data.lastName),
         age: data.age,
         gender: data.gender,
         nationality: data.nationality,
-        phone: data.contactPreference !== "in_app" ? data.phone : "",
+        phone: data.phone || "",
         contact_preference: data.contactPreference,
         experience: data.experience,
         province: data.province,
@@ -361,7 +371,7 @@ export default function KayitOlPage() {
         daily_package_estimate: data.dailyPackageEstimate,
         license_type: data.licenseType,
         has_motorcycle: data.hasMotorcycle,
-        moto_brand: data.motoBrand || null,
+        moto_brand: data.motoBrand ? formatBrand(data.motoBrand) : null,
         moto_cc: data.motoCc || null,
         has_bag: data.hasBag,
         p1_certificate: data.p1Certificate,
@@ -388,7 +398,7 @@ export default function KayitOlPage() {
     if (!sessionUserId) { setMessage("Önce kimlik doğrulama yapılmalı."); return; }
     setLoading(true); setMessage(null);
     try {
-      if (data.contactPreference === "phone" && data.managerContact) {
+      if (data.managerContact) {
         await assertPhoneUnique(data.managerContact);
       }
       let finalAvatarUrl = await uploadAvatar(data.avatarFile);
@@ -396,8 +406,20 @@ export default function KayitOlPage() {
           if (data.selectedAvatar) {
             finalAvatarUrl = data.selectedAvatar;
           } else {
-            const randomNum = Math.floor(Math.random() * 4) + 1;
-            finalAvatarUrl = `/images/avatars/isletme/avatar${randomNum}.svg`;
+            // Sektöre göre avatar ata
+            const sectorAvatarMap: Record<string, string> = {
+              "E-Ticaret ve Online Satış Firmaları": "/images/avatars/isletme/kargo.png",
+              "Moda, Tekstil ve Aksesuar": "/images/avatars/isletme/butik.png",
+              "Kurumsal ve Ofis Hizmetleri": "/images/avatars/isletme/kurumsal.png",
+              "Finans - Bankacılık - Sigorta": "/images/avatars/isletme/kurumsal.png",
+              "Yeme-İçme": "/images/avatars/isletme/yeme-icme.png",
+              "Sağlık ve Medikal": "/images/avatars/isletme/eczane-medikal.png",
+              "Teknoloji ve Elektronik": "/images/avatars/isletme/teknoloji.png",
+              "Lojistik ve Depolama": "/images/avatars/isletme/kargo.png",
+              "Çiçek & Hediyeli Eşya": "/images/avatars/isletme/cicekci.png",
+              "Otomotiv ve Yedek Parça": "/images/avatars/isletme/kargo.png",
+            };
+            finalAvatarUrl = sectorAvatarMap[data.businessSector] || "/images/avatars/isletme/kurumsal.png";
           }
       }
       
@@ -414,16 +436,17 @@ export default function KayitOlPage() {
       const insert = {
         user_id: sessionUserId,
         role: "isletme",
+        plan: "premium",
         business_name: data.businessName,
         business_sector: data.businessSector,
-        manager_name: data.managerName,
-        manager_contact: data.contactPreference !== "in_app" ? data.managerContact : "",
+        manager_name: formatName(data.managerName),
+        manager_contact: data.managerContact || "",
         contact_preference: data.contactPreference,
         province: data.province,
         district: ensureStringArray(data.district),
         working_type: data.workingType,
         earning_model: data.earningModel,
-        working_days: ensureStringArray(data.workingDays),
+        working_days: data.workingDays,
         daily_package_estimate: data.dailyPackageEstimate,
         accept_terms: data.acceptTerms,
         accept_privacy: data.acceptPrivacy,
@@ -443,7 +466,7 @@ export default function KayitOlPage() {
         district: ensureStringArray(data.district),
         working_type: data.workingType,
         earning_model: data.earningModel,
-        working_days: ensureStringArray(data.workingDays),
+        working_days: data.workingDays,
         daily_package_estimate: data.dailyPackageEstimate,
         working_hours: data.workingType === "Full Time" ? "08:00-17:00" : "Esnek",
       };
@@ -472,7 +495,7 @@ export default function KayitOlPage() {
         <div className="w-full max-w-2xl glass-card rounded-3xl p-6 sm:p-8 shadow-2xl fade-up">
           <div className="flex flex-col items-center gap-2 mb-6">
             <Link href="/" className="cursor-pointer">
-              <Image src="/images/paketservisci.png" alt="PaketServisi Logo" width={160} height={50} priority className="drop-shadow-lg hover:opacity-90 transition-opacity" />
+              <Image src="/images/paketservisci.png" alt="PaketServisci Logo" width={160} height={50} priority className="drop-shadow-lg hover:opacity-90 transition-opacity" />
             </Link>
             <h1 className="text-xl sm:text-2xl font-extrabold text-white">
               {isGoogleUser ? "Profil Tamamlama" : "Kayıt / Profil Tamamlama"}

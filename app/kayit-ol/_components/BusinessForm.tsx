@@ -12,13 +12,13 @@ const businessSchema = z.object({
   businessName: z.string().min(2, "Firma adı gerekli"),
   businessSector: z.string().min(1, "Firma sektörü seçin"),
   managerName: z.string().min(2, "Yetkili adı soyadı gerekli"),
-  managerContact: z.string().optional(),
+  managerContact: z.string().min(10, "Yetkili iletişim gerekli"),
   contactPreference: z.enum(["in_app", "phone", "both"]),
   province: z.string().min(1, "İl seçin"),
   district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
   workingType: z.enum(["Full Time", "Part Time"]),
-  earningModel: z.enum(["Saat+Paket Başı", "Paket Başı", "Aylık Sabit"]),
-  workingDays: z.array(z.string()).min(1, "En az bir gün seçin"),
+  earningModel: z.enum(["Esnaf Kurye - Saatlik Ücret + Paket Başı", "Esnaf Kurye - Aylık Sabit", "Sigortalı - Aylık Sabit"]),
+  workingDays: z.enum(["İzinsiz", "Haftanın 1 Günü İzin", "Haftanın 2 Günü İzin"]),
   dailyPackageEstimate: z.enum(["0-15 PAKET", "15-25 PAKET", "25-40 PAKET", "40 VE ÜZERİ"]),
   acceptTerms: z.literal(true, { errorMap: () => ({ message: "Kullanım şartlarını kabul etmelisiniz" }) }),
   acceptPrivacy: z.literal(true, { errorMap: () => ({ message: "Gizlilik politikasını kabul etmelisiniz" }) }),
@@ -26,16 +26,6 @@ const businessSchema = z.object({
   acceptCommercial: z.literal(true, { errorMap: () => ({ message: "Ticari ileti iznini onaylamalısınız" }) }),
   selectedAvatar: z.string().optional(),
   avatarFile: z.any().optional(),
-}).superRefine((val, ctx) => {
-  if (val.contactPreference === "phone" || val.contactPreference === "both") {
-    if (!val.managerContact || val.managerContact.trim().length < 10) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Yetkili iletişim gerekli",
-        path: ["managerContact"],
-      });
-    }
-  }
 });
 
 export interface BusinessFormProps {
@@ -56,7 +46,7 @@ const businessSectors = [
   "Otomotiv ve Yedek Parça",
 ];
 
-const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+const workingDaysOptions = ["İzinsiz", "Haftanın 1 Günü İzin", "Haftanın 2 Günü İzin"];
 
 // Telefon numarası formatlama fonksiyonu: 0 (5XX) XXX XX XX
 const formatPhoneNumber = (value: string): string => {
@@ -94,9 +84,9 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
       province: "İstanbul",
       district: [],
       workingType: "Full Time",
-      earningModel: "Saat+Paket Başı",
+      earningModel: "Esnaf Kurye - Saatlik Ücret + Paket Başı",
       dailyPackageEstimate: "15-25 PAKET",
-      workingDays: ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"],
+      workingDays: "İzinsiz",
       businessSector: "",
       contactPreference: "in_app",
       acceptTerms: false,
@@ -111,14 +101,41 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
   const avatarDynamic = watch("avatarFile");
   const selectedAvatar = watch("selectedAvatar");
   const contactPreference = watch("contactPreference");
+  const watchedSector = watch("businessSector");
   const [preview, setPreview] = useState<string | null>(null);
 
   const avatarOptions = [
-    "/images/avatars/isletme/avatar1.svg",
-    "/images/avatars/isletme/avatar2.svg",
-    "/images/avatars/isletme/avatar3.svg",
-    "/images/avatars/isletme/avatar4.svg",
+    "/images/avatars/isletme/butik.png",
+    "/images/avatars/isletme/cicekci.png",
+    "/images/avatars/isletme/eczane-medikal.png",
+    "/images/avatars/isletme/kargo.png",
+    "/images/avatars/isletme/kurumsal.png",
+    "/images/avatars/isletme/teknoloji.png",
+    "/images/avatars/isletme/yeme-icme.png",
   ];
+
+  const sectorAvatarMap: Record<string, string> = {
+    "E-Ticaret ve Online Satış Firmaları": "/images/avatars/isletme/kargo.png",
+    "Moda, Tekstil ve Aksesuar": "/images/avatars/isletme/butik.png",
+    "Kurumsal ve Ofis Hizmetleri": "/images/avatars/isletme/kurumsal.png",
+    "Finans - Bankacılık - Sigorta": "/images/avatars/isletme/kurumsal.png",
+    "Yeme-İçme": "/images/avatars/isletme/yeme-icme.png",
+    "Sağlık ve Medikal": "/images/avatars/isletme/eczane-medikal.png",
+    "Teknoloji ve Elektronik": "/images/avatars/isletme/teknoloji.png",
+    "Lojistik ve Depolama": "/images/avatars/isletme/kargo.png",
+    "Çiçek & Hediyeli Eşya": "/images/avatars/isletme/cicekci.png",
+    "Otomotiv ve Yedek Parça": "/images/avatars/isletme/kargo.png",
+  };
+
+  // Sektör değiştiğinde otomatik avatar seç
+  useEffect(() => {
+    if (watchedSector && sectorAvatarMap[watchedSector]) {
+      const avatarDynList: FileList | undefined = avatarDynamic as any;
+      if (!avatarDynList || avatarDynList.length === 0) {
+        setValue("selectedAvatar", sectorAvatarMap[watchedSector]);
+      }
+    }
+  }, [watchedSector]);
   
   useEffect(() => {
     const list: FileList | undefined = avatarDynamic as any;
@@ -187,26 +204,36 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
           </label>
 
           {/* Avatar Seçenekleri */}
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-[11px] text-white/60">veya hazır avatar seçin</p>
-            <div className="flex gap-3">
-              {avatarOptions.map((opt, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setValue("avatarFile", undefined); 
-                    setValue("selectedAvatar", opt);
-                  }}
-                  className={`w-14 h-14 rounded-full overflow-hidden transition-all duration-200 hover:scale-110 ${
-                    selectedAvatar === opt && (!avatarDynamic || avatarDynamic.length === 0) 
-                      ? 'ring-3 ring-[#ff7a00] ring-offset-2 ring-offset-[#ff7a00]/20 scale-110' 
-                      : 'ring-2 ring-white/20 hover:ring-white/40'
-                  }`}
-                >
-                  <img src={opt} alt={`Avatar ${idx+1}`} className="w-full h-full object-cover" />
-                </button>
-              ))}
+          <div className="flex flex-col items-center gap-2 w-full">
+            <p className="text-[11px] text-white/60">veya sektöre uygun avatar seçin</p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {avatarOptions.map((opt, idx) => {
+                const label = opt.split('/').pop()?.replace('.png', '').replace(/-/g, ' ').toUpperCase() || '';
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setValue("avatarFile", undefined); 
+                      setValue("selectedAvatar", opt);
+                    }}
+                    className={`flex flex-col items-center gap-1 transition-all duration-200 hover:scale-110 ${
+                      selectedAvatar === opt && (!avatarDynamic || avatarDynamic.length === 0) 
+                        ? 'scale-110' 
+                        : ''
+                    }`}
+                  >
+                    <div className={`w-14 h-14 rounded-full overflow-hidden ${
+                      selectedAvatar === opt && (!avatarDynamic || avatarDynamic.length === 0) 
+                        ? 'ring-3 ring-[#ff7a00] ring-offset-2 ring-offset-[#ff7a00]/20' 
+                        : 'ring-2 ring-white/20 hover:ring-white/40'
+                    }`}>
+                      <img src={opt} alt={label} className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-[9px] text-white/50 max-w-[60px] text-center leading-tight truncate">{label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -245,7 +272,7 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
             {contactPreference === "in_app" && (
               <p className="text-[10px] mt-1.5 flex items-center gap-1 bg-white/90 text-neutral-800 px-2 py-1 rounded-lg">
                 <svg className="w-3 h-3 flex-shrink-0 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                Bu seçenekte telefon numaranız gerekmez, kuryeler size uygulama içi mesaj yoluyla ulaşacaktır.
+                Kuryeler size uygulama içi mesaj yoluyla ulaşacaktır. Telefon numaranız bilgi amaçlı alınmaktadır.
               </p>
             )}
             {(contactPreference === "phone" || contactPreference === "both") && (
@@ -255,9 +282,8 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
               </p>
             )}
           </div>
-          {(contactPreference === "phone" || contactPreference === "both") && (
-            <div>
-              <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim *</label>
+          <div>
+            <label className="block text-xs font-medium text-white mb-1">Yetkili İletişim *</label>
               <Controller
                 name="managerContact"
                 control={control}
@@ -273,7 +299,6 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
               />
               {errors.managerContact && <p className="text-[10px] text-red-200 mt-1">{errors.managerContact.message}</p>}
             </div>
-          )}
         </div>
       </div>
 
@@ -313,9 +338,9 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
           <div>
             <label className="block text-xs font-medium text-white mb-1">Kazanç Modeli *</label>
             <select className="input-field text-sm" {...register("earningModel")}>
-              <option value="Saat+Paket Başı">Saat + Paket Başı</option>
-              <option value="Paket Başı">Paket Başı</option>
-              <option value="Aylık Sabit">Aylık Sabit</option>
+              <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+              <option value="Esnaf Kurye - Aylık Sabit">Esnaf Kurye - Aylık Sabit</option>
+              <option value="Sigortalı - Aylık Sabit">Sigortalı - Aylık Sabit</option>
             </select>
           </div>
           <div className="sm:col-span-2">
@@ -331,14 +356,11 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
 
         <div>
           <label className="block text-xs font-medium text-white mb-2">Çalışma Günleri *</label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {days.map(day => (
-              <label key={day} className="flex items-center gap-1.5 text-xs text-white bg-white/10 rounded px-2 py-1.5">
-                <input type="checkbox" value={day} {...register("workingDays")} className="accent-[#ff7a00]" />
-                <span>{day}</span>
-              </label>
+          <select className="input-field text-sm" {...register("workingDays")}>
+            {workingDaysOptions.map(opt => (
+              <option key={opt} value={opt}>{opt}</option>
             ))}
-          </div>
+          </select>
           {errors.workingDays && <p className="text-[10px] text-red-200 mt-1">{errors.workingDays.message}</p>}
         </div>
       </div>

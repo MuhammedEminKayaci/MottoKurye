@@ -12,8 +12,8 @@ interface FilterPanelProps {
 
 // İstanbul ilçeleri kullanılacak
 
-// Çalışma günleri
-const WORKING_DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+// Çalışma günleri seçenekleri
+const WORKING_DAYS_OPTIONS = ["İzinsiz", "Haftanın 1 Günü İzin", "Haftanın 2 Günü İzin"];
 
 // İşletme sektörleri
 const BUSINESS_SECTORS = [
@@ -32,7 +32,6 @@ const BUSINESS_SECTORS = [
 export function FilterPanel({ role, onChange }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<Record<string, string>>({});
-  const [selectedWorkingDays, setSelectedWorkingDays] = useState<string[]>([]);
   const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
 
   const handleFilterChange = (key: string, value: string) => {
@@ -58,22 +57,6 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
     return newFilters;
   };
 
-  const handleWorkingDayToggle = (day: string) => {
-    const newDays = selectedWorkingDays.includes(day)
-      ? selectedWorkingDays.filter(d => d !== day)
-      : [...selectedWorkingDays, day];
-    setSelectedWorkingDays(newDays);
-    
-    const newFilters = { ...filters };
-    if (newDays.length > 0) {
-      newFilters.working_days = newDays.join(',');
-    } else {
-      delete newFilters.working_days;
-    }
-    setFilters(newFilters);
-    return newFilters;
-  };
-
   const handleApply = () => {
     // Boş değerleri temizle ve sadece dolu olanları gönder
     const cleanFilters: Record<string, string> = {};
@@ -88,7 +71,6 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
 
   const handleClear = () => {
     setFilters({});
-    setSelectedWorkingDays([]);
     setSelectedDistricts([]);
     onChange({});
   };
@@ -170,32 +152,24 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
-                      <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
-                      <option value="Paket Başı" className="text-black">Paket Başı</option>
-                      <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
+                      <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı" className="text-black">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                      <option value="Esnaf Kurye - Aylık Sabit" className="text-black">Esnaf Kurye - Aylık Sabit</option>
+                      <option value="Sigortalı - Aylık Sabit" className="text-black">Sigortalı - Aylık Sabit</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-black mb-2">Çalışma Günleri</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {WORKING_DAYS.map((day, index) => (
-                        <button
-                          key={day}
-                          type="button"
-                          onClick={() => handleWorkingDayToggle(day)}
-                          className={`h-[52px] px-3 rounded-lg text-sm font-medium transition-all ${
-                            index === 6 ? 'col-span-2' : ''
-                          } ${
-                            selectedWorkingDays.includes(day)
-                              ? 'bg-[#ff7a00] text-white border-2 border-[#ff7a00]'
-                              : 'bg-white text-black border-2 border-neutral-300 hover:border-[#ff7a00]'
-                          }`}
-                        >
-                          {day}
-                        </button>
+                    <select
+                      value={filters.working_days || ""}
+                      onChange={(e) => handleFilterChange("working_days", e.target.value)}
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      {WORKING_DAYS_OPTIONS.map(opt => (
+                        <option key={opt} value={opt} className="text-black">{opt}</option>
                       ))}
-                    </div>
+                    </select>
                   </div>
 
                   <div>
@@ -243,6 +217,19 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     <select
                       value={filters.p1_certificate || ""}
                       onChange={(e) => handleFilterChange("p1_certificate", e.target.value)}
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      <option value="VAR" className="text-black">Var</option>
+                      <option value="YOK" className="text-black">Yok</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-black mb-2">SRC Belgesi</label>
+                    <select
+                      value={filters.src_certificate || ""}
+                      onChange={(e) => handleFilterChange("src_certificate", e.target.value)}
                       className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
@@ -319,32 +306,24 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
-                      <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
-                      <option value="Paket Başı" className="text-black">Paket Başı</option>
-                      <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
+                      <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı" className="text-black">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                      <option value="Esnaf Kurye - Aylık Sabit" className="text-black">Esnaf Kurye - Aylık Sabit</option>
+                      <option value="Sigortalı - Aylık Sabit" className="text-black">Sigortalı - Aylık Sabit</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-black mb-2">Çalışma Günleri</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {WORKING_DAYS.map((day, index) => (
-                        <button
-                          key={day}
-                          type="button"
-                          onClick={() => handleWorkingDayToggle(day)}
-                          className={`h-[52px] px-3 rounded-lg text-sm font-medium transition-all ${
-                            index === 6 ? 'col-span-2' : ''
-                          } ${
-                            selectedWorkingDays.includes(day)
-                              ? 'bg-[#ff7a00] text-white border-2 border-[#ff7a00]'
-                              : 'bg-white text-black border-2 border-neutral-300 hover:border-[#ff7a00]'
-                          }`}
-                        >
-                          {day}
-                        </button>
+                    <select
+                      value={filters.working_days || ""}
+                      onChange={(e) => handleFilterChange("working_days", e.target.value)}
+                      className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
+                    >
+                      <option value="" className="text-black">Tümü</option>
+                      {WORKING_DAYS_OPTIONS.map(opt => (
+                        <option key={opt} value={opt} className="text-black">{opt}</option>
                       ))}
-                    </div>
+                    </select>
                   </div>
 
                   <div>
@@ -443,35 +422,27 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
-                    <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
-                    <option value="Paket Başı" className="text-black">Paket Başı</option>
-                    <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
+                    <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı" className="text-black">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                    <option value="Esnaf Kurye - Aylık Sabit" className="text-black">Esnaf Kurye - Aylık Sabit</option>
+                    <option value="Sigortalı - Aylık Sabit" className="text-black">Sigortalı - Aylık Sabit</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-white mb-2">Çalışma Günleri</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {WORKING_DAYS.map((day, index) => (
-                      <button
-                        key={day}
-                        type="button"
-                        onClick={() => {
-                          const newFilters = handleWorkingDayToggle(day);
-                          onChange(newFilters);
-                        }}
-                        className={`h-[44px] px-2 rounded-lg text-xs font-medium transition-all ${
-                          index === 6 ? 'col-span-2' : ''
-                        } ${
-                          selectedWorkingDays.includes(day)
-                            ? 'bg-[#ff7a00] text-white border-2 border-[#ff7a00]'
-                            : 'bg-white text-black border-2 border-neutral-300 hover:border-[#ff7a00]'
-                        }`}
-                      >
-                        {day.slice(0, 3)}
-                      </button>
+                  <select
+                    value={filters.working_days || ""}
+                    onChange={(e) => {
+                      const newFilters = handleFilterChange("working_days", e.target.value);
+                      onChange(newFilters);
+                    }}
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    {WORKING_DAYS_OPTIONS.map(opt => (
+                      <option key={opt} value={opt} className="text-black">{opt}</option>
                     ))}
-                  </div>
+                  </select>
                 </div>
 
                 <div>
@@ -529,6 +500,22 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     value={filters.p1_certificate || ""}
                     onChange={(e) => {
                       const newFilters = handleFilterChange("p1_certificate", e.target.value);
+                      onChange(newFilters);
+                    }}
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    <option value="VAR" className="text-black">Var</option>
+                    <option value="YOK" className="text-black">Yok</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">SRC Belgesi</label>
+                  <select
+                    value={filters.src_certificate || ""}
+                    onChange={(e) => {
+                      const newFilters = handleFilterChange("src_certificate", e.target.value);
                       onChange(newFilters);
                     }}
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
@@ -622,35 +609,27 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
-                    <option value="Saat+Paket Başı" className="text-black">Saat+Paket Başı</option>
-                    <option value="Paket Başı" className="text-black">Paket Başı</option>
-                    <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
+                    <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı" className="text-black">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                    <option value="Esnaf Kurye - Aylık Sabit" className="text-black">Esnaf Kurye - Aylık Sabit</option>
+                    <option value="Sigortalı - Aylık Sabit" className="text-black">Sigortalı - Aylık Sabit</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-white mb-2">Çalışma Günleri</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {WORKING_DAYS.map((day, index) => (
-                      <button
-                        key={day}
-                        type="button"
-                        onClick={() => {
-                          const newFilters = handleWorkingDayToggle(day);
-                          onChange(newFilters);
-                        }}
-                        className={`h-[44px] px-2 rounded-lg text-xs font-medium transition-all ${
-                          index === 6 ? 'col-span-2' : ''
-                        } ${
-                          selectedWorkingDays.includes(day)
-                            ? 'bg-[#ff7a00] text-white border-2 border-[#ff7a00]'
-                            : 'bg-white text-black border-2 border-neutral-300 hover:border-[#ff7a00]'
-                        }`}
-                      >
-                        {day.slice(0, 3)}
-                      </button>
+                  <select
+                    value={filters.working_days || ""}
+                    onChange={(e) => {
+                      const newFilters = handleFilterChange("working_days", e.target.value);
+                      onChange(newFilters);
+                    }}
+                    className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
+                  >
+                    <option value="" className="text-black">Tümü</option>
+                    {WORKING_DAYS_OPTIONS.map(opt => (
+                      <option key={opt} value={opt} className="text-black">{opt}</option>
                     ))}
-                  </div>
+                  </select>
                 </div>
 
                 <div>

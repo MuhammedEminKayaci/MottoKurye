@@ -5,7 +5,7 @@ export interface CourierRegistration {
   age: number;
   gender: string;
   nationality: string;
-  phone?: string;
+  phone: string; // Always collected, even for in_app
   contactPreference: "phone" | "in_app" | "both";
   
   // İş Tecrübesi
@@ -15,8 +15,8 @@ export interface CourierRegistration {
   province: string;
   district: string[];
   workingType: string; // Full Time | Part Time
-  earningModel: string; // Saat+Paket | Paket | Aylık Sabit
-  workingDays: string[];
+  earningModel: string; // Esnaf Kurye - Saatlik Ücret + Paket Başı | Esnaf Kurye - Aylık Sabit | Sigortalı - Aylık Sabit
+  workingDays: string; // İzinsiz | Haftanın 1 Günü İzin | Haftanın 2 Günü İzin
   dailyPackageEstimate: string; // 0-15 | 15-25 | 25-40 | 40+
   
   // Motorsiklet Bilgileri
@@ -53,15 +53,15 @@ export interface BusinessRegistration {
   businessName: string;
   businessSector: string;
   managerName: string;
-  managerContact?: string;
+  managerContact: string; // Always collected
   contactPreference: "phone" | "in_app" | "both";
   
   // Çalışma Koşulları
   province: string;
   district: string[];
   workingType: string; // Full Time | Part Time
-  earningModel: string; // Saat+Paket | Paket | Aylık Sabit
-  workingDays: string[];
+  earningModel: string; // Esnaf Kurye - Saatlik Ücret + Paket Başı | Esnaf Kurye - Aylık Sabit | Sigortalı - Aylık Sabit
+  workingDays: string; // İzinsiz | Haftanın 1 Günü İzin | Haftanın 2 Günü İzin
   dailyPackageEstimate: string; // 0-15 | 15-25 | 25-40 | 40+
   
   // Onaylar

@@ -40,6 +40,9 @@ export default function ProfilPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [showCancelSubModal, setShowCancelSubModal] = useState(false);
+  const [cancelSubLoading, setCancelSubLoading] = useState(false);
+  const [subCancelled, setSubCancelled] = useState(false);
   const [planStatus, setPlanStatus] = useState<{
     plan: PlanType;
     messagesLeft: number;
@@ -127,6 +130,39 @@ export default function ProfilPage() {
     } catch (err: any) {
       alert(err.message || 'Hesap silinirken bir hata oluştu.');
       setDeleteLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!profile?.id) return;
+    setCancelSubLoading(true);
+    try {
+      const { error } = await supabase
+        .from('businesses')
+        .update({
+          plan: 'free',
+          plan_updated_at: new Date().toISOString(),
+          messages_sent_today: 0,
+          approvals_today: 0
+        })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      setSubCancelled(true);
+      setPlanStatus((prev) => prev ? {
+        ...prev,
+        plan: 'free' as PlanType,
+        messagesLeft: PLAN_LIMITS.free.totalMessageLimit,
+        totalMessageLimit: PLAN_LIMITS.free.totalMessageLimit,
+        approvalsLeft: PLAN_LIMITS.free.dailyApprovalLimit,
+        dailyApprovalLimit: PLAN_LIMITS.free.dailyApprovalLimit,
+      } : null);
+      setProfile((p: any) => ({ ...p, plan: 'free' }));
+    } catch (err: any) {
+      alert(err.message || 'Abonelik iptal edilirken bir hata oluştu.');
+    } finally {
+      setCancelSubLoading(false);
     }
   };
 
@@ -553,6 +589,21 @@ export default function ProfilPage() {
             <p className="text-sm text-neutral-600 mb-6">
               Hesabınızı kaldırdığınızda tüm profil bilgileriniz, ilanlarınız ve mesaj geçmişiniz kalıcı olarak silinecektir. Bu işlem geri alınamaz.
             </p>
+            
+            {/* Aboneliği İptal Et - sadece işletme ve free olmayan plan için */}
+            {role === 'isletme' && profile?.plan && profile.plan !== 'free' && (
+              <button
+                onClick={() => setShowCancelSubModal(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 mb-4 bg-white border-2 border-orange-300 text-orange-600 font-semibold rounded-xl hover:bg-orange-50 hover:border-orange-400 transition-all"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+                Aboneliği İptal Et
+              </button>
+            )}
+
+            <br />
             <button
               onClick={() => setShowDeleteModal(true)}
               className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-red-300 text-red-600 font-semibold rounded-xl hover:bg-red-50 hover:border-red-400 transition-all"
@@ -566,7 +617,93 @@ export default function ProfilPage() {
         </div>
       </div>
 
-      {/* ═══════ Hesap Silme Onay Modalı ═══════ */}
+      {/* ═══════ Abonelik İptal Modalı ═══════ */}
+      {showCancelSubModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            {subCancelled ? (
+              <>
+                <div className="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+                  Aboneliğiniz İptal Edildi
+                </h2>
+                <p className="text-sm text-gray-600 text-center mb-6">
+                  Paketiniz bulunmamakta, almak ister misiniz?
+                </p>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => { setShowCancelSubModal(false); setSubCancelled(false); router.push('/ucret-planlari'); }}
+                    className="w-full py-3 px-6 bg-[#ff7a00] text-white font-bold rounded-xl hover:bg-[#ff6a00] transition-colors flex items-center justify-center gap-2"
+                  >
+                    Paketlere Göz At
+                  </button>
+                  <button
+                    onClick={() => { setShowCancelSubModal(false); setSubCancelled(false); }}
+                    className="w-full py-3 px-6 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors"
+                  >
+                    Kapat
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+                  Aboneliğinizi İptal Etmek İstediğinize Emin Misiniz?
+                </h2>
+                <p className="text-sm text-gray-600 text-center mb-4">
+                  Mevcut paketiniz (<span className="font-bold text-orange-600">{PLAN_LIMITS[profile?.plan as PlanType]?.displayName || profile?.plan}</span>) iptal edilecek ve ücretsiz pakete düşürülecektir.
+                </p>
+
+                <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-5">
+                  <ul className="text-sm text-orange-700 space-y-1.5">
+                    <li className="flex items-center gap-2">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                      Mesaj gönderim haklarınız sınırlanacak
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                      Premium iletişim özellikleri kaldırılacak
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={handleCancelSubscription}
+                    disabled={cancelSubLoading}
+                    className="w-full py-3 px-6 bg-orange-500 text-white font-bold rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {cancelSubLoading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        İptal Ediliyor...
+                      </>
+                    ) : (
+                      'Evet, Aboneliği İptal Et'
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setShowCancelSubModal(false)}
+                    disabled={cancelSubLoading}
+                    className="w-full py-3 px-6 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  >
+                    Vazgeç
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">

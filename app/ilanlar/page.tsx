@@ -124,10 +124,7 @@ function IlanlarContent() {
           if (filters.working_type) query = query.eq("working_type", filters.working_type);
           if (filters.earning_model) query = query.eq("earning_model", filters.earning_model);
           if (filters.daily_package_estimate) query = query.eq("daily_package_estimate", filters.daily_package_estimate);
-          if (filters.working_days) {
-            const days = filters.working_days.split(',');
-            days.forEach(day => { query = query.contains("working_days", [day.trim()]); });
-          }
+          if (filters.working_days) query = query.eq("working_days", filters.working_days);
           
           let { data, error } = await query;
           if (error) {
@@ -191,7 +188,7 @@ function IlanlarContent() {
         } else {
           // Show couriers for business perspective
           let query = supabase.from("couriers")
-            .select("id,user_id,first_name,last_name,avatar_url,phone,province,district,license_type,working_type,earning_model,daily_package_estimate,has_motorcycle,has_bag,experience,created_at,is_accepting_offers,contact_preference")
+            .select("id,user_id,first_name,last_name,avatar_url,phone,province,district,license_type,working_type,earning_model,daily_package_estimate,has_motorcycle,has_bag,experience,created_at,is_accepting_offers,contact_preference,src_certificate,working_days")
             .eq("is_accepting_offers", true)
             .order("created_at", { ascending: false }).limit(60);
           
@@ -207,14 +204,9 @@ function IlanlarContent() {
           if (filters.has_motorcycle) query = query.eq("has_motorcycle", filters.has_motorcycle);
           if (filters.has_bag) query = query.eq("has_bag", filters.has_bag);
           if (filters.p1_certificate) query = query.eq("p1_certificate", filters.p1_certificate);
+          if (filters.src_certificate) query = query.eq("src_certificate", filters.src_certificate);
           if (filters.criminal_record) query = query.eq("criminal_record", filters.criminal_record);
-          if (filters.working_days) {
-            // Çoklu seçim için her günü kontrol et
-            const days = filters.working_days.split(',');
-            days.forEach(day => {
-              query = query.contains("working_days", [day.trim()]);
-            });
-          }
+          if (filters.working_days) query = query.eq("working_days", filters.working_days);
           
           const { data, error } = await query;
           if (error) throw error;
@@ -293,9 +285,7 @@ function IlanlarContent() {
                             it.earning_model,
                             it.working_hours,
                             it.daily_package_estimate,
-                            Array.isArray(it.working_days) && it.working_days.length > 0
-                              ? it.working_days.length === 7 ? 'Her Gün' : it.working_days.slice(0, 3).join(', ') + (it.working_days.length > 3 ? ` +${it.working_days.length - 3}` : '')
-                              : null,
+                            it.working_days || null,
                           ].filter(Boolean)
                         : [
                             it.province,

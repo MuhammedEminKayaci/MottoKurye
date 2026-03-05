@@ -31,8 +31,6 @@ export default function IlanlarimPage() {
 
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ title:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
-  const WORKING_DAYS = ["Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi","Pazar"];
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   const submit = async () => {
     setErrorMsg(null as any);
@@ -43,7 +41,6 @@ export default function IlanlarimPage() {
     if (!form.title.trim()) { setErrorMsg("Başlık zorunludur."); setCreating(false); return; }
     
     const payload: any = { ...form, user_id: uid };
-    if (selectedDays.length) payload.working_days = selectedDays;
     const { data, error } = await supabase.from("business_ads").insert(payload).select().single();
     if (error) {
       setErrorMsg(error.message.includes("relation \"business_ads\" does not exist")
@@ -53,7 +50,6 @@ export default function IlanlarimPage() {
     if (!error && data) setItems(prev => [data, ...prev]);
     setCreating(false);
     setForm({ title:"", province:"", district:"", working_type:"", working_hours:"", earning_model:"", daily_package_estimate:"", working_days:"" });
-    setSelectedDays([]);
   };
 
   return (
@@ -80,23 +76,10 @@ export default function IlanlarimPage() {
             <LabeledInput label="İlçe" value={form.district} onChange={v=>setForm(f=>({...f,district:v}))} placeholder="Kadıköy" />
             <LabeledInput label="Çalışma Tipi" value={form.working_type} onChange={v=>setForm(f=>({...f,working_type:v}))} placeholder="Full Time / Part Time" />
             <LabeledInput label="Çalışma Saatleri" value={form.working_hours} onChange={v=>setForm(f=>({...f,working_hours:v}))} placeholder="Gündüz / Gece / 24" />
-            <LabeledSelect label="Kazanç Modeli" value={form.earning_model} onChange={v=>setForm(f=>({...f,earning_model:v}))} options={["Saat+Paket Başı","Paket Başı","Aylık Sabit"]} />
+            <LabeledSelect label="Kazanç Modeli" value={form.earning_model} onChange={v=>setForm(f=>({...f,earning_model:v}))} options={["Esnaf Kurye - Saatlik Ücret + Paket Başı","Esnaf Kurye - Aylık Sabit","Sigortalı - Aylık Sabit"]} />
             <LabeledSelect label="Günlük Paket Tahmini" value={form.daily_package_estimate} onChange={v=>setForm(f=>({...f,daily_package_estimate:v}))} options={["0-15 PAKET","15-25 PAKET","25-40 PAKET","40 VE ÜZERİ"]} />
             <div className="md:col-span-3">
-              <span className="block text-[11px] font-semibold text-neutral-600 mb-2 uppercase tracking-wide">Çalışma Günleri</span>
-              <div className="flex flex-wrap gap-2">
-                {WORKING_DAYS.map((day, idx)=>{
-                  const active = selectedDays.includes(day);
-                  return (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={()=>setSelectedDays(s=> active ? s.filter(d=>d!==day) : [...s, day])}
-                      className={`px-2 py-1 rounded-full border text-sm ${active?"bg-orange-500 border-orange-500 text-white":"bg-neutral-100 border-neutral-300 text-black"}`}
-                    >{day}</button>
-                  );
-                })}
-              </div>
+              <LabeledSelect label="Çalışma Günleri" value={form.working_days} onChange={v=>setForm(f=>({...f,working_days:v}))} options={["İzinsiz","Haftanın 1 Günü İzin","Haftanın 2 Günü İzin"]} />
             </div>
           </div>
         )}
