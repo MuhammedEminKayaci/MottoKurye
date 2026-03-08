@@ -179,6 +179,7 @@ export function PlanStatusCard({
                   planKey: 'free' as PlanType,
                   name: '1. PAKET',
                   price: 'Ücretsiz',
+                  originalPrice: null as string | null,
                   priceSuffix: '',
                   features: [
                     'Sınırsız ilan verme',
@@ -195,7 +196,8 @@ export function PlanStatusCard({
                 {
                   planKey: 'standard' as PlanType,
                   name: '2. PAKET',
-                  price: '200 TL',
+                  price: 'Ücretsiz',
+                  originalPrice: '200 TL',
                   priceSuffix: '/ Aylık',
                   features: [
                     'Sınırsız ilan verme',
@@ -211,7 +213,8 @@ export function PlanStatusCard({
                 {
                   planKey: 'premium' as PlanType,
                   name: '3. PAKET',
-                  price: '275 TL',
+                  price: 'Ücretsiz',
+                  originalPrice: '275 TL',
                   priceSuffix: '/ Aylık',
                   features: [
                     'Sınırsız ilan verme',
@@ -242,9 +245,18 @@ export function PlanStatusCard({
 
                     {/* Fiyat */}
                     <div className="text-center mb-4">
+                      {p.originalPrice && (
+                        <div className="mb-1">
+                          <span className="text-lg text-gray-400 line-through">{p.originalPrice}</span>
+                          <span className="text-sm text-gray-400 line-through ml-1">{p.priceSuffix}</span>
+                        </div>
+                      )}
                       <span className="text-3xl font-extrabold text-[#ff7a00]">{p.price}</span>
-                      {p.priceSuffix && (
+                      {!p.originalPrice && p.priceSuffix && (
                         <span className="text-sm text-gray-500 ml-1">{p.priceSuffix}</span>
+                      )}
+                      {p.originalPrice && (
+                        <p className="text-xs text-green-600 font-semibold mt-1">Kısa süreliğine ücretsiz!</p>
                       )}
                     </div>
 

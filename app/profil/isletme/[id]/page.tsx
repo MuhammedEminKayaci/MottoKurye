@@ -7,23 +7,45 @@ import { EditProfileButton } from "@/app/_components/EditProfileButton";
 import { StartChatButton } from "@/app/mesajlar/_components/StartChatButton";
 import { ProfileName } from "@/app/_components/ProfileName";
 
+// İsim formatlama: her kelimenin ilk harfi büyük, geri kalanı küçük
+const formatName = (name: string): string => {
+  return name
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 const maskBusinessName = (name?: string | null) => {
   const parts = (name || "").split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "İşletme";
-  // Her kelime için ilk harf + 3 nokta: "Engin Has Lahmacun" → "E... H... L..."
+  // Her kelime için ilk harf büyük + 3 nokta: "Engin Has Lahmacun" → "E... H... L..."
   return parts.map(p => `${p[0]?.toUpperCase() || ''}...`).join(' ');
 };
 
-// Yetkili adını formatla: "Mehmet Kalaycı" → "Mehmet K."
+// Yetkili adını formatla: "mehmet kalaycı" → "Mehmet K."
 const formatManagerName = (name?: string | null) => {
   if (!name) return '-';
-  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const formatted = formatName(name);
+  const parts = formatted.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '-';
   if (parts.length === 1) return parts[0];
-  // İlk isim tam, sonraki isim(ler)in sadece ilk harfi
   const firstName = parts[0];
   const lastNameInitial = parts[parts.length - 1][0]?.toUpperCase() || '';
   return `${firstName} ${lastNameInitial}.`;
+};
+
+// Sektöre göre varsayılan avatar
+const sectorAvatarMap: Record<string, string> = {
+  "E-Ticaret ve Online Satış Firmaları": "/images/avatars/isletme/kargo.png",
+  "Moda, Tekstil ve Aksesuar": "/images/avatars/isletme/butik.png",
+  "Kurumsal ve Ofis Hizmetleri": "/images/avatars/isletme/kurumsal.png",
+  "Finans - Bankacılık - Sigorta": "/images/avatars/isletme/kurumsal.png",
+  "Yeme-İçme": "/images/avatars/isletme/yeme-icme.png",
+  "Sağlık ve Medikal": "/images/avatars/isletme/eczane-medikal.png",
+  "Teknoloji ve Elektronik": "/images/avatars/isletme/teknoloji.png",
+  "Lojistik ve Depolama": "/images/avatars/isletme/kargo.png",
+  "Çiçek & Hediyeli Eşya": "/images/avatars/isletme/cicekci.png",
+  "Otomotiv ve Yedek Parça": "/images/avatars/isletme/kargo.png",
 };
 
 interface BusinessProfileProps {
@@ -70,9 +92,11 @@ export default async function IsletmeProfilPage({ params }: BusinessProfileProps
     );
   }
 
-  const avatarUrl = business.avatar_url || '/images/icon-business.png';
+  // Sektöre göre varsayılan avatar belirle
+  const sectorAvatar = business.business_sector ? sectorAvatarMap[business.business_sector] : null;
+  const avatarUrl = business.avatar_url || sectorAvatar || '/images/icon-business.png';
   const maskedName = maskBusinessName(business.business_name);
-  const fullBusinessName = business.business_name || 'İşletme';
+  const fullBusinessName = formatName(business.business_name || 'İşletme');
 
   // Format district - max 2 ilçe göster, geri kalanı sayı olarak belirt
   const formatDistrict = (district: any) => {

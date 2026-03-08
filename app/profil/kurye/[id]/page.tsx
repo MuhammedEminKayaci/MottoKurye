@@ -7,15 +7,24 @@ import { EditProfileButton } from "@/app/_components/EditProfileButton";
 import { StartChatButton } from "@/app/mesajlar/_components/StartChatButton";
 import { ProfileName } from "@/app/_components/ProfileName";
 
+// İsim formatlama: her kelimenin ilk harfi büyük, geri kalanı küçük
+const formatName = (name: string): string => {
+  return name
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 const maskCourierName = (first?: string | null, last?: string | null) => {
-  const f = (first || "").trim();
+  const f = formatName((first || "").trim());
   const l = (last || "").trim();
   const initial = l ? `${l[0].toUpperCase()}.` : "";
   return [f, initial].filter(Boolean).join(" ") || "Kurye";
 };
 
 const fullCourierName = (first?: string | null, last?: string | null) => {
-  return [first, last].filter(Boolean).join(' ') || 'Kurye';
+  const raw = [first, last].filter(Boolean).join(' ') || 'Kurye';
+  return formatName(raw);
 };
 
 interface CourierProfileProps {

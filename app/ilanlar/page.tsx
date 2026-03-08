@@ -8,8 +8,16 @@ import { FilterPanel, Role } from "../_components/ModernFilterPanel";
 import { ListingCard } from "../hosgeldiniz/_components/ListingCard";
 import { Pagination } from "../hosgeldiniz/_components/Pagination";
 
+// İsim formatlama: her kelimenin ilk harfi büyük, geri kalanı küçük
+const formatName = (name: string): string => {
+  return name
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 const maskCourierName = (first?: string | null, last?: string | null) => {
-  const f = (first || "").trim();
+  const f = formatName((first || "").trim());
   const l = (last || "").trim();
   const initial = l ? `${l[0].toUpperCase()}.` : "";
   return [f, initial].filter(Boolean).join(" ") || "Kurye";
