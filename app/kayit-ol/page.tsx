@@ -437,7 +437,7 @@ export default function KayitOlPage() {
         user_id: sessionUserId,
         role: "isletme",
         plan: "premium",
-        business_name: data.businessName,
+        business_name: formatName(data.businessName),
         business_sector: data.businessSector,
         manager_name: formatName(data.managerName),
         manager_contact: data.managerContact || "",

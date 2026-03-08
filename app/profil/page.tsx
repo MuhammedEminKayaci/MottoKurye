@@ -6,8 +6,16 @@ import { PlanStatusCard } from "../_components/PlanStatusCard";
 import { supabase } from "../../lib/supabase";
 import { PlanType, PLAN_LIMITS } from "@/lib/planLimits";
 
+// İsim formatlama: her kelimenin ilk harfi büyük, geri kalanı küçük
+const formatName = (name: string): string => {
+  return name
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 const maskCourierName = (first?: string | null, last?: string | null) => {
-  const f = (first || "").trim();
+  const f = formatName((first || "").trim());
   const l = (last || "").trim();
   const initial = l ? `${l[0].toUpperCase()}.` : "";
   return [f, initial].filter(Boolean).join(" ") || "Kurye";
@@ -284,8 +292,8 @@ export default function ProfilPage() {
   const coverUrl = profile?.cover_photo_url && profile.cover_photo_url.startsWith('http') ? profile.cover_photo_url : null;
   // Kendi profil sayfamız - isimleri tam göster, maskeleme yapma
   const displayName = role === 'kurye' 
-    ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Kurye'
-    : profile.business_name || 'İşletme';
+    ? formatName([profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Kurye')
+    : formatName(profile.business_name || 'İşletme');
 
   return (
     <main className="min-h-dvh w-full bg-neutral-50">

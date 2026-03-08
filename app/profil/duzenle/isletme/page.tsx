@@ -212,7 +212,7 @@ export default function IsletmeDuzenlePage() {
       }
 
       const updateData: any = {
-        business_name: formData.business_name,
+        business_name: formatName(formData.business_name || ''),
         business_sector: formData.business_sector,
         manager_name: formatName(formData.manager_name || ''),
         manager_contact: formData.manager_contact || '',
