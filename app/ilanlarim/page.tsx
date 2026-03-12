@@ -76,7 +76,7 @@ export default function IlanlarimPage() {
             <LabeledInput label="İlçe" value={form.district} onChange={v=>setForm(f=>({...f,district:v}))} placeholder="Kadıköy" />
             <LabeledInput label="Çalışma Tipi" value={form.working_type} onChange={v=>setForm(f=>({...f,working_type:v}))} placeholder="Full Time / Part Time" />
             <LabeledInput label="Çalışma Saatleri" value={form.working_hours} onChange={v=>setForm(f=>({...f,working_hours:v}))} placeholder="Gündüz / Gece / 24" />
-            <LabeledSelect label="Kazanç Modeli" value={form.earning_model} onChange={v=>setForm(f=>({...f,earning_model:v}))} options={["Saat+Paket Başı","Aylık Sabit","Paket Başı"]} />
+            <LabeledSelect label="Kazanç Modeli" value={form.earning_model} onChange={v=>setForm(f=>({...f,earning_model:v}))} options={[{value:"Saat+Paket Başı",label:"Esnaf Kurye - Saatlik Ücret + Paket Başı"},{value:"Aylık Sabit",label:"Esnaf Kurye - Aylık Sabit"},{value:"Paket Başı",label:"Sigortalı - Aylık Sabit"}]} />
             <LabeledSelect label="Günlük Paket Tahmini" value={form.daily_package_estimate} onChange={v=>setForm(f=>({...f,daily_package_estimate:v}))} options={["0-15 PAKET","15-25 PAKET","25-40 PAKET","40 VE ÜZERİ"]} />
             <div className="md:col-span-3">
               <LabeledSelect label="Çalışma Günleri" value={form.working_days} onChange={v=>setForm(f=>({...f,working_days:v}))} options={["İzinsiz","Haftanın 1 Günü İzin","Haftanın 2 Günü İzin"]} />
@@ -128,14 +128,18 @@ function LabeledTextArea({ label, value, onChange, placeholder, className }:{ la
   );
 }
 
-function LabeledSelect({ label, value, onChange, options, className }:{ label:string; value:string; onChange:(v:string)=>void; options:string[]; className?:string }){
+function LabeledSelect({ label, value, onChange, options, className }:{ label:string; value:string; onChange:(v:string)=>void; options:(string | {value:string; label:string})[]; className?:string }){
   return (
     <label className={`block ${className||""}`}>
       <span className="block text-[11px] font-semibold text-neutral-600 mb-1 uppercase tracking-wide">{label}</span>
       <select value={value} onChange={e=>onChange(e.target.value)}
         className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black/20">
         <option value="">Seçin</option>
-        {options.map(opt => (<option key={opt} value={opt}>{opt}</option>))}
+        {options.map(opt => {
+          const val = typeof opt === 'string' ? opt : opt.value;
+          const lbl = typeof opt === 'string' ? opt : opt.label;
+          return <option key={val} value={val}>{lbl}</option>;
+        })}
       </select>
     </label>
   );

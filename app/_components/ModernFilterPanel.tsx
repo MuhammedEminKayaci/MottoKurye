@@ -152,9 +152,9 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
-                      <option value="Saat+Paket Başı" className="text-black">Saat + Paket Başı</option>
-                      <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
-                      <option value="Paket Başı" className="text-black">Paket Başı</option>
+                      <option value="Saat+Paket Başı" className="text-black">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                      <option value="Aylık Sabit" className="text-black">Esnaf Kurye - Aylık Sabit</option>
+                      <option value="Paket Başı" className="text-black">Sigortalı - Aylık Sabit</option>
                     </select>
                   </div>
 
@@ -306,9 +306,9 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                       className="w-full h-[52px] px-4 border-2 border-[#ff7a00] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-base"
                     >
                       <option value="" className="text-black">Tümü</option>
-                      <option value="Saat+Paket Başı" className="text-black">Saat + Paket Başı</option>
-                      <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
-                      <option value="Paket Başı" className="text-black">Paket Başı</option>
+                      <option value="Saat+Paket Başı" className="text-black">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                      <option value="Aylık Sabit" className="text-black">Esnaf Kurye - Aylık Sabit</option>
+                      <option value="Paket Başı" className="text-black">Sigortalı - Aylık Sabit</option>
                     </select>
                   </div>
 
@@ -422,9 +422,9 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
-                    <option value="Saat+Paket Başı" className="text-black">Saat + Paket Başı</option>
-                    <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
-                    <option value="Paket Başı" className="text-black">Paket Başı</option>
+                    <option value="Saat+Paket Başı" className="text-black">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                    <option value="Aylık Sabit" className="text-black">Esnaf Kurye - Aylık Sabit</option>
+                    <option value="Paket Başı" className="text-black">Sigortalı - Aylık Sabit</option>
                   </select>
                 </div>
 
@@ -609,9 +609,9 @@ export function FilterPanel({ role, onChange }: FilterPanelProps) {
                     className="w-full h-[52px] px-3 border-2 border-[#ff7a00] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a00] bg-white text-black text-sm"
                   >
                     <option value="" className="text-black">Tümü</option>
-                    <option value="Saat+Paket Başı" className="text-black">Saat + Paket Başı</option>
-                    <option value="Aylık Sabit" className="text-black">Aylık Sabit</option>
-                    <option value="Paket Başı" className="text-black">Paket Başı</option>
+                    <option value="Saat+Paket Başı" className="text-black">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+                    <option value="Aylık Sabit" className="text-black">Esnaf Kurye - Aylık Sabit</option>
+                    <option value="Paket Başı" className="text-black">Sigortalı - Aylık Sabit</option>
                   </select>
                 </div>
 

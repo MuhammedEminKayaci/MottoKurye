@@ -338,9 +338,9 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
           <div>
             <label className="block text-xs font-medium text-white mb-1">Kazanç Modeli *</label>
             <select className="input-field text-sm" {...register("earningModel")}>
-              <option value="Saat+Paket Başı">Saat + Paket Başı</option>
-              <option value="Aylık Sabit">Aylık Sabit</option>
-              <option value="Paket Başı">Paket Başı</option>
+              <option value="Saat+Paket Başı">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
+              <option value="Aylık Sabit">Esnaf Kurye - Aylık Sabit</option>
+              <option value="Paket Başı">Sigortalı - Aylık Sabit</option>
             </select>
           </div>
           <div className="sm:col-span-2">
