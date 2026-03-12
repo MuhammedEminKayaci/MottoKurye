@@ -310,6 +310,83 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ data: data || [], total: count || 0, page, limit });
       }
 
+      case "documents": {
+        const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
+        const limit = 20;
+        const offset = (page - 1) * limit;
+        const search = (searchParams.get("search") || "").replace(/[%_\\]/g, "").slice(0, 100);
+        const filter = searchParams.get("filter") || "all"; // all | pending | approved | rejected | has_file
+
+        let query = db.from("couriers")
+          .select("id, user_id, first_name, last_name, avatar_url, phone, province, created_at, p1_certificate, src_certificate, criminal_record, p1_certificate_file_url, src_certificate_file_url, criminal_record_file_url", { count: "exact" })
+          .order("created_at", { ascending: false });
+
+        // Filtreler
+        if (filter === "has_file") {
+          // En az bir dosya yüklenmiş olanlar
+          query = query.or("p1_certificate_file_url.neq.,src_certificate_file_url.neq.,criminal_record_file_url.neq.");
+        } else if (filter === "pending") {
+          query = query.or("p1_certificate.eq.Beklemede,src_certificate.eq.Beklemede,criminal_record.eq.Beklemede");
+        } else if (filter === "approved") {
+          query = query.or("p1_certificate.eq.Onaylandı,src_certificate.eq.Onaylandı,criminal_record.eq.Onaylandı");
+        } else if (filter === "rejected") {
+          query = query.or("p1_certificate.eq.Reddedildi,src_certificate.eq.Reddedildi,criminal_record.eq.Reddedildi");
+        }
+
+        if (search) {
+          query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,province.ilike.%${search}%`);
+        }
+
+        const { data, count } = await query.range(offset, offset + limit - 1);
+
+        // İstatistikler
+        const { data: allCouriers } = await db.from("couriers")
+          .select("p1_certificate, src_certificate, criminal_record, p1_certificate_file_url, src_certificate_file_url, criminal_record_file_url");
+
+        const stats = {
+          total: allCouriers?.length || 0,
+          withFiles: 0,
+          pendingReview: 0,
+          approved: 0,
+          rejected: 0,
+        };
+
+        (allCouriers || []).forEach((c: any) => {
+          if (c.p1_certificate_file_url || c.src_certificate_file_url || c.criminal_record_file_url) stats.withFiles++;
+          [c.p1_certificate, c.src_certificate, c.criminal_record].forEach((val: string | null) => {
+            if (val === "Beklemede") stats.pendingReview++;
+            if (val === "Onaylandı") stats.approved++;
+            if (val === "Reddedildi") stats.rejected++;
+          });
+        });
+
+        return NextResponse.json({ data: data || [], total: count || 0, page, limit, stats });
+      }
+
+      case "document_signed_url": {
+        const fileUrl = searchParams.get("url");
+        if (!fileUrl) return NextResponse.json({ error: "url parametresi gerekli" }, { status: 400 });
+
+        // Public URL'den storage path'i çıkar
+        // Format: https://xxx.supabase.co/storage/v1/object/public/documents/filename.ext
+        const match = fileUrl.match(/\/storage\/v1\/object\/public\/documents\/(.+)$/);
+        if (!match || !match[1]) {
+          return NextResponse.json({ error: "Geçersiz dosya URL'i" }, { status: 400 });
+        }
+
+        const storagePath = decodeURIComponent(match[1]);
+        const { data: signedData, error: signError } = await db.storage
+          .from("documents")
+          .createSignedUrl(storagePath, 3600); // 1 saat geçerli
+
+        if (signError || !signedData?.signedUrl) {
+          console.error("Signed URL error:", signError);
+          return NextResponse.json({ error: "Dosya erişim URL'i oluşturulamadı" }, { status: 500 });
+        }
+
+        return NextResponse.json({ signedUrl: signedData.signedUrl });
+      }
+
       case "system": {
         // Sistem sağlığı kontrolleri
         const { data: authUsers, error: authError } = await db.auth.admin.listUsers({ perPage: 1 });
@@ -446,6 +523,30 @@ export async function POST(req: NextRequest) {
         await db.from("messages").delete().eq("conversation_id", conversationId);
         await db.from("conversations").delete().eq("id", conversationId);
         return NextResponse.json({ success: true, message: "Konuşma silindi" });
+      }
+
+      case "update_document_status": {
+        const { courierId, field, status: docStatus } = body;
+        if (!courierId || !field || !docStatus) {
+          return NextResponse.json({ error: "courierId, field ve status gerekli" }, { status: 400 });
+        }
+        // Güvenlik: Sadece izin verilen alan adlarını kabul et
+        const allowedFields = ["p1_certificate", "src_certificate", "criminal_record"];
+        if (!allowedFields.includes(field)) {
+          return NextResponse.json({ error: "Geçersiz belge alanı" }, { status: 400 });
+        }
+        // Güvenlik: Sadece izin verilen durumları kabul et
+        const allowedStatuses = ["Beklemede", "Onaylandı", "Reddedildi"];
+        if (!allowedStatuses.includes(docStatus)) {
+          return NextResponse.json({ error: "Geçersiz durum değeri" }, { status: 400 });
+        }
+
+        const { error } = await db.from("couriers")
+          .update({ [field]: docStatus })
+          .eq("id", courierId);
+
+        if (error) throw error;
+        return NextResponse.json({ success: true, message: `Belge durumu ${docStatus} olarak güncellendi` });
       }
 
       default:
