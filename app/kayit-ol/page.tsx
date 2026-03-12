@@ -186,6 +186,17 @@ export default function KayitOlPage() {
     }
     try {
       setLoading(true);
+
+      // E-posta doğrulama ayarını kontrol et
+      let emailVerificationEnabled = true;
+      try {
+        const settingsRes = await fetch("/api/settings?key=email_verification_enabled");
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json();
+          emailVerificationEnabled = settingsData.value === "true";
+        }
+      } catch {}
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -198,11 +209,14 @@ export default function KayitOlPage() {
       if (error) {
         const msg = (error.message || "").toLowerCase();
         if (msg.includes("rate limit") || msg.includes("email rate limit") || msg.includes("over_email_send_rate_limit")) {
-          setMessage("Doğrulama kodu zaten gönderildi. E-posta kutunuzu kontrol edin.");
-          // Yine de doğrulama sayfasına yönlendir — belki kodu zaten almışlardır
-          setTimeout(() => {
-            router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
-          }, 1500);
+          if (emailVerificationEnabled) {
+            setMessage("Doğrulama kodu zaten gönderildi. E-posta kutunuzu kontrol edin.");
+            setTimeout(() => {
+              router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
+            }, 1500);
+          } else {
+            setMessage("Bu e-posta ile kayıt zaten yapılmış. Giriş yapmayı deneyin.");
+          }
           return;
         }
         throw error;
@@ -215,8 +229,31 @@ export default function KayitOlPage() {
       }
 
       if (data.user) {
-        // Email doğrulama kodu gönderildi — kullanıcıyı doğrulama sayfasına yönlendir
-        router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
+        if (emailVerificationEnabled) {
+          // Email doğrulama kodu gönderildi — kullanıcıyı doğrulama sayfasına yönlendir
+          router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
+        } else {
+          // Doğrulama kapalı — kullanıcıyı otomatik onayla
+          try {
+            await fetch("/api/auth/auto-confirm", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: data.user.id }),
+            });
+          } catch {}
+
+          // Oturum yenile ve profil oluşturma aşamasına geç
+          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+          if (signInError) {
+            setMessage("Kayıt başarılı! Lütfen giriş yapın.");
+            setTimeout(() => router.push("/giris"), 1500);
+            return;
+          }
+
+          setSessionUserId(data.user.id);
+          setSessionEmail(email);
+          setStage("profile");
+        }
         return;
       } else {
         setMessage("Bir hata oluştu. Lütfen tekrar deneyin.");

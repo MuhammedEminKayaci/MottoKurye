@@ -65,6 +65,9 @@ export default function SystemPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
+  const [emailVerification, setEmailVerification] = useState(true);
+  const [emailVerificationLoading, setEmailVerificationLoading] = useState(false);
+  const [settingsMessage, setSettingsMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
   const fetchSystem = useCallback(async () => {
     setLoading(true);
@@ -86,6 +89,52 @@ export default function SystemPage() {
   }, []);
 
   useEffect(() => { fetchSystem(); }, [fetchSystem]);
+
+  // Sistem ayarlarını çek
+  const fetchSettings = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin?action=settings");
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.email_verification_enabled) {
+        setEmailVerification(json.email_verification_enabled.value === "true");
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => { fetchSettings(); }, [fetchSettings]);
+
+  const handleToggleEmailVerification = async () => {
+    const newValue = !emailVerification;
+    setEmailVerificationLoading(true);
+    setSettingsMessage(null);
+    try {
+      const res = await fetch("/api/admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update_setting",
+          key: "email_verification_enabled",
+          value: String(newValue),
+        }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Ayar güncellenemedi");
+      }
+      setEmailVerification(newValue);
+      setSettingsMessage({
+        text: newValue ? "E-posta doğrulama açıldı" : "E-posta doğrulama kapatıldı",
+        type: "success",
+      });
+      setTimeout(() => setSettingsMessage(null), 3000);
+    } catch (err: any) {
+      setSettingsMessage({ text: err.message || "Bir hata oluştu", type: "error" });
+      setTimeout(() => setSettingsMessage(null), 3000);
+    } finally {
+      setEmailVerificationLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -143,6 +192,69 @@ export default function SystemPage() {
             </svg>
             Yeniden Kontrol Et
           </button>
+        </div>
+      </div>
+
+      {/* Sistem Ayarları */}
+      <div className="bg-white rounded-2xl p-6 border border-gray-200">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-10 h-10 rounded-xl bg-[#ff7a00]/10 flex items-center justify-center">
+            <svg className="w-5 h-5 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-gray-900 font-semibold text-base">Sistem Ayarları</h3>
+            <p className="text-gray-400 text-xs">Uygulama davranışlarını buradan yönetin</p>
+          </div>
+        </div>
+
+        {settingsMessage && (
+          <div className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium ${
+            settingsMessage.type === "success"
+              ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+              : "bg-red-500/10 text-red-400 border border-red-500/20"
+          }`}>
+            {settingsMessage.text}
+          </div>
+        )}
+
+        <div className="space-y-3">
+          {/* E-posta Doğrulama Toggle */}
+          <div className="flex items-center justify-between bg-gray-50 rounded-xl px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                emailVerification ? "bg-emerald-500/20" : "bg-gray-200"
+              }`}>
+                <svg className={`w-4.5 h-4.5 ${emailVerification ? "text-emerald-400" : "text-gray-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-gray-900 text-sm font-semibold">E-posta Doğrulama</p>
+                <p className="text-gray-400 text-xs mt-0.5">
+                  {emailVerification
+                    ? "Kayıt sırasında e-posta doğrulama kodu zorunlu"
+                    : "Kullanıcılar doğrulama olmadan kayıt olabilir"}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleToggleEmailVerification}
+              disabled={emailVerificationLoading}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                emailVerification
+                  ? "bg-emerald-500 focus:ring-emerald-500"
+                  : "bg-gray-300 focus:ring-gray-400"
+              } ${emailVerificationLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                  emailVerification ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
         </div>
       </div>
 

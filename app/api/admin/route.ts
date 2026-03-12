@@ -387,6 +387,23 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ signedUrl: signedData.signedUrl });
       }
 
+      case "settings": {
+        // Sistem ayarlarını getir
+        const { data: settings, error: settingsError } = await db
+          .from("system_settings")
+          .select("key, value, description, updated_at");
+
+        if (settingsError) throw settingsError;
+
+        // Key-value objesine dönüştür
+        const settingsMap: Record<string, { value: string; description: string | null; updated_at: string }> = {};
+        (settings || []).forEach((s: any) => {
+          settingsMap[s.key] = { value: s.value, description: s.description, updated_at: s.updated_at };
+        });
+
+        return NextResponse.json(settingsMap);
+      }
+
       case "system": {
         // Sistem sağlığı kontrolleri
         const { data: authUsers, error: authError } = await db.auth.admin.listUsers({ perPage: 1 });
@@ -523,6 +540,29 @@ export async function POST(req: NextRequest) {
         await db.from("messages").delete().eq("conversation_id", conversationId);
         await db.from("conversations").delete().eq("id", conversationId);
         return NextResponse.json({ success: true, message: "Konuşma silindi" });
+      }
+
+      case "update_setting": {
+        const { key, value } = body;
+        if (!key || value === undefined) {
+          return NextResponse.json({ error: "key ve value gerekli" }, { status: 400 });
+        }
+        // Güvenlik: Sadece izin verilen ayar anahtarlarını kabul et
+        const allowedKeys = ["email_verification_enabled"];
+        if (!allowedKeys.includes(key)) {
+          return NextResponse.json({ error: "Geçersiz ayar anahtarı" }, { status: 400 });
+        }
+        // Güvenlik: Boolean ayarlar için sadece true/false kabul et
+        if (key === "email_verification_enabled" && value !== "true" && value !== "false") {
+          return NextResponse.json({ error: "Geçersiz değer" }, { status: 400 });
+        }
+
+        const { error: updateError } = await db
+          .from("system_settings")
+          .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: "key" });
+
+        if (updateError) throw updateError;
+        return NextResponse.json({ success: true, message: `Ayar güncellendi: ${key} = ${value}` });
       }
 
       case "update_document_status": {

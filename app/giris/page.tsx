@@ -30,8 +30,50 @@ function GirisContent() {
       setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        // Email doğrulanmamış kullanıcı için özel mesaj
+        // Email doğrulanmamış kullanıcı için özel işlem
         if (error.message?.toLowerCase().includes("email not confirmed")) {
+          // Doğrulama ayarını kontrol et — kapalıysa otomatik onayla
+          try {
+            const settingsRes = await fetch("/api/settings?key=email_verification_enabled");
+            if (settingsRes.ok) {
+              const settingsData = await settingsRes.json();
+              if (settingsData.value === "false") {
+                // Doğrulama kapalı — kullanıcıyı otomatik onayla ve tekrar giriş yap
+                // Önce user ID'yi bulmak için signup bilgisiyle auto-confirm çağır
+                const { data: signUpData } = await supabase.auth.signUp({ email, password });
+                if (signUpData?.user?.id) {
+                  await fetch("/api/auth/auto-confirm", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: signUpData.user.id }),
+                  });
+                  // Tekrar giriş yap
+                  const { error: retryError } = await supabase.auth.signInWithPassword({ email, password });
+                  if (!retryError) {
+                    const { data: sessionData } = await supabase.auth.getSession();
+                    const user = sessionData.session?.user;
+                    const uid = user?.id;
+                    let target = "/ilanlar";
+                    if (uid) {
+                      const [courierResult, businessResult] = await Promise.all([
+                        supabase.from("couriers").select("id").eq("user_id", uid).limit(1),
+                        supabase.from("businesses").select("id").eq("user_id", uid).limit(1),
+                      ]);
+                      if (courierResult.data?.length || businessResult.data?.length) {
+                        target = "/profil";
+                      } else {
+                        const userRole = user?.user_metadata?.role || "kurye";
+                        target = `/kayit-ol?role=${userRole}`;
+                      }
+                    }
+                    setMessage("Giriş başarılı! Yönlendiriliyorsunuz...");
+                    setTimeout(() => { router.push(target); }, 400);
+                    return;
+                  }
+                }
+              }
+            }
+          } catch {}
           setMessage("E-posta adresiniz henüz doğrulanmamış. Lütfen e-posta kutunuzu kontrol edin.");
           setLoading(false);
           return;
