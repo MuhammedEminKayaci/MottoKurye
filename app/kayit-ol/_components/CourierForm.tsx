@@ -20,7 +20,7 @@ const courierSchema = z.object({
   province: z.string().min(1, "İl seçin"),
   district: z.array(z.string()).min(1, "En az bir ilçe seçin"),
   workingType: z.enum(["Full Time", "Part Time"]),
-  earningModel: z.enum(["Esnaf Kurye - Saatlik Ücret + Paket Başı", "Esnaf Kurye - Aylık Sabit", "Sigortalı - Aylık Sabit"]),
+  earningModel: z.enum(["Saat+Paket Başı", "Aylık Sabit", "Paket Başı"]),
   workingDays: z.enum(["İzinsiz", "Haftanın 1 Günü İzin", "Haftanın 2 Günü İzin"]),
   dailyPackageEstimate: z.enum(["0-15 PAKET", "15-25 PAKET", "25-40 PAKET", "40 VE ÜZERİ"]),
   licenseType: z.enum(["A1", "A", "A2"]),
@@ -118,7 +118,7 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
       district: [],
       nationality: "Türk Vatandaşı",
       workingType: "Full Time",
-      earningModel: "Esnaf Kurye - Saatlik Ücret + Paket Başı",
+      earningModel: "Saat+Paket Başı",
       dailyPackageEstimate: "15-25 PAKET",
       workingDays: "İzinsiz",
       hasMotorcycle: "VAR",
@@ -402,9 +402,9 @@ export function CourierForm({ onSubmit, disabled }: CourierFormProps) {
           <div>
             <label className="block text-xs font-medium text-white mb-1">Kazanç Modeli *</label>
             <select className="input-field text-sm" {...register("earningModel")}>
-              <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
-              <option value="Esnaf Kurye - Aylık Sabit">Esnaf Kurye - Aylık Sabit</option>
-              <option value="Sigortalı - Aylık Sabit">Sigortalı - Aylık Sabit</option>
+              <option value="Saat+Paket Başı">Saat + Paket Başı</option>
+              <option value="Aylık Sabit">Aylık Sabit</option>
+              <option value="Paket Başı">Paket Başı</option>
             </select>
           </div>
           <div className="sm:col-span-2">

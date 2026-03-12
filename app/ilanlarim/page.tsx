@@ -76,7 +76,7 @@ export default function IlanlarimPage() {
             <LabeledInput label="İlçe" value={form.district} onChange={v=>setForm(f=>({...f,district:v}))} placeholder="Kadıköy" />
             <LabeledInput label="Çalışma Tipi" value={form.working_type} onChange={v=>setForm(f=>({...f,working_type:v}))} placeholder="Full Time / Part Time" />
             <LabeledInput label="Çalışma Saatleri" value={form.working_hours} onChange={v=>setForm(f=>({...f,working_hours:v}))} placeholder="Gündüz / Gece / 24" />
-            <LabeledSelect label="Kazanç Modeli" value={form.earning_model} onChange={v=>setForm(f=>({...f,earning_model:v}))} options={["Esnaf Kurye - Saatlik Ücret + Paket Başı","Esnaf Kurye - Aylık Sabit","Sigortalı - Aylık Sabit"]} />
+            <LabeledSelect label="Kazanç Modeli" value={form.earning_model} onChange={v=>setForm(f=>({...f,earning_model:v}))} options={["Saat+Paket Başı","Aylık Sabit","Paket Başı"]} />
             <LabeledSelect label="Günlük Paket Tahmini" value={form.daily_package_estimate} onChange={v=>setForm(f=>({...f,daily_package_estimate:v}))} options={["0-15 PAKET","15-25 PAKET","25-40 PAKET","40 VE ÜZERİ"]} />
             <div className="md:col-span-3">
               <LabeledSelect label="Çalışma Günleri" value={form.working_days} onChange={v=>setForm(f=>({...f,working_days:v}))} options={["İzinsiz","Haftanın 1 Günü İzin","Haftanın 2 Günü İzin"]} />

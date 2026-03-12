@@ -15,7 +15,7 @@ export interface CourierRegistration {
   province: string;
   district: string[];
   workingType: string; // Full Time | Part Time
-  earningModel: string; // Esnaf Kurye - Saatlik Ücret + Paket Başı | Esnaf Kurye - Aylık Sabit | Sigortalı - Aylık Sabit
+  earningModel: string; // Saat+Paket Başı | Aylık Sabit | Paket Başı
   workingDays: string; // İzinsiz | Haftanın 1 Günü İzin | Haftanın 2 Günü İzin
   dailyPackageEstimate: string; // 0-15 | 15-25 | 25-40 | 40+
   
@@ -60,7 +60,7 @@ export interface BusinessRegistration {
   province: string;
   district: string[];
   workingType: string; // Full Time | Part Time
-  earningModel: string; // Esnaf Kurye - Saatlik Ücret + Paket Başı | Esnaf Kurye - Aylık Sabit | Sigortalı - Aylık Sabit
+  earningModel: string; // Saat+Paket Başı | Aylık Sabit | Paket Başı
   workingDays: string; // İzinsiz | Haftanın 1 Günü İzin | Haftanın 2 Günü İzin
   dailyPackageEstimate: string; // 0-15 | 15-25 | 25-40 | 40+
   

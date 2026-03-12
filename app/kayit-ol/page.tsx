@@ -503,7 +503,7 @@ export default function KayitOlPage() {
         district: ensureStringArray(data.district),
         working_type: data.workingType,
         earning_model: data.earningModel,
-        working_days: data.workingDays,
+        working_days: [data.workingDays],
         daily_package_estimate: data.dailyPackageEstimate,
         working_hours: data.workingType === "Full Time" ? "08:00-17:00" : "Esnek",
       };

@@ -753,9 +753,9 @@ export default function KuryeDuzenlePage() {
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white text-neutral-900"
                 >
                   <option value="">Seçiniz</option>
-                  <option value="Esnaf Kurye - Saatlik Ücret + Paket Başı">Esnaf Kurye - Saatlik Ücret + Paket Başı</option>
-                  <option value="Esnaf Kurye - Aylık Sabit">Esnaf Kurye - Aylık Sabit</option>
-                  <option value="Sigortalı - Aylık Sabit">Sigortalı - Aylık Sabit</option>
+                  <option value="Saat+Paket Başı">Saat + Paket Başı</option>
+                  <option value="Aylık Sabit">Aylık Sabit</option>
+                  <option value="Paket Başı">Paket Başı</option>
                 </select>
               </div>
               <div className="sm:col-span-2">
