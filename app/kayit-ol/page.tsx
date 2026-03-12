@@ -222,8 +222,15 @@ export default function KayitOlPage() {
         throw error;
       }
 
-      // Supabase zaten kayıtlı (onaylanmış) e-posta için identities boş döner
-      if (data.user && data.user.identities && data.user.identities.length === 0) {
+      // Supabase zaten kayıtlı ve onaylanmış e-posta için identities boş döner
+      // email_confirmed_at kontrolü: yeni kayıtlarda bu alan null olur,
+      // sadece daha önce onaylanmış hesaplarda dolu gelir
+      if (
+        data.user &&
+        data.user.identities &&
+        data.user.identities.length === 0 &&
+        data.user.email_confirmed_at
+      ) {
         setMessage("Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyin.");
         return;
       }
