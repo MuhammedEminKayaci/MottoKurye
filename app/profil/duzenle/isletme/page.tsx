@@ -220,7 +220,7 @@ export default function IsletmeDuzenlePage() {
         district: formData.district,
         working_type: formData.working_type,
         earning_model: formData.earning_model,
-        working_days: formData.working_days,
+        working_days: Array.isArray(formData.working_days) ? formData.working_days : [formData.working_days],
         daily_package_estimate: formData.daily_package_estimate,
         contact_preference: formData.contact_preference,
         avatar_url: finalAvatarUrl,
@@ -598,7 +598,7 @@ export default function IsletmeDuzenlePage() {
                 </label>
                 <select
                   name="working_days"
-                  value={typeof formData.working_days === 'string' ? formData.working_days : ''}
+                  value={Array.isArray(formData.working_days) ? formData.working_days[0] || '' : (typeof formData.working_days === 'string' ? formData.working_days : '')}
                   onChange={handleInputChange}
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white cursor-pointer appearance-none"
                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}

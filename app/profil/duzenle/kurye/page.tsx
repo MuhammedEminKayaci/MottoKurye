@@ -381,7 +381,7 @@ export default function KuryeDuzenlePage() {
         working_type: formData.working_type,
         earning_model: formData.earning_model,
         daily_package_estimate: formData.daily_package_estimate,
-        working_days: formData.working_days,
+        working_days: Array.isArray(formData.working_days) ? formData.working_days : [formData.working_days],
         license_type: formData.license_type,
         has_motorcycle: formData.has_motorcycle,
         moto_brand: formData.has_motorcycle === 'VAR' ? formatBrand(formData.moto_brand || '') : null,
@@ -781,7 +781,7 @@ export default function KuryeDuzenlePage() {
                 </label>
                 <select
                   name="working_days"
-                  value={formData.working_days || ''}
+                  value={Array.isArray(formData.working_days) ? formData.working_days[0] || '' : (formData.working_days || '')}
                   onChange={handleInputChange}
                   className="w-full h-[60px] px-4 border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-[#ff7a00]/50 focus:border-[#ff7a00] transition bg-white"
                 >
