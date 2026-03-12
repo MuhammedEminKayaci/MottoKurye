@@ -187,87 +187,43 @@ export default function KayitOlPage() {
     try {
       setLoading(true);
 
-      // E-posta doğrulama ayarını kontrol et
-      let emailVerificationEnabled = true;
-      try {
-        const settingsRes = await fetch("/api/settings?key=email_verification_enabled");
-        if (settingsRes.ok) {
-          const settingsData = await settingsRes.json();
-          emailVerificationEnabled = settingsData.value === "true";
-        }
-      } catch {}
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { role },
-        },
+      // Sunucu tarafında kayıt — admin API kullanır, rate limit sorunu olmaz
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role }),
       });
 
-      // Rate limit hatası — kullanıcı daha önce kayıt olduysa doğrulama sayfasına yönlendir
-      if (error) {
-        const msg = (error.message || "").toLowerCase();
-        if (msg.includes("rate limit") || msg.includes("email rate limit") || msg.includes("over_email_send_rate_limit")) {
-          if (emailVerificationEnabled) {
-            setMessage("Doğrulama kodu zaten gönderildi. E-posta kutunuzu kontrol edin.");
-            setTimeout(() => {
-              router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
-            }, 1500);
-          } else {
-            setMessage("Bu e-posta ile kayıt zaten yapılmış. Giriş yapmayı deneyin.");
-          }
+      const result = await res.json();
+
+      if (!res.ok) {
+        if (result.code === "USER_EXISTS") {
+          setMessage("Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyin.");
+        } else {
+          setMessage(result.error || "Bir hata oluştu. Tekrar deneyin.");
+        }
+        return;
+      }
+
+      if (result.emailVerificationEnabled) {
+        // Email doğrulama açık — kullanıcıyı doğrulama sayfasına yönlendir
+        router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
+      } else {
+        // Doğrulama kapalı — kullanıcı zaten onaylı, direkt giriş yap
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) {
+          setMessage("Kayıt başarılı! Lütfen giriş yapın.");
+          setTimeout(() => router.push("/giris"), 1500);
           return;
         }
-        throw error;
-      }
 
-      // Supabase zaten kayıtlı ve onaylanmış e-posta için identities boş döner
-      // email_confirmed_at kontrolü: yeni kayıtlarda bu alan null olur,
-      // sadece daha önce onaylanmış hesaplarda dolu gelir
-      if (
-        data.user &&
-        data.user.identities &&
-        data.user.identities.length === 0 &&
-        data.user.email_confirmed_at
-      ) {
-        setMessage("Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyin.");
-        return;
-      }
-
-      if (data.user) {
-        if (emailVerificationEnabled) {
-          // Email doğrulama kodu gönderildi — kullanıcıyı doğrulama sayfasına yönlendir
-          router.push(`/email-dogrulama?email=${encodeURIComponent(email)}&role=${role}`);
-        } else {
-          // Doğrulama kapalı — kullanıcıyı otomatik onayla
-          try {
-            await fetch("/api/auth/auto-confirm", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId: data.user.id }),
-            });
-          } catch {}
-
-          // Oturum yenile ve profil oluşturma aşamasına geç
-          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-          if (signInError) {
-            setMessage("Kayıt başarılı! Lütfen giriş yapın.");
-            setTimeout(() => router.push("/giris"), 1500);
-            return;
-          }
-
-          setSessionUserId(data.user.id);
-          setSessionEmail(email);
-          setStage("profile");
-        }
-        return;
-      } else {
-        setMessage("Bir hata oluştu. Lütfen tekrar deneyin.");
+        setSessionUserId(result.user.id);
+        setSessionEmail(email);
+        setStage("profile");
       }
     } catch (err: any) {
       console.error("Signup error:", err);
-      setMessage(toTrError(err));
+      setMessage("Bir hata oluştu. Tekrar deneyin.");
     } finally {
       setLoading(false);
     }
