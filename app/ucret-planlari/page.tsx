@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { PublicHeader } from "../_components/PublicHeader";
+import { UnifiedHeader } from "../_components/UnifiedHeader";
 import { Footer } from "../_components/Footer";
 import { supabase } from "@/lib/supabase";
 import { PlanType, PLAN_LIMITS, isUnlimited } from "@/lib/planLimits";
@@ -120,7 +120,7 @@ export default function UcretPlanlariPage() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-neutral-50 to-white flex flex-col font-sans">
-      <PublicHeader />
+      <UnifiedHeader />
 
       {/* Pricing Cards */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8">
@@ -271,87 +271,15 @@ export default function UcretPlanlariPage() {
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-[#ff7a00]/10 rounded-full flex items-center justify-center">
                   <svg className="w-5 h-5 md:w-6 md:h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    Paketler nasıl çalışır?
+                    Paketservisci.com üzerinden anlık kurye çağırabilir miyim?
                   </h3>
                   <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Tüm paketler aylık abonelik şeklindedir. Seçtiğiniz pakete göre günlük kurye iletişim ve onay limitleriniz belirlenir.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-neutral-100 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-[#ff7a00]/10 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    Ücretsiz paket yeterli mi?
-                  </h3>
-                  <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Ücretsiz paket, günde 1-2 kurye ile iletişim kurmak isteyen küçük işletmeler için idealdir. Daha fazla kurye ihtiyacınız varsa ücretli paketleri tercih edebilirsiniz.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-neutral-100 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-[#ff7a00]/10 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    Paket değişikliği yapabilir miyim?
-                  </h3>
-                  <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Evet, istediğiniz zaman paketinizi yükseltebilir veya düşürebilirsiniz. Değişiklikler bir sonraki faturalandırma döneminde geçerli olur.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-neutral-100 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-[#ff7a00]/10 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    Ödeme yöntemleri nelerdir?
-                  </h3>
-                  <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Kredi kartı, banka kartı ve havale ile ödeme yapabilirsiniz. Tüm ödemeler güvenli şekilde işlenir.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-neutral-100 hover:shadow-xl transition-shadow">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-[#ff7a00]/10 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    İşletmeler için nasıl çalışıyor?
-                  </h3>
-                  <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Platform, işletmelerin doğru kuryelere ulaşması için tasarlanmıştır. İşletmeler, kurye profillerini görüntüleyebilir ve iletişim talebi gönderebilir. Seçtiğiniz pakete göre günlük iletişim ve onay limitleriniz belirlenir. Ücretsiz paket ile başlayıp, ihtiyacınıza göre ücretli paketlere geçiş yapabilirsiniz.
+                    Hayır. Paketservisci.com, anlık veya tek seferlik kurye çağırma hizmeti sunmaz. Platformumuz, işletmelerin uzun süreli çalışabilecek motokuryeler bulmasını sağlamak amacıyla kurulmuştur. İşletmeler, ihtiyaç duydukları kuryeleri ilan oluşturarak veya kurye profillerini inceleyerek bulabilir ve uzun vadeli çalışma için iletişime geçebilir.
                   </p>
                 </div>
               </div>
@@ -366,10 +294,46 @@ export default function UcretPlanlariPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    Kuryeler için ücretsiz mi?
+                    Paketservisci.com kuryeler için ücretli mi?
                   </h3>
                   <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Evet! Kuryeler için platform tamamen ücretsizdir. Kuryeler ücretsiz kayıt olabilir, profillerini oluşturabilir, ilan verebilir ve işletmelerden gelen iletişim taleplerini yanıtlayabilir. Hiçbir ücret veya gizli masraf bulunmamaktadır.
+                    Hayır, Paketservisci.com kuryeler için tamamen ücretsizdir.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-neutral-100 hover:shadow-xl transition-shadow">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-[#ff7a00]/10 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
+                    Paketservisci.com işletmeler için üyelik paketleri ücretli mi?
+                  </h3>
+                  <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
+                    Paketservisci.com&apos;da 3 farklı üyelik paketi bulunmaktadır. Bunlardan 1. Paket sınırlı kullanım imkanları ile tamamen ücretsizdir. 2. ve 3. Paket üyelikleri ücretlidir.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-neutral-100 hover:shadow-xl transition-shadow">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-[#ff7a00]/10 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 md:w-6 md:h-6 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
+                    Paketservisci.com&apos;u kimler kullanabilir?
+                  </h3>
+                  <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
+                    Uzun süreli motorsikletli kurye istihdamı yapmak isteyen her firma ile tüm motorsikletli kuryeler Paketservisci.com&apos;u kullanabilir.
                   </p>
                 </div>
               </div>

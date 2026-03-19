@@ -16,6 +16,10 @@ test.describe('Kurye Kayıt Akışı', () => {
     await page.goto('/kayit-ol');
     await waitForPageLoad(page);
     
+    // Rol seçim ekranında Kurye kartına tıkla
+    await page.getByRole('button', { name: /kurye/i }).first().click();
+    await waitForPageLoad(page);
+    
     // Email ve şifre gir
     const emailInput = page.locator('input[type="email"]').first();
     await expect(emailInput).toBeVisible();
@@ -34,6 +38,10 @@ test.describe('Kurye Kayıt Akışı', () => {
     await page.goto('/kayit-ol');
     await waitForPageLoad(page);
     
+    // Rol seçim ekranında Kurye kartına tıkla
+    await page.getByRole('button', { name: /kurye/i }).first().click();
+    await waitForPageLoad(page);
+    
     // Temel alanlar
     const emailInput = page.locator('input[type="email"]');
     await expect(emailInput).toBeVisible();
@@ -45,12 +53,12 @@ test.describe('Kurye Kayıt Akışı', () => {
 
 test.describe('İşletme Kayıt Akışı', () => {
   test('işletme olarak kayıt ol sayfası görünür', async ({ page }) => {
-    // İşletme kayıt sayfasına URL parametresiyle git
+    // İşletme kayıt sayfasına URL parametresiyle git (otomatik auth stage'e geçer)
     await page.goto('/kayit-ol?role=isletme');
     await waitForPageLoad(page);
     
     // Kayıt sayfası yüklendi - email input görünür olmalı
-    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="email"]')).toBeVisible({ timeout: 10000 });
   });
 });
 

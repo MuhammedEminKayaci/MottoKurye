@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Header } from "../_components/Header";
+import { UnifiedHeader } from "../_components/UnifiedHeader";
 import { PlanStatusCard } from "../_components/PlanStatusCard";
 import { supabase } from "../../lib/supabase";
 import { PlanType, PLAN_LIMITS } from "@/lib/planLimits";
@@ -267,7 +267,7 @@ export default function ProfilPage() {
   if (loading) {
     return (
       <main className="min-h-dvh w-full bg-neutral-50">
-        <Header />
+        <UnifiedHeader />
         <div className="flex items-center justify-center h-[50vh]">
           <div className="spinner" />
         </div>
@@ -280,7 +280,7 @@ export default function ProfilPage() {
     setTimeout(() => router.push('/kayit-ol'), 1200);
     return (
       <main className="min-h-dvh w-full bg-neutral-50">
-        <Header />
+        <UnifiedHeader />
         <div className="max-w-2xl mx-auto px-4 py-20 text-center">
           <p className="text-black/70 text-lg">Profil bulunamadı. Kayıt sayfasına yönlendiriliyorsunuz...</p>
         </div>
@@ -297,7 +297,7 @@ export default function ProfilPage() {
 
   return (
     <main className="min-h-dvh w-full bg-neutral-50">
-      <Header />
+      <UnifiedHeader />
       
       {/* Okunmamış Mesaj Bildirimi */}
       {unreadCount > 0 && (

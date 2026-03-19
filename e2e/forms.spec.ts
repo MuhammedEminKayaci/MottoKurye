@@ -10,6 +10,9 @@ test.describe('Kurye Kayıt Formu Validasyonları', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/kayit-ol');
     await page.waitForLoadState('networkidle');
+    // Rol seçim ekranında Kurye kartına tıkla
+    await page.getByRole('button', { name: /kurye/i }).first().click();
+    await page.waitForLoadState('networkidle');
   });
 
   test('email alanı boş bırakılamaz', async ({ page }) => {

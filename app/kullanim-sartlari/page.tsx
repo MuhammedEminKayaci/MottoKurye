@@ -2,13 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
-import { PublicHeader } from "../_components/PublicHeader";
+import { UnifiedHeader } from "../_components/UnifiedHeader";
 import { Footer } from "../_components/Footer";
 
 export default function KullanimSartlariPage() {
   return (
     <div className="min-h-screen w-full bg-white flex flex-col font-sans">
-      <PublicHeader />
+      <UnifiedHeader />
 
       <main className="flex-1 px-6 md:px-12 lg:px-20 py-12">
         <div className="max-w-4xl mx-auto">

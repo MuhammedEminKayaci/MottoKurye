@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Header } from "../_components/Header";
+import { UnifiedHeader } from "../_components/UnifiedHeader";
 import { supabase } from "../../lib/supabase";
 
 export default function IlanlarimPage() {
@@ -54,7 +54,7 @@ export default function IlanlarimPage() {
 
   return (
     <main className="min-h-dvh w-full bg-gradient-to-b from-white to-neutral-100">
-      <Header />
+      <UnifiedHeader />
       <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-extrabold text-black tracking-tight">İlanlarım</h1>

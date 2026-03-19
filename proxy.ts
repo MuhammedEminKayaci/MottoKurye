@@ -111,9 +111,6 @@ export async function proxy(request: NextRequest) {
     "/profil",
     "/mesajlar",
     "/ilanlarim",
-    "/kurye-bul",
-    "/isletme-bul",
-    "/ilanlar",
   ];
 
   const isProtectedRoute = protectedRoutes.some((route) =>

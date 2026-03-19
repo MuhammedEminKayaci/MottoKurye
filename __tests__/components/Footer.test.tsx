@@ -13,7 +13,7 @@ describe('Footer Component', () => {
 
   describe('Logo', () => {
     it('logo görüntüsü render edilmeli', () => {
-      const logo = screen.getByAltText('PaketServisi Logo');
+      const logo = screen.getByAltText('PaketServisci Logo');
       expect(logo).toBeInTheDocument();
     });
   });

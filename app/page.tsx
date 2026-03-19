@@ -5,8 +5,7 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { PublicHeader } from "./_components/PublicHeader";
-import { RoleHeader } from "./_components/RoleHeader";
+import { UnifiedHeader } from "./_components/UnifiedHeader";
 import { Footer } from "./_components/Footer";
 
 type UserRole = "kurye" | "isletme" | null;
@@ -57,8 +56,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen w-full bg-white flex flex-col font-sans">
-      {/* Giriş yapmış kullanıcılar için RoleHeader, misafirler için PublicHeader */}
-      {isLoggedIn ? <RoleHeader /> : <PublicHeader />}
+      <UnifiedHeader />
 
       {/* Hero */}
       <main className="flex-1 p-6 md:p-12 lg:p-20">

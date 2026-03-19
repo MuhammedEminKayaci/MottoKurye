@@ -69,6 +69,10 @@ test.describe('Kayıt Ol Sayfası', () => {
   });
 
   test('kayıt formu görünür olmalı', async ({ page }) => {
+    // Rol seçim ekranında Kurye kartına tıkla
+    await page.getByRole('button', { name: /kurye/i }).first().click();
+    await page.waitForLoadState('networkidle');
+    
     // E-posta input alanı
     const emailInput = page.locator('input[type="email"]');
     await expect(emailInput).toBeVisible();

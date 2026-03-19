@@ -15,7 +15,9 @@ interface ListingCardProps {
   contactPreference?: "phone" | "in_app" | "both";
   showActions?: boolean;
   isGuest?: boolean;
+  isCrossRole?: boolean;
   onGuestClick?: () => void;
+  onCrossRoleClick?: () => void;
   userId?: string;
   targetId?: string;
   userRole?: 'kurye' | 'isletme';
@@ -23,7 +25,7 @@ interface ListingCardProps {
   targetPlan?: 'free' | 'standard' | 'premium' | null; // Hedef işletmenin planı (kurye görünümü için)
 }
 
-export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, fallbackImageUrl, phone, contactPreference = "phone", showActions, isGuest, onGuestClick, userId, targetId, userRole, viewerPlan, targetPlan }: ListingCardProps) {
+export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, fallbackImageUrl, phone, contactPreference = "phone", showActions, isGuest, isCrossRole, onGuestClick, onCrossRoleClick, userId, targetId, userRole, viewerPlan, targetPlan }: ListingCardProps) {
   const chips = (metaParts && metaParts.length ? metaParts : (meta ? meta.split(" • ") : [])).filter(Boolean);
   const finalImageUrl = imageUrl || fallbackImageUrl;
   const showImage = !!finalImageUrl;
@@ -69,6 +71,7 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
 
   const handleCardClick = () => {
     if (isGuest && onGuestClick) { onGuestClick(); return; }
+    if (isCrossRole && onCrossRoleClick) { onCrossRoleClick(); return; }
     if (userId && userRole) {
       window.location.href = `/profil/${userRole}/${userId}`;
     }
@@ -124,6 +127,10 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
           </div>
         </div>
       );
+    }
+
+    if (isCrossRole) {
+      return null;
     }
 
     const btnBase = "flex-1 flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-semibold rounded-xl transition-all active:scale-[0.97]";

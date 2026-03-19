@@ -16,7 +16,7 @@ export default function KayitOlPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [role, setRole] = useState<RoleType>("kurye");
-  const [stage, setStage] = useState<"auth" | "profile">("auth");
+  const [stage, setStage] = useState<"role-select" | "auth" | "profile">("role-select");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [sessionUserId, setSessionUserId] = useState<string | null>(null);
@@ -58,6 +58,7 @@ export default function KayitOlPage() {
         const incomingRole = roleParam || typeParam;
         if (incomingRole && (incomingRole === 'kurye' || incomingRole === 'isletme')) {
           setRole(incomingRole as RoleType);
+          setStage(prev => prev === "role-select" ? "auth" : prev);
         }
 
         if (data.session?.user) {
@@ -254,7 +255,7 @@ export default function KayitOlPage() {
     setEmail("");
     setPassword("");
     setConfirm("");
-    setStage("auth");
+    setStage("role-select");
     setMessage("Hesap değiştirildi. Yeni e‑posta ile devam edin.");
     setLoading(false);
   };
@@ -482,7 +483,10 @@ export default function KayitOlPage() {
   };
 
   return (
-    <main className="relative min-h-dvh w-full overflow-hidden bg-[#ff7a00]">
+    <main className="relative min-h-dvh w-full overflow-hidden">
+      {/* Background Image + Overlay */}
+      <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/kayit-bg.jpeg')" }} />
+      <div className="fixed inset-0 bg-[#ff7a00]/60 backdrop-blur-[2px]" />
       <Suspense fallback={null}>
         <RoleParamHandler setRole={setRole} setIsGoogleUser={setIsGoogleUser} />
       </Suspense>
@@ -491,41 +495,105 @@ export default function KayitOlPage() {
         <div className="absolute bottom-12 -right-8 w-56 h-56 rounded-full bg-white/10 blur-xl animate-pulse-soft" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-white/5 blur-3xl animate-float-slow" />
       </div>
-      <div className="relative z-10 flex min-h-dvh items-start justify-center px-4 py-10">
+      <div className="relative z-10 flex min-h-dvh items-center justify-center px-4 py-10">
         <div className="w-full max-w-2xl glass-card rounded-3xl p-6 sm:p-8 shadow-2xl fade-up">
           <div className="flex flex-col items-center gap-2 mb-6">
             <Link href="/" className="cursor-pointer">
               <Image src="/images/paketservisci.png" alt="PaketServisci Logo" width={160} height={50} priority className="drop-shadow-lg hover:opacity-90 transition-opacity" />
             </Link>
             <h1 className="text-xl sm:text-2xl font-extrabold text-white">
-              {isGoogleUser ? "Profil Tamamlama" : "Kayıt / Profil Tamamlama"}
+              {stage === "role-select" ? "Kayıt Ol" :
+               stage === "auth" ? (role === "kurye" ? "Kurye Kaydı" : "İşletme Kaydı") :
+               isGoogleUser ? "Profil Tamamlama" : (role === "kurye" ? "Kurye Kaydı" : "İşletme Kaydı")}
             </h1>
             <p className="text-xs sm:text-sm text-white/85 text-center max-w-md">
-              {stage === "auth" ? "Önce hesabını oluştur, ardından profil bilgilerini doldur." : 
+              {stage === "role-select" ? "Nasıl kayıt olmak istediğini seç." :
+               stage === "auth" ? "Hesabını oluştur, ardından profil bilgilerini doldur." : 
                isGoogleUser ? "Google ile giriş yaptın! Şimdi profil bilgilerini tamamla." :
                "Gerekli bilgileri doldurun."}
             </p>
-            {stage === "profile" && (
-              <div className="mt-2 px-4 py-2 bg-white/20 rounded-full">
+            {(stage === "auth" || stage === "profile") && (
+              <div className="mt-2 px-4 py-1.5 bg-white/20 rounded-full">
                 <p className="text-sm font-bold text-white flex items-center justify-center gap-2">
                   {role === "kurye" ? (
-                    <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg> Kurye Kayıt</>
+                    <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg> Kurye</>
                   ) : (
-                    <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg> İşletme Kayıt</>
+                    <><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg> İşletme</>
                   )}
                 </p>
               </div>
             )}
           </div>
 
+          {/* Stage: role-select (Rol Seçimi) */}
+          {stage === "role-select" && (
+            <div className="fade-up space-y-5">
+              <div className="grid grid-cols-2 gap-3 sm:gap-5">
+                {/* Kurye Card */}
+                <button
+                  onClick={() => { setRole("kurye"); setStage("auth"); }}
+                  className="group relative overflow-hidden bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl border border-white/25 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:from-white/30 hover:to-white/10 hover:border-white/60 hover:scale-[1.03] hover:shadow-[0_8px_40px_rgba(255,255,255,0.15)] active:scale-[0.98]"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 rounded-2xl bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-all group-hover:rotate-3">
+                      <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-base sm:text-xl font-bold text-white mb-1 sm:mb-2">Kurye</h3>
+                    <p className="text-white/60 text-xs sm:text-sm leading-relaxed">Paket teslimatı yaparak<br className="hidden sm:block"/> kazanç sağla</p>
+                    <div className="mt-3 sm:mt-4 inline-flex items-center gap-1 text-xs font-semibold text-white/80 group-hover:text-white transition-colors">
+                      Başla
+                      <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                  </div>
+                </button>
+
+                {/* İşletme Card */}
+                <button
+                  onClick={() => { setRole("isletme"); setStage("auth"); }}
+                  className="group relative overflow-hidden bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl border border-white/25 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:from-white/30 hover:to-white/10 hover:border-white/60 hover:scale-[1.03] hover:shadow-[0_8px_40px_rgba(255,255,255,0.15)] active:scale-[0.98]"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3 sm:mb-4 rounded-2xl bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-all group-hover:-rotate-3">
+                      <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-base sm:text-xl font-bold text-white mb-1 sm:mb-2">İşletme</h3>
+                    <p className="text-white/60 text-xs sm:text-sm leading-relaxed">İşletmen için kurye bul<br className="hidden sm:block"/> ve yönet</p>
+                    <div className="mt-3 sm:mt-4 inline-flex items-center gap-1 text-xs font-semibold text-white/80 group-hover:text-white transition-colors">
+                      Başla
+                      <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              <div className="relative flex items-center gap-3">
+                <div className="flex-1 h-px bg-white/20" />
+                <span className="text-xs text-white/50 shrink-0">veya</span>
+                <div className="flex-1 h-px bg-white/20" />
+              </div>
+
+              <button type="button" onClick={handleGoogleSignup} className="w-full rounded-2xl bg-white text-black font-semibold py-3 shadow-lg hover:shadow-xl hover:translate-y-[-1px] active:translate-y-[1px] transition-all inline-flex items-center justify-center gap-2.5">
+                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.275c0-.85-.075-1.7-.225-2.525H12v4.775h6.5a5.56 5.56 0 0 1-2.4 3.65v3h3.9c2.275-2.1 3.6-5.2 3.6-8.9Z"/><path fill="#34A853" d="M12 24c3.25 0 5.975-1.075 7.967-2.925l-3.9-3c-1.075.75-2.45 1.2-4.067 1.2-3.125 0-5.775-2.1-6.717-4.925H1.2v3.075A12 12 0 0 0 12 24Z"/><path fill="#FBBC05" d="M5.283 14.35a7.21 7.21 0 0 1 0-4.7V6.575H1.2a12 12 0 0 0 0 10.85l4.083-3.075Z"/><path fill="#EA4335" d="M12 4.75c1.75 0 3.325.6 4.558 1.783l3.4-3.4C17.975 1.2 15.25 0 12 0A12 12 0 0 0 1.2 6.575l4.083 3.075C6.225 6.825 8.875 4.75 12 4.75Z"/></svg>
+                Google ile Kayıt Ol
+              </button>
+            </div>
+          )}
+
           {/* Stage: auth (email/password) - Google kullanıcıları için gizle */}
           {stage === "auth" && !isGoogleUser && (
             <>
-              {/* Role Selection - Sadece auth aşamasında göster */}
-              <div className="mb-6 grid grid-cols-2 gap-2">
-                {(["kurye", "isletme"] as RoleType[]).map(r => (
-                  <button key={r} onClick={() => setRole(r)} className={`rounded-xl py-2.5 text-sm font-semibold transition-all ${role===r?"bg-white text-black shadow-lg":"bg-white/20 text-white/80"}`}>{r === "kurye" ? "Kurye Kayıt" : "İşletme Kayıt"}</button>
-                ))}
+              {/* Geri butonu */}
+              <div className="mb-4">
+                <button type="button" onClick={() => setStage("role-select")} className="text-white/70 text-xs hover:text-white transition-colors flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/></svg>
+                  Rol seçimine dön
+                </button>
               </div>
 
               <form onSubmit={handleAuthSignup} className="space-y-4 mb-8">

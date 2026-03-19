@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { ChatLayoutClient } from "./ChatLayoutClient";
 import { ChatSidebar } from "./_components/ChatSidebar";
-import { Header } from "@/app/_components/Header";
+import { UnifiedHeader } from "@/app/_components/UnifiedHeader";
 import { useRouter } from "next/navigation";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -42,7 +42,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden bg-white">
-      <Header />
+      <UnifiedHeader />
       <div className="flex-1 min-h-0">
         <ChatLayoutClient sidebar={<ChatSidebar userId={userId!} userRole={role} />}>
           {children}

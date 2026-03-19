@@ -1,6 +1,6 @@
 "use client";
 import React, { Suspense } from "react";
-import { Header } from "../_components/Header";
+import { UnifiedHeader } from "../_components/UnifiedHeader";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
@@ -117,6 +117,19 @@ function IlanlarContent() {
       if (!role) return;
       setLoading(true); setMessage(null);
       try {
+        // Giriş yapmamış kullanıcılar için API route kullan (RLS bypass)
+        if (!isAuthenticated) {
+          const queryType = role === "kurye" ? "business_ads" : "couriers";
+          const params = new URLSearchParams({ type: queryType });
+          Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v); });
+          
+          const res = await fetch(`/api/public-listings?${params.toString()}`);
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.error || "Veri yüklenemedi.");
+          setItems(result.data || []); setPage(1);
+          return;
+        }
+
         if (role === "kurye") {
           // Show business ads (both for logged-in couriers and guests)
           let query = supabase.from("business_ads")
@@ -243,7 +256,7 @@ function IlanlarContent() {
 
   return (
     <main className="min-h-dvh w-full bg-gradient-to-b from-white to-neutral-100 flex flex-col">
-      <Header />
+      <UnifiedHeader />
       <div className="flex flex-1 relative">
         {/* Modern Filter Panel */}
         <FilterPanel role={(role ?? "kurye") as Role} onChange={setFilters} />
@@ -310,19 +323,18 @@ function IlanlarContent() {
                       phone={role === 'isletme' ? (it.phone ?? null) : (it.businessPhone ?? null)}
                       contactPreference={(it as any).contact_preference ?? 'phone'}
                       showActions={true}
-                      isGuest={!isAuthenticated || (isAuthenticated && role !== actualRole)}
+                      isGuest={!isAuthenticated}
+                      isCrossRole={isAuthenticated && role !== actualRole}
                       onGuestClick={() => {
                         if (!isAuthenticated) {
                           handleGuestClick();
-                        } else {
-                          // Authenticated but viewing wrong role (preview mode)
-                          if (actualRole === "kurye" && role === "isletme") {
-                            alert("Kurye olduğunuz için kurye detaylarını görüntüleyemezsiniz.");
-                          } else if (actualRole === "isletme" && role === "kurye") {
-                            alert("İşletme olduğunuz için işletme ilan detaylarını görüntüleyemezsiniz.");
-                          } else {
-                            handleGuestClick();
-                          }
+                        }
+                      }}
+                      onCrossRoleClick={() => {
+                        if (actualRole === "kurye" && role === "isletme") {
+                          alert("Kuryeler ile iletişim kurabilmek için işletme olmanız gerekmektedir.");
+                        } else if (actualRole === "isletme" && role === "kurye") {
+                          alert("İşletmeler ile iletişim kurabilmek için kurye olmanız gerekmektedir.");
                         }
                       }}
                       time={it.created_at ? new Date(it.created_at).toLocaleDateString() : undefined}
@@ -347,7 +359,7 @@ export default function IlanlarPage() {
   return (
     <Suspense fallback={
       <main className="min-h-dvh w-full bg-gradient-to-b from-white to-neutral-100 flex flex-col">
-        <Header />
+        <UnifiedHeader />
         <div className="flex-1 flex items-center justify-center">
           <div className="w-12 h-12 border-4 border-[#ff7a00] border-t-transparent rounded-full animate-spin"></div>
         </div>
