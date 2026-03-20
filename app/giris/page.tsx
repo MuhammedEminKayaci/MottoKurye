@@ -127,7 +127,11 @@ function GirisContent() {
     }
   };
   return (
-    <main className="relative min-h-dvh w-full overflow-hidden bg-[#ff7a00]">
+    <main className="relative min-h-dvh w-full overflow-hidden">
+      {/* Background Image + Overlay */}
+      <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/kayit-bg.jpeg')" }} />
+      <div className="fixed inset-0 bg-[#ff7a00]/60 backdrop-blur-[2px]" />
+
       {/* Animated decorative shapes */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-16 -left-16 w-72 h-72 rounded-full bg-white/15 blur-2xl animate-float-slow" />
@@ -192,8 +196,10 @@ function GirisContent() {
 export default function GirisPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-dvh flex items-center justify-center bg-[#ff7a00]">
-        <p className="text-white">Yükleniyor...</p>
+      <main className="relative min-h-dvh flex items-center justify-center overflow-hidden">
+        <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/kayit-bg.jpeg')" }} />
+        <div className="fixed inset-0 bg-[#ff7a00]/60 backdrop-blur-[2px]" />
+        <p className="relative z-10 text-white">Yükleniyor...</p>
       </main>
     }>
       <GirisContent />
