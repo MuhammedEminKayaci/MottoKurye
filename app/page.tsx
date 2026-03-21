@@ -58,66 +58,131 @@ export default function Page() {
     <div className="min-h-screen w-full bg-white flex flex-col font-sans">
       <UnifiedHeader />
 
-      {/* Hero */}
-      <main className="flex-1 p-6 md:p-12 lg:p-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="flex flex-col items-center md:items-start gap-6">
-              <Image
-                src="/images/kuryee.png"
-                alt="kurye"
-                width={420}
-                height={420}
-                className="w-64 md:w-96"
-                priority
-              />
-              <button 
-                onClick={() => {
-                  if (userRole === "isletme") {
-                    router.push("/ilanlar?view=isletme");
-                  } else {
-                    router.push("/kurye-bul");
-                  }
-                }}
-                disabled={isLoading}
-                className="bg-white text-[#ff7a00] border-2 border-[#ff7a00] px-30 py-3 rounded-full font-semibold transition-colors transition-transform hover:bg-[#ff7a00] hover:text-white hover:translate-y-[1px] hover:shadow-md disabled:opacity-50"
-              >
-                {userRole === "kurye"
-                  ? "Kuryelere Göz At"
-                  : "Kurye Bul"}
-              </button>
-            </div>
+      {/* Hero — Full-width background with glassmorphism cards */}
+      <section className="relative w-full min-h-[85vh] md:min-h-[90vh] overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/kayit-bg.jpeg"
+            alt=""
+            fill
+            className="object-cover"
+            priority
+          />
+          {/* Dark gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        </div>
 
-            <div className="flex flex-col items-center md:items-end gap-6">
-              <Image
-                src="/images/sirket.png"
-                alt="işletme bina"
-                width={420}
-                height={420}
-                className="w-64 md:w-96"
-                priority
-              />
-              <button 
-                onClick={() => {
-                  if (userRole === "kurye") {
-                    router.push("/ilanlar?view=kurye");
-                  } else {
-                    router.push("/isletme-bul");
-                  }
-                }}
-                disabled={isLoading}
-                className="bg-white text-black border-2 border-[#00000] px-30 py-3 rounded-full font-semibold transition-colors transition-transform hover:bg-black hover:text-white hover:translate-y-[1px] hover:shadow-md disabled:opacity-50"
-              >
-                {userRole === "isletme" 
-                  ? "İşletmelere Göz At"
-                  : "İşletme Bul"}
-              </button>
+        {/* Hero Content */}
+        <div className="relative z-10 flex items-center min-h-[85vh] md:min-h-[90vh]">
+          <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-16 md:py-20">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+              
+              {/* Left — Hero Text */}
+              <div className="fade-up text-center lg:text-left">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold leading-tight text-white">
+                  Doğru İş Ortağını
+                  <br />
+                  <span className="text-[#ff7a00]">PaketServisci</span> ile
+                  <br />
+                  Bul
+                </h1>
+                <p className="mt-5 text-base sm:text-lg text-white/80 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                  Kurye ve işletmeleri buluşturan profesyonel platform.
+                  Mesaj gruplarının trafiğinde kaybolmayın, doğru eşleşmeyi doğrudan yapın.
+                </p>
+                {!isLoggedIn && !isLoading && (
+                  <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                    <Link
+                      href="/kayit-ol"
+                      className="inline-flex items-center justify-center px-7 py-3 bg-[#ff7a00] text-white font-semibold rounded-full shadow-lg shadow-orange-500/25 hover:bg-[#e86e00] hover:shadow-orange-500/40 transition-all hover:-translate-y-0.5"
+                    >
+                      Hemen Kayıt Ol
+                    </Link>
+                    <Link
+                      href="/giris"
+                      className="inline-flex items-center justify-center px-7 py-3 border-2 border-white/40 text-white font-semibold rounded-full hover:bg-white/10 hover:border-white/60 transition-all"
+                    >
+                      Giriş Yap
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Right — Glassmorphism Cards (yan yana) */}
+              <div className="fade-up grid grid-cols-2 gap-4 sm:gap-5" style={{ animationDelay: '.15s' }}>
+                {/* Kurye Card */}
+                <button
+                  onClick={() => {
+                    if (userRole === "isletme") {
+                      router.push("/ilanlar?view=isletme");
+                    } else {
+                      router.push("/kurye-bul");
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="group relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:bg-white/[0.18] hover:border-white/40 hover:shadow-[0_8px_40px_rgba(255,122,0,0.15)] hover:-translate-y-1 disabled:opacity-50 cursor-pointer"
+                >
+                  {/* İkon — Kargo arabası */}
+                  <div className="mx-auto w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#ff7a00]/15 border border-[#ff7a00]/25 flex items-center justify-center mb-4 group-hover:bg-[#ff7a00]/25 transition-colors">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#ff7a00]" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM19.5 9.5h-3V12h4.46l-1.46-2.5zM6 18.5c.83 0 1.5-.67 1.5-1.5S6.83 15.5 6 15.5 4.5 16.17 4.5 17 5.17 18.5 6 18.5zM20 8l3 4v5h-2c0 1.66-1.34 3-3 3s-3-1.34-3-3H9c0 1.66-1.34 3-3 3s-3-1.34-3-3H1V6c0-1.11.89-2 2-2h14v4h3zM3 6v9h.76c.55-.61 1.35-1 2.24-1s1.69.39 2.24 1H15V6H3z"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-white mb-1.5">
+                    {userRole === "kurye" ? "Kuryelere Göz At" : "Kurye Bul"}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-white/55 leading-relaxed mb-4">
+                    {userRole === "isletme"
+                      ? "İşletmenize uygun kuryeleri filtreleyin ve iletişime geçin."
+                      : "Kendi programını yap, kazancını anında gör."}
+                  </p>
+                  <div className="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-lg border border-white/25 text-white text-sm font-semibold group-hover:bg-white/10 group-hover:border-white/40 transition-all">
+                    {userRole === "kurye" ? "Kuryeleri Gör" : "Hemen Başla"}
+                  </div>
+                </button>
+
+                {/* İşletme Card */}
+                <button
+                  onClick={() => {
+                    if (userRole === "kurye") {
+                      router.push("/ilanlar?view=kurye");
+                    } else {
+                      router.push("/isletme-bul");
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="group relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:bg-white/[0.18] hover:border-white/40 hover:shadow-[0_8px_40px_rgba(255,122,0,0.15)] hover:-translate-y-1 disabled:opacity-50 cursor-pointer"
+                >
+                  {/* İkon — Bina/grid */}
+                  <div className="mx-auto w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-white mb-1.5">
+                    {userRole === "isletme" ? "İşletmelere Göz At" : "İşletme Bul"}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-white/55 leading-relaxed mb-4">
+                    {userRole === "kurye"
+                      ? "Size uygun işletmeleri keşfedin ve iş ortağınızı bulun."
+                      : "Paketlerinizi güvenle ve hızla müşterilerinize ulaştırın."}
+                  </p>
+                  <div className="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-lg bg-[#ff7a00] text-white text-sm font-semibold group-hover:bg-[#e86e00] transition-all">
+                    {userRole === "kurye" ? "İşletmeleri Gör" : "İş Ortağı Ol"}
+                  </div>
+                </button>
+              </div>
+
             </div>
           </div>
-
         </div>
+      </section>
+
+      <main className="flex-1">
         {/* Full-width black strip with gradient */}
-        <div className="w-full bg-gradient-to-b from-black to-[#2c2c2c] text-white mt-12">
+        <div className="w-full bg-gradient-to-b from-black to-[#2c2c2c] text-white">
           <div className="max-w-4xl mx-auto px-6 py-12 text-center">
             <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-2">
               Mesaj gruplarının trafiğinde kaybolmayın, doğru iş ortağı ile doğrudan eşleşin.

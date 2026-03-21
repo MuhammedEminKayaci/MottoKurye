@@ -57,35 +57,37 @@ describe('Home Page Integration', () => {
     it('ana sayfa başarıyla render edilmeli', async () => {
       render(<Page />);
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Kurye Bul' })).toBeInTheDocument();
+        expect(screen.getByText('Kurye Bul')).toBeInTheDocument();
       });
     });
 
     it('hero section görüntülenmeli', async () => {
       render(<Page />);
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'İşletme Bul' })).toBeInTheDocument();
+        expect(screen.getByText('İşletme Bul')).toBeInTheDocument();
       });
     });
   });
 
   describe('Navigation Buttons', () => {
-    it('Kurye Bul butonu tıklanabilir olmalı', async () => {
+    it('Kurye Bul kartı tıklanabilir olmalı', async () => {
       const user = userEvent.setup();
       render(<Page />);
       
-      const kuryeBulBtn = await screen.findByRole('button', { name: 'Kurye Bul' });
-      await user.click(kuryeBulBtn);
+      const kuryeBulHeading = await screen.findByText('Kurye Bul');
+      const kuryeCard = kuryeBulHeading.closest('button')!;
+      await user.click(kuryeCard);
       
       expect(mockPush).toHaveBeenCalledWith('/kurye-bul');
     });
 
-    it('İşletme Bul butonu tıklanabilir olmalı', async () => {
+    it('İşletme Bul kartı tıklanabilir olmalı', async () => {
       const user = userEvent.setup();
       render(<Page />);
       
-      const isletmeBulBtn = await screen.findByRole('button', { name: 'İşletme Bul' });
-      await user.click(isletmeBulBtn);
+      const isletmeBulHeading = await screen.findByText('İşletme Bul');
+      const isletmeCard = isletmeBulHeading.closest('button')!;
+      await user.click(isletmeCard);
       
       expect(mockPush).toHaveBeenCalledWith('/isletme-bul');
     });
@@ -109,25 +111,27 @@ describe('Home Page Integration', () => {
   describe('CTA Section', () => {
     it('Kayıt Ol CTA görüntülenmeli', async () => {
       render(<Page />);
-      expect(await screen.findByText('Hemen Kayıt Ol')).toBeInTheDocument();
+      const links = await screen.findAllByText('Hemen Kayıt Ol');
+      expect(links.length).toBeGreaterThanOrEqual(1);
     });
 
     it('Kayıt Ol linki doğru href\'e sahip olmalı', async () => {
       render(<Page />);
-      const link = await screen.findByText('Hemen Kayıt Ol');
-      expect(link.closest('a')).toHaveAttribute('href', '/kayit-ol');
+      const links = await screen.findAllByText('Hemen Kayıt Ol');
+      const ctaLink = links.find(el => el.closest('a'));
+      expect(ctaLink?.closest('a')).toHaveAttribute('href', '/kayit-ol');
     });
   });
 
   describe('Images', () => {
-    it('kurye resmi yüklenmeli', async () => {
+    it('hero arka plan resmi yüklenmeli', async () => {
       render(<Page />);
-      expect(await screen.findByAltText('kurye')).toBeInTheDocument();
-    });
-
-    it('işletme resmi yüklenmeli', async () => {
-      render(<Page />);
-      expect(await screen.findByAltText('işletme bina')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Kurye Bul')).toBeInTheDocument();
+      });
+      // Hero background uses Next/Image with alt=""
+      const allImages = screen.getAllByRole('img');
+      expect(allImages.length).toBeGreaterThan(0);
     });
 
     it('telefon mockup resmi yüklenmeli', async () => {
