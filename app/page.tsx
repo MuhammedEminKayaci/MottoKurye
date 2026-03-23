@@ -124,20 +124,18 @@ export default function Page() {
                   disabled={isLoading}
                   className="group relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:bg-white/[0.18] hover:border-white/40 hover:shadow-[0_8px_40px_rgba(255,122,0,0.15)] hover:-translate-y-1 disabled:opacity-50 cursor-pointer"
                 >
-                  {/* İkon — Kargo arabası */}
-                  <div className="mx-auto w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#ff7a00]/15 border border-[#ff7a00]/25 flex items-center justify-center mb-4 group-hover:bg-[#ff7a00]/25 transition-colors">
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#ff7a00]" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM19.5 9.5h-3V12h4.46l-1.46-2.5zM6 18.5c.83 0 1.5-.67 1.5-1.5S6.83 15.5 6 15.5 4.5 16.17 4.5 17 5.17 18.5 6 18.5zM20 8l3 4v5h-2c0 1.66-1.34 3-3 3s-3-1.34-3-3H9c0 1.66-1.34 3-3 3s-3-1.34-3-3H1V6c0-1.11.89-2 2-2h14v4h3zM3 6v9h.76c.55-.61 1.35-1 2.24-1s1.69.39 2.24 1H15V6H3z"/>
+                  {/* İkon — Motorlu kurye (Google Material delivery_dining) */}
+                  <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#ff7a00]/15 border border-[#ff7a00]/25 flex items-center justify-center mb-4 group-hover:bg-[#ff7a00]/25 transition-colors">
+                    <svg className="w-8 h-8 sm:w-9 sm:h-9 text-[#ff7a00]" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19,7c0-1.1-0.9-2-2-2h-3v2h3v2.65L13.52,14H10V9H6c-2.21,0-4,1.79-4,4v3h2c0,1.66,1.34,3,3,3s3-1.34,3-3h4.48L19,10.35V7z M4,14v-1c0-1.1,0.9-2,2-2h2v3H4z M7,17c-0.55,0-1-0.45-1-1h2C8,16.55,7.55,17,7,17z"/>
+                      <rect height="2" width="5" x="5" y="6"/>
+                      <path d="M19,13c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3S20.66,13,19,13z M19,17c-0.55,0-1-0.45-1-1s0.45-1,1-1s1,0.45,1,1C20,16.55,19.55,17,19,17z"/>
                     </svg>
                   </div>
                   <h3 className="text-base sm:text-lg font-bold text-white mb-1.5">
                     {userRole === "kurye" ? "Kuryelere Göz At" : "Kurye Bul"}
                   </h3>
-                  <p className="text-xs sm:text-sm text-white/55 leading-relaxed mb-4">
-                    {userRole === "isletme"
-                      ? "İşletmenize uygun kuryeleri filtreleyin ve iletişime geçin."
-                      : "Kendi programını yap, kazancını anında gör."}
-                  </p>
+
                   <div className="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-lg border border-white/25 text-white text-sm font-semibold group-hover:bg-white/10 group-hover:border-white/40 transition-all">
                     {userRole === "kurye" ? "Kuryeleri Gör" : "Hemen Başla"}
                   </div>
@@ -164,11 +162,7 @@ export default function Page() {
                   <h3 className="text-base sm:text-lg font-bold text-white mb-1.5">
                     {userRole === "isletme" ? "İşletmelere Göz At" : "İşletme Bul"}
                   </h3>
-                  <p className="text-xs sm:text-sm text-white/55 leading-relaxed mb-4">
-                    {userRole === "kurye"
-                      ? "Size uygun işletmeleri keşfedin ve iş ortağınızı bulun."
-                      : "Paketlerinizi güvenle ve hızla müşterilerinize ulaştırın."}
-                  </p>
+
                   <div className="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-lg bg-[#ff7a00] text-white text-sm font-semibold group-hover:bg-[#e86e00] transition-all">
                     {userRole === "kurye" ? "İşletmeleri Gör" : "İş Ortağı Ol"}
                   </div>
