@@ -125,8 +125,8 @@ export default function Page() {
                   className="group relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:bg-white/[0.18] hover:border-white/40 hover:shadow-[0_8px_40px_rgba(255,122,0,0.15)] hover:-translate-y-1 disabled:opacity-50 cursor-pointer"
                 >
                   {/* İkon — Motorlu kurye (Google Material delivery_dining) */}
-                  <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-[#ff7a00]/15 border border-[#ff7a00]/25 flex items-center justify-center mb-4 group-hover:bg-[#ff7a00]/25 transition-colors">
-                    <svg className="w-8 h-8 sm:w-9 sm:h-9 text-[#ff7a00]" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="mx-auto w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[#ff7a00]/15 border border-[#ff7a00]/25 flex items-center justify-center mb-4 group-hover:bg-[#ff7a00]/25 transition-colors">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#ff7a00]" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M19,7c0-1.1-0.9-2-2-2h-3v2h3v2.65L13.52,14H10V9H6c-2.21,0-4,1.79-4,4v3h2c0,1.66,1.34,3,3,3s3-1.34,3-3h4.48L19,10.35V7z M4,14v-1c0-1.1,0.9-2,2-2h2v3H4z M7,17c-0.55,0-1-0.45-1-1h2C8,16.55,7.55,17,7,17z"/>
                       <rect height="2" width="5" x="5" y="6"/>
                       <path d="M19,13c-1.66,0-3,1.34-3,3s1.34,3,3,3s3-1.34,3-3S20.66,13,19,13z M19,17c-0.55,0-1-0.45-1-1s0.45-1,1-1s1,0.45,1,1C20,16.55,19.55,17,19,17z"/>
@@ -136,7 +136,7 @@ export default function Page() {
                     {userRole === "kurye" ? "Kuryelere Göz At" : "Kurye Bul"}
                   </h3>
 
-                  <div className="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-lg border border-white/25 text-white text-sm font-semibold group-hover:bg-white/10 group-hover:border-white/40 transition-all">
+                  <div className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-white/25 text-white text-xs sm:text-sm font-semibold whitespace-nowrap group-hover:bg-white/10 group-hover:border-white/40 transition-all">
                     {userRole === "kurye" ? "Kuryeleri Gör" : "Hemen Başla"}
                   </div>
                 </button>
@@ -163,7 +163,7 @@ export default function Page() {
                     {userRole === "isletme" ? "İşletmelere Göz At" : "İşletme Bul"}
                   </h3>
 
-                  <div className="inline-flex items-center justify-center gap-1.5 px-5 py-2 rounded-lg bg-[#ff7a00] text-white text-sm font-semibold group-hover:bg-[#e86e00] transition-all">
+                  <div className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#ff7a00] text-white text-xs sm:text-sm font-semibold whitespace-nowrap group-hover:bg-[#e86e00] transition-all">
                     {userRole === "kurye" ? "İşletmeleri Gör" : "İş Ortağı Ol"}
                   </div>
                 </button>
