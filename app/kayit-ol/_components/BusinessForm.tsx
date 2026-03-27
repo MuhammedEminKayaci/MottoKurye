@@ -371,7 +371,7 @@ export function BusinessForm({ onSubmit, disabled }: BusinessFormProps) {
         <label className="flex items-start gap-2 text-xs text-white">
           <input type="checkbox" className="mt-0.5 accent-[#ff7a00]" {...register("acceptTerms")} />
           <span>
-            <a href="/kullanim-sartlari" target="_blank" className="text-white underline hover:text-white/80">Kullanım Şartları</a>'nı okudum ve kabul ediyorum. *
+            <a href="/kullanim-sartlari" target="_blank" className="text-white underline hover:text-white/80">Kullanıcı Sözleşmesi</a>'ni okudum ve kabul ediyorum. *
           </span>
         </label>
         {errors.acceptTerms && <p className="text-[10px] text-red-200">{errors.acceptTerms.message as any}</p>}

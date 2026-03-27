@@ -36,7 +36,7 @@ export function Footer() {
               <h3 className="font-bold mb-2">Yasal</h3>
               <div className="flex flex-col gap-2">
                 <Link href="/kullanim-sartlari" className="text-white/90 hover:text-white">
-                  Kullanım Şartları
+                  Kullanıcı Sözleşmesi
                 </Link>
                 <Link href="/gizlilik-politikasi" className="text-white/90 hover:text-white">
                   Gizlilik Politikası
@@ -46,6 +46,9 @@ export function Footer() {
                 </Link>
                 <Link href="/ticari-ileti-izni" className="text-white/90 hover:text-white">
                   Ticari İleti İzni
+                </Link>
+                <Link href="/cerez-politikasi" className="text-white/90 hover:text-white">
+                  Çerez Politikası
                 </Link>
               </div>
             </div>

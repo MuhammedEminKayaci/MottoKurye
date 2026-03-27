@@ -47,8 +47,8 @@ describe('Footer Component', () => {
       expect(screen.getByText('Yasal')).toBeInTheDocument();
     });
 
-    it('Kullanım Şartları linki görüntülenmeli', () => {
-      const link = screen.getByRole('link', { name: 'Kullanım Şartları' });
+    it('Kullanıcı Sözleşmesi linki görüntülenmeli', () => {
+      const link = screen.getByRole('link', { name: 'Kullanıcı Sözleşmesi' });
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute('href', '/kullanim-sartlari');
     });
@@ -69,6 +69,12 @@ describe('Footer Component', () => {
       const link = screen.getByRole('link', { name: 'Ticari İleti İzni' });
       expect(link).toBeInTheDocument();
       expect(link).toHaveAttribute('href', '/ticari-ileti-izni');
+    });
+
+    it('Çerez Politikası linki görüntülenmeli', () => {
+      const link = screen.getByRole('link', { name: 'Çerez Politikası' });
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute('href', '/cerez-politikasi');
     });
   });
 

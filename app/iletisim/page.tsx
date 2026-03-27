@@ -40,8 +40,8 @@ export default function IletisimPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-neutral-900 mb-1">E-posta</h3>
-                  <a href="mailto:info@mottokurye.com" className="text-neutral-600 hover:text-[#ff7a00] transition-colors">
-                    info@mottokurye.com
+                  <a href="mailto:info@paketservisci.com" className="text-neutral-600 hover:text-[#ff7a00] transition-colors">
+                    info@paketservisci.com
                   </a>
                 </div>
               </div>
