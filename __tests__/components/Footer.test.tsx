@@ -74,7 +74,7 @@ describe('Footer Component', () => {
 
   describe('Copyright', () => {
     it('copyright yazısı görüntülenmeli', () => {
-      expect(screen.getByText(/© 2026 PaketServisçi/i)).toBeInTheDocument();
+      expect(screen.getByText(/© 2026 PaketServisci/i)).toBeInTheDocument();
     });
 
     it('Tüm haklar saklıdır ifadesi bulunmalı', () => {
@@ -85,7 +85,7 @@ describe('Footer Component', () => {
   describe('Description', () => {
     it('açıklama metni görüntülenmeli', () => {
       expect(
-        screen.getByText(/PaketServisçi olarak çıktığımız bu yolda/i)
+        screen.getByText(/PaketServisci olarak çıktığımız bu yolda/i)
       ).toBeInTheDocument();
     });
   });

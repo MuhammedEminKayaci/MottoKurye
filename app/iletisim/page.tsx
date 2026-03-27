@@ -8,7 +8,7 @@ import { Footer } from "../_components/Footer";
 
 export default function IletisimPage() {
   const whatsappNumber = "905551234567"; // Numaranızı buraya ekleyin (ülke kodu dahil, + işareti olmadan)
-  const whatsappMessage = encodeURIComponent("Merhaba, MottoKurye hakkında bilgi almak istiyorum.");
+  const whatsappMessage = encodeURIComponent("Merhaba, PaketServisci hakkında bilgi almak istiyorum.");
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   return (

@@ -419,8 +419,9 @@ export default function KayitOlPage() {
               "Lojistik ve Depolama": "/images/avatars/isletme/kargo.png",
               "Çiçek & Hediyeli Eşya": "/images/avatars/isletme/cicekci.png",
               "Otomotiv ve Yedek Parça": "/images/avatars/isletme/kargo.png",
+              "Diğer": "/images/avatars/isletme/diger.png",
             };
-            finalAvatarUrl = sectorAvatarMap[data.businessSector] || "/images/avatars/isletme/kurumsal.png";
+            finalAvatarUrl = sectorAvatarMap[data.businessSector] || "/images/avatars/isletme/diger.png";
           }
       }
       

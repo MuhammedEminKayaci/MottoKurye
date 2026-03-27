@@ -172,7 +172,7 @@ function IlanlarContent() {
               try {
                 const { data: business, error: bizError } = await supabase
                   .from("businesses")
-                  .select("id,business_name,avatar_url,user_id,seeking_couriers,business_sector,plan,manager_contact")
+                  .select("id,business_name,avatar_url,user_id,seeking_couriers,business_sector,plan,manager_contact,contact_preference")
                   .eq("user_id", ad.user_id)
                   .maybeSingle();
                 
@@ -191,11 +191,13 @@ function IlanlarContent() {
                   return null;
                 }
                 
+                const bizContactPref = business.contact_preference || 'in_app';
                 return {
                   ...ad,
                   businesses: [business],
                   businessPlan: business.plan || 'free',
-                  businessPhone: business.manager_contact
+                  businessPhone: bizContactPref === 'in_app' ? null : business.manager_contact,
+                  businessContactPreference: bizContactPref
                 };
               } catch {
                 return null;
@@ -321,7 +323,7 @@ function IlanlarContent() {
                       imageUrl={role === 'kurye' ? it.image_url : (it.avatar_url ?? null)}
                       fallbackImageUrl={role === 'kurye' ? (it.businesses?.[0]?.avatar_url ?? null) : null}
                       phone={role === 'isletme' ? (it.phone ?? null) : (it.businessPhone ?? null)}
-                      contactPreference={(it as any).contact_preference ?? 'phone'}
+                      contactPreference={role === 'kurye' ? ((it as any).businessContactPreference ?? 'in_app') : ((it as any).contact_preference ?? 'phone')}
                       showActions={true}
                       isGuest={!isAuthenticated}
                       isCrossRole={isAuthenticated && role !== actualRole}

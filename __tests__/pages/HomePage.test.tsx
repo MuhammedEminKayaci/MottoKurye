@@ -151,7 +151,7 @@ describe('Home Page Integration', () => {
   describe('Footer Integration', () => {
     it('footer render edilmeli', async () => {
       render(<Page />);
-      expect(await screen.findByText(/© 2026 PaketServisçi/i)).toBeInTheDocument();
+      expect(await screen.findByText(/© 2026 PaketServisci/i)).toBeInTheDocument();
     });
   });
 });

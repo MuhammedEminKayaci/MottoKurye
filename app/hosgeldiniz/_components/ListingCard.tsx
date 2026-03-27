@@ -146,8 +146,23 @@ export function ListingCard({ title, subtitle, meta, metaParts, time, imageUrl, 
         );
       }
 
-      // İşletme premium ise kurye için WhatsApp ve telefon butonları göster
-      if (isBusiness && targetPlan === 'premium' && phone) {
+      // İşletme premium ise ve in_app tercih etmişse sadece mesaj butonu göster
+      if (isBusiness && targetPlan === 'premium' && contactPreference === 'in_app') {
+        return (
+          <div className="w-full" onClick={e => e.stopPropagation()}>
+            <StartChatButton
+              targetUserId={userId || ''}
+              targetId={targetId || ''}
+              targetRole="isletme"
+              variant="full"
+              className="w-full py-3 text-sm font-semibold rounded-xl bg-[#ff7a00] hover:bg-orange-600 text-white shadow-sm hover:shadow-md transition-all"
+            />
+          </div>
+        );
+      }
+
+      // İşletme premium ise ve telefon tercihi varsa WhatsApp ve telefon butonları göster
+      if (isBusiness && targetPlan === 'premium' && phone && contactPreference !== 'in_app') {
         return (
           <>
             <button onClick={handleWhatsApp} className={`${btnBase} bg-[#25D366] hover:bg-[#1ebe5b] text-white shadow-sm hover:shadow-md`}>

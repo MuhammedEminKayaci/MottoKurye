@@ -92,6 +92,7 @@ export default function IsletmeDuzenlePage() {
     "/images/avatars/isletme/kurumsal.png",
     "/images/avatars/isletme/teknoloji.png",
     "/images/avatars/isletme/yeme-icme.png",
+    "/images/avatars/isletme/diger.png",
   ];
 
   const sectorAvatarMap: Record<string, string> = {
@@ -105,6 +106,7 @@ export default function IsletmeDuzenlePage() {
     "Lojistik ve Depolama": "/images/avatars/isletme/kargo.png",
     "Çiçek & Hediyeli Eşya": "/images/avatars/isletme/cicekci.png",
     "Otomotiv ve Yedek Parça": "/images/avatars/isletme/kargo.png",
+    "Diğer": "/images/avatars/isletme/diger.png",
   };
   const [formData, setFormData] = useState<Partial<BusinessData>>({});
 
