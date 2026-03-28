@@ -103,7 +103,7 @@ function AdminLogin({ onSuccess }: { onSuccess: (email: string) => void }) {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Image src="/images/paketservisci.png" alt="PaketServisci Logo" width={220} height={60} priority className="object-contain drop-shadow-lg" />
+            <Image src="/images/paketservisci.png" alt="PaketServisçi Logo" width={220} height={60} priority className="object-contain drop-shadow-lg" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Yönetim Paneli</h1>
           <p className="text-gray-500 text-sm mt-1">Yetkili yönetici girişi</p>
@@ -267,7 +267,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
         <div className="p-5 border-b border-gray-200">
-          <Image src="/images/paketservisci.png" alt="PaketServisci Logo" width={160} height={45} priority className="object-contain" />
+          <Image src="/images/paketservisci.png" alt="PaketServisçi Logo" width={160} height={45} priority className="object-contain" />
           <p className="text-[#ff7a00] text-xs font-medium mt-2 ml-1">Yönetim Paneli</p>
         </div>
 

@@ -39,7 +39,7 @@ export default function GizlilikPolitikasiPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>1.1.</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verilerinizin veri sorumlusu <strong>PaketServisci</strong>'dir.
+                  <strong>1.1.</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verilerinizin veri sorumlusu <strong>PaketServisçi</strong>'dir.
                 </p>
                 <p>
                   <strong>E-posta:</strong> destek@paketservisci.com
@@ -179,7 +179,7 @@ export default function GizlilikPolitikasiPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>7.1.</strong> PaketServisci, kişisel verilerinizin güvenliğini sağlamak için teknik ve idari tedbirler alır:
+                  <strong>7.1.</strong> PaketServisçi, kişisel verilerinizin güvenliğini sağlamak için teknik ve idari tedbirler alır:
                 </p>
                 <ul className="list-disc list-inside ml-4 space-y-1">
                   <li><strong>Şifreleme:</strong> SSL/TLS ile veri iletimi, veritabanı şifrelemesi</li>
@@ -284,7 +284,7 @@ export default function GizlilikPolitikasiPage() {
                   Gizlilik politikası ve kişisel verileriniz hakkında sorularınız için:
                 </p>
                 <ul className="list-none ml-4 space-y-2">
-                  <li><strong>Veri Sorumlusu:</strong> PaketServisci</li>
+                  <li><strong>Veri Sorumlusu:</strong> PaketServisçi</li>
                   <li><strong>E-posta:</strong> destek@paketservisci.com</li>
                   <li><strong>Telefon:</strong> +90 555 123 45 67</li>
                   <li><strong>İletişim:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">paketservisci.com/iletisim</Link></li>

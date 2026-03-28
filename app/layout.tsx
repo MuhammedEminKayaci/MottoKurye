@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PaketServisci - Kurye ve İşletme Eşleştirme Platformu",
-  description: "İşletmeniz için doğru kuryeyi bulun veya kurye olarak en uygun işletmeyi keşfedin. PaketServisci ile hızlı ve güvenilir eşleştirme.",
+  title: "PaketServisçi - Kurye ve İşletme Eşleştirme Platformu",
+  description: "İşletmeniz için doğru kuryeyi bulun veya kurye olarak en uygun işletmeyi keşfedin. PaketServisçi ile hızlı ve güvenilir eşleştirme.",
 };
 
 export default function RootLayout({

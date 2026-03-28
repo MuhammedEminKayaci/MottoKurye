@@ -13,7 +13,7 @@ describe('Footer Component', () => {
 
   describe('Logo', () => {
     it('logo görüntüsü render edilmeli', () => {
-      const logo = screen.getByAltText('PaketServisci Logo');
+      const logo = screen.getByAltText('PaketServisçi Logo');
       expect(logo).toBeInTheDocument();
     });
   });
@@ -80,7 +80,7 @@ describe('Footer Component', () => {
 
   describe('Copyright', () => {
     it('copyright yazısı görüntülenmeli', () => {
-      expect(screen.getByText(/© 2026 PaketServisci/i)).toBeInTheDocument();
+      expect(screen.getByText(/© 2026 PaketServisçi/i)).toBeInTheDocument();
     });
 
     it('Tüm haklar saklıdır ifadesi bulunmalı', () => {
@@ -91,7 +91,7 @@ describe('Footer Component', () => {
   describe('Description', () => {
     it('açıklama metni görüntülenmeli', () => {
       expect(
-        screen.getByText(/PaketServisci olarak çıktığımız bu yolda/i)
+        screen.getByText(/PaketServisçi olarak çıktığımız bu yolda/i)
       ).toBeInTheDocument();
     });
   });

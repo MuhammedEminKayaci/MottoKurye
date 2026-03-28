@@ -140,7 +140,7 @@ export function Header() {
         <Link href="/" aria-label="Ana Sayfa" className="flex items-center">
           <Image
             src="/images/paketservisci.png"
-            alt="PaketServisci Logo"
+            alt="PaketServisçi Logo"
             width={300}
             height={80}
             priority

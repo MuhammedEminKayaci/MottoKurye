@@ -146,7 +146,7 @@ function GirisContent() {
             <Link href="/" className="cursor-pointer">
               <Image
                 src="/images/paketservisci.png"
-                alt="PaketServisci Logo"
+                alt="PaketServisçi Logo"
                 width={200}
                 height={60}
                 priority
