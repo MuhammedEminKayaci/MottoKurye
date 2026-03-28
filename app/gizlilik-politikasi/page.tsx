@@ -42,9 +42,7 @@ export default function GizlilikPolitikasiPage() {
                   <strong>1.1.</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verilerinizin veri sorumlusu <strong>PaketServisci</strong>'dir.
                 </p>
                 <p>
-                  <strong>Adres:</strong> [Şirket Adresi - Güncellenecek]<br />
-                  <strong>E-posta:</strong> kvkk@mottokurye.com<br />
-                  <strong>Telefon:</strong> +90 555 123 45 67
+                  <strong>E-posta:</strong> destek@paketservisci.com
                 </p>
                 <p>
                   <strong>1.2.</strong> Kişisel verileriniz, KVKK ve ilgili mevzuat kapsamında işlenmekte ve korunmaktadır.
@@ -238,7 +236,7 @@ export default function GizlilikPolitikasiPage() {
                   <li><strong>Otomatik Karar Alma İtiraz:</strong> Tamamen otomatik sistemlerle verilen kararlara itiraz etme</li>
                 </ul>
                 <p>
-                  <strong>Başvuru Yöntemi:</strong> Haklarınızı kullanmak için kvkk@mottokurye.com adresine yazılı veya <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">iletişim formu</Link> ile başvurabilirsiniz. Başvurularınız 30 gün içinde ücretsiz olarak yanıtlanır.
+                  <strong>Başvuru Yöntemi:</strong> Haklarınızı kullanmak için destek@paketservisci.com adresine yazılı veya <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">iletişim formu</Link> ile başvurabilirsiniz. Başvurularınız 30 gün içinde ücretsiz olarak yanıtlanır.
                 </p>
               </div>
             </section>
@@ -287,10 +285,9 @@ export default function GizlilikPolitikasiPage() {
                 </p>
                 <ul className="list-none ml-4 space-y-2">
                   <li><strong>Veri Sorumlusu:</strong> PaketServisci</li>
-                  <li><strong>KVKK İletişim:</strong> kvkk@mottokurye.com</li>
-                  <li><strong>Genel Destek:</strong> destek@mottokurye.com</li>
+                  <li><strong>E-posta:</strong> destek@paketservisci.com</li>
                   <li><strong>Telefon:</strong> +90 555 123 45 67</li>
-                  <li><strong>İletişim:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">mottokurye.com/iletisim</Link></li>
+                  <li><strong>İletişim:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">paketservisci.com/iletisim</Link></li>
                 </ul>
               </div>
             </section>

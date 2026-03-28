@@ -215,9 +215,9 @@ export default function KullanimSartlariPage() {
                   Bu Kullanım Şartları hakkında sorularınız için bizimle iletişime geçebilirsiniz:
                 </p>
                 <ul className="list-none ml-4 space-y-2">
-                  <li><strong>E-posta:</strong> destek@mottokurye.com</li>
+                  <li><strong>E-posta:</strong> destek@paketservisci.com</li>
                   <li><strong>Telefon:</strong> +90 555 123 45 67</li>
-                  <li><strong>İletişim Sayfası:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">mottokurye.com/iletisim</Link></li>
+                  <li><strong>İletişim Sayfası:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">paketservisci.com/iletisim</Link></li>
                 </ul>
               </div>
             </section>

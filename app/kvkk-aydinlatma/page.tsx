@@ -22,140 +22,158 @@ export default function KVKKAydinlatmaPage() {
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-black mb-4">
               KVKK Aydınlatma Metni
             </h1>
-            <p"use client";
+            <p className="text-neutral-600 max-w-2xl mx-auto">
+              6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında, kişisel verilerinizin nasıl toplandığını, işlendiğini ve korunduğunu açıklıyoruz.
+            </p>
+            <p className="text-sm text-neutral-500 mt-2">
+              Son Güncellenme: 27 Mart 2026 | Versiyon: 2.0
+            </p>
+          </div>
 
-import React from "react";
-import Link from "next/link";
-import { UnifiedHeader } from "../_components/am
-import Reacel import Link from "next/lie import { UnifiedHeader } fro.
-import { Footer } from "../_components/Footer";
+          {/* Content */}
+          <div className="bg-white rounded-2xl shadow-xl border-2 border-neutral-200 p-8 md:p-12 space-y-8">
+            {/* Section 1 */}
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4 border-b-2 border-[#ff7a00] pb-2">
+                1. Veri Sorumlusu
+              </h2>
+              <div className="space-y-3 text-neutral-700 leading-relaxed">
+                <p>
+                  6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) uyarınca, kişisel verilerinizin veri sorumlusu <strong>PaketServisci</strong>&apos;dir.
+                </p>
+                <p>
+                  <strong>E-posta:</strong> destek@paketservisci.com
+                </p>
+              </div>
+            </section>
 
-export defara
-export default function KVKKAydinlatmaPage() 7 M  return (
-    <div className="min-h-screen w      <div v>      <UnifiedHeader />
+            {/* Section 2 */}
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4 border-b-2 border-[#ff7a00] pb-2">
+                2. Toplanan Kişisel Veriler
+              </h2>
+              <div className="space-y-3 text-neutral-700 leading-relaxed">
+                <p>Platformumuz üzerinden aşağıdaki kişisel veriler toplanmaktadır:</p>
+                <ul className="list-disc list-inside ml-4 space-y-2">
+                  <li><strong>Kimlik Bilgileri:</strong> Ad, soyad</li>
+                  <li><strong>İletişim Bilgileri:</strong> Telefon numarası, e-posta adresi</li>
+                  <li><strong>Konum Bilgileri:</strong> İl, ilçe (çalışma bölgesi)</li>
+                  <li><strong>Mesleki Bilgiler:</strong> İş deneyimi, ehliyet türü, çalışma tercihleri</li>
+                  <li><strong>Teknik Veriler:</strong> IP adresi, çerez bilgileri, cihaz bilgisi</li>
+                  <li><strong>Görsel Veriler:</strong> Profil fotoğrafı (isteğe bağlı)</li>
+                  <li><strong>İşletme Bilgileri:</strong> Firma adı, sektör, yetkili kişi bilgileri</li>
+                </ul>
+              </div>
+            </section>
 
-      <main className="flex-1 px-6 md:px-12 lg:pl 
-      <main classNameder        <div className="max-w-4xl mx-auto">
-          {/* H *          {/* Header */}
-          <div clv           <div classNamxt            <div className="inline-block mb-                <span className="bg-[#ff7a00]/10n?               KVKK Uyumu
-              </span>
-            </div>
-            <h1 className="text-3xl md:nd              </span>
-                 </div>
-               <h1 c                KVKK Aydınlatma Metni
-            </h1>
-            <p"use client";
+            {/* Section 3 */}
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4 border-b-2 border-[#ff7a00] pb-2">
+                3. Kişisel Verilerin İşlenme Amaçları
+              </h2>
+              <div className="space-y-3 text-neutral-700 leading-relaxed">
+                <p>Kişisel verileriniz aşağıdaki amaçlarla işlenmektedir:</p>
+                <ul className="list-disc list-inside ml-4 space-y-2">
+                  <li>Hesap oluşturma ve kimlik doğrulama</li>
+                  <li>Kurye ile işletme arasında eşleştirme hizmeti sunma</li>
+                  <li>İlan oluşturma ve yönetme</li>
+                  <li>Uygulama içi mesajlaşma hizmeti sağlama</li>
+                  <li>Platform güvenliğini ve bütünlüğünü koruma</li>
+                  <li>Yasal yükümlülüklerin yerine getirilmesi</li>
+                </ul>
+              </div>
+            </section>
 
-import  c            </h1>
-            <p"usla            <p"u-2
-import React from "react"   import Link from "next/lileimport { UnifiedHeader } fro  import Reacel import Link fro-4 text-neutral-700 import { Footer } from "../_components/Footer";
+            {/* Section 4 */}
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4 border-b-2 border-[#ff7a00] pb-2">
+                4. Kişisel Verilerin Aktarılması
+              </h2>
+              <div className="space-y-3 text-neutral-700 leading-relaxed">
+                <p>
+                  Kişisel verileriniz üçüncü kişilere satılmaz veya ticari amaçla paylaşılmaz. Ancak aşağıdaki durumlarda verileriniz aktarılabilir:
+                </p>
+                <ul className="list-disc list-inside ml-4 space-y-2">
+                  <li>Yasal zorunluluk halinde yetkili kamu kurum ve kuruluşlarına</li>
+                  <li>Platformun teknik altyapısını sağlayan hizmet sağlayıcılarına (Supabase, Vercel)</li>
+                  <li>Hukuki uyuşmazlıklarda yetkili mahkeme ve icra dairelerine</li>
+                </ul>
+              </div>
+            </section>
 
-export defara
-export:g
-export defara
-export default function KVKKAydsNaexport defaue-    <div className="min-h-screenorange-200">
-              
-      <main className="flex-1 px-6 md:px-12 lg:pl 
-      <main class2">      <main classNameder        <div className="mxt          {/* H *          {/* Header */}
-          <div clv      ><          <div clv           <div classNn=              </span>
-            </div>
-            <h1 className="text-3xl md:nd              </span>
-                 </div>
-               <h1 c                             </div>
- >
-            <h1 c <                 </div>
-               <h1 c                K-2               <h1 c                </h1>
-            <p"use client";
+            {/* Section 5 */}
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4 border-b-2 border-[#ff7a00] pb-2">
+                5. Veri Saklama Süresi
+              </h2>
+              <div className="space-y-3 text-neutral-700 leading-relaxed">
+                <p>
+                  Kişisel verileriniz, işlenme amaçlarının gerektirdiği süre boyunca saklanır. Hesabınızı sildiğinizde, yasal saklama yükümlülükleri saklı kalmak kaydıyla verileriniz silinir veya anonim hale getirilir.
+                </p>
+              </div>
+            </section>
 
-import  c er            <p"u  
-import  c            </h1e="            <p"usla      ilimport React from "react"   import Lox
-export defara
-export:g
-export defara
-export default function KVKKAydsNaexport defaue-    <div className="min-h-screenorange-200">
-              
-      <main className="fle11.042 0 00export:g
-exp1.export57aexport defau-.              
-      <main className="flex-1 px-6 md:px-12 lg:pl 
-      <main class2">                            <main class2">      <main classNameder                 <div clv      ><          <div clv           <div classNn=              </span>
-            </div>
-                </div>
-            <h1 className="text-3xl md:nd              </span>
-                    <h1 cg                  </div>
-               <h1 c                 nt               <h1 c   2 >
-            <h1 c <                 </div>
-        st ok               <h1 c                K-2   0            <p"use client";
+            {/* Section 6 */}
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4 border-b-2 border-[#ff7a00] pb-2">
+                6. Veri Güvenliği
+              </h2>
+              <div className="space-y-3 text-neutral-700 leading-relaxed">
+                <p>
+                  Kişisel verilerinizin güvenliği için gerekli teknik ve idari tedbirler alınmaktadır. Verileriniz SSL/TLS şifreleme ile korunmakta, erişim yetkilendirme mekanizmaları uygulanmaktadır.
+                </p>
+              </div>
+            </section>
 
-import  c er            <p"u  
-import  c          g>
-import  c er            <ostimport  c            </h1e=" </export defara
-export:g
-export defara
-export default function KVKKAydsNaexport defaue-    <diorexport:g
-expelexport ">export defau                
-      <main className="fle11.042 0 00export:g
-exp1.export57aexport defau-.          <main cNaexp1.export57aexport defau-.              
- ok      <main className="flex-1 px-6 md:px-h       <main class2">                 "round" stroke            </div>
-                </div>
-            <h1 className="text-3xl md:nd              </span>
-                    <h1 cg                  </div>
-               <h1 c      1                <z"            <h1 class           Konum Bilgileri
-                    </h3>
-                           <h1 c                 nt          -p            <h1 c <                 </div>
-        st ok                  st ok               <h1 c         f
-import  c er            <p"u  
-import  c          g>
-import  c er            <ost00"import  c          g>
-import olimport  c er        24export:g
-export defara
-export default function KVKKAydsNaexport defaue-"Mexport -6export defau 2expelexport ">export defau                
-      <main className 0      <main className="fle11.042 0 00expo  exp1.export57aexport defau-.          <main    ok      <main className="flex-1 px-6 md:px-h       <main class2">                 "roun r                </div>
-            <h1 className="text-3xl md:nd              </span>
-                    <h1 cg  ga            <h1 class                      <h1 cg                  </div>
-          e=               <h1 c      1                <z"   ne                    </h3>
-                           <h1 c                 nt   .75-3M3 13h18M                        2         st ok                  st ok               <h1 c         f
-import  c er            <p"u  
-import  import  c er            <p"u  
-import  c          g>
-import  c erv>import  c          g>
-import   import  c er          import olİşlenme Amaçları */}
-            <sectioexport defara
-export default function xlexport defauex      <main className 0      <main className="fle11.042 0 00expo  exp1.export57aexport defau-.          <main    o
-             <h1 className="text-3xl md:nd              </span>
-                    <h1 cg  ga            <h1 class                      <h1 cg                  </div>
-          e=               <h1 c      1                <>
-                    <h1 cg  ga            <h1 class          ">          e=               <h1 c      1                <z"   ne                    </h3>
-             ?l                           <h1 c                 nt   .75-3M3 13h18M                   apimport  c er            <p"u  
-import  import  c er            <p"u  
-import  c          g>
-import  c erv>import  c          g>
-import   import  c er          ryimport  import  c er         meimport  c          g>
-import  c erv>i  impo        <li classNimport   import  c er          imp              <sectioexport defara
-export default function xlexpopaexport default f       <span><str             <h1 className="text-3xl md:nd              </span>
-                    <h1 cg  ga          i>
-                  <li className="flex items-star                    <h1 cg  ga            <h1 class           fo          e=               <h1 c      1                <>
-                    <h1 cg  ga            <hg>                    <h1 cg  ga            <h1 class     i>             ?l                           <h1 c                 nt   .75-3M3 13h18M                   apimport  c er            <p"u  
-import  import   import  import  c er            <p"u  
-import  c          g>
-import  c erv>import  c          g>
-import   import  c er          ryimp Kimport  c          g>
-import  c erv>i <import  c erv>importdiimport   import  c er          ryil-import  c erv>i  impo        <li classNimport   import  c er          imp             export default function xlexpopaexport default f       <span><str             <h1 className="text-3xl md:nor                    <h1 cg  ga          i>
-                  <li className="flex items-star                    <h1 cg  ga      to                  <li className="flex itevi                    <h1 cg  ga            <hg>                    <h1 cg  ga            <h1 class     i>             ?l                           <h1 c                 asimport  import   import  import  c er            <p"u  
-import  c          g>
-import  c erv>import  c          g>
-import   import  c er          ryimp Kimport  c          g>
-import  c erv>i <import  c erv>importdiimport   import  c er   laimport  c          g>
-import  c erv>import  c         -2import  c erv>import  import   import  c er          ryi himport  c erv>i <import  c erv>importdiimport   import  c tC                  <li className="flex items-star                    <h1 cg  ga      to                  <li className="flex itevi                    <h1 cg  ga            <hg>                    <h1 cg  ga            <h1 class     i>             ?l                           <h1 c                 asimport  imp</import  c          g>
-import  c erv>import  c          g>
-import   import  c er          ryimp Kimport  c          g>
-import  c erv>i <import  c erv>importdiimport   import  c er   laimport  c          g>
-import  c erv>import  c         -2import  c erv>import  import   import  c er          ryi himport  c erv>i <import  c erv>importdiimport   import  ewimport  c erv>importh import   import  c er          ryiinimport  c erv>i <import  c erv>importdiimport   import  c 13import  c erv>import  c         -2import  c erv>import  import   import  c er        M4import  c erv>import  c          g>
-import   import  c er          ryimp Kimport  c          g>
-import  c erv>i <import  c erv>importdiimport   import  c er   laimport  c          g>
-import  c erv>import  c         -2import  c erv>import  import   import  c er          ryi himport  c erv>i <import  c erv>importdiimport   import  ewimport  c erv>importh import   import  c er          ryiinimport  c erv>i <import  c erv>importdiimport   import  c 13import  c erv>import  c   -2 borderimport   import  c er          ryiBaimport  c erv>i <import  c erv>importdiimport   import  c paimport  c erv>import  c         -2import  c erv>import  import   import  c er        ]/import   import  c er          ryimp Kimport  c          g>
-import  c erv>i <import  c erv>importdiimport   import  c er   laimport  c          g>
-import  c erv>import  c         -2import  c erv>import  import   import  c er          ryi himport  c erv>i <import  c erv>importdiimport   import  ewimport  c erv>importh import   import  c er          ryiinimport  c erv>i <import  c erv>impa2import  c erv>i <import  c erv>importdiimport   import  c KVimport  c erv>import  c         -2import  c erv>import  import   import  c er       ontimport  c erv>i <import  c erv>importdiimport   import  c er   laimport  c          g>
-import  c erv>import  c         -2import  c erv>import  import   import  c er          ryi himport  c erv>i <import  c erv>importdiimport   import  ewimport  c erv>importh import   import  c er          ryiinimport  c erv>i <import  c erv>impa2import  c erv>i <import  c erv>importdiimport   import  c KVimport  c erv>import  c         -2import  c erv>import  import   import  c er       ontimport  c erv>i <import  c erv>importdiimport   import  c er   lai  import  c erv>import  c         -2import  c erv>import  import   import  c er        ">import  c erv>import  c         -2import  c erv>import  import   import  c er          ryi himport  c erv>i <import  c erv>importdiimport   import  ewimport  c erv>importh import   import  c er          ryiinimport  c erv>i <import  c erv>impa2import  c erv>i <import  c erv>importdiimport   import  c KVimport  c erv>import  c         -2import  c erv>import  import   import  c er       ontimport  c erv>i <import  c erv>importdiimport   import  c er   lai  import  c erv>impiewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            {/* Section 7 */}
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4 border-b-2 border-[#ff7a00] pb-2">
+                7. KVKK Kapsamındaki Haklarınız
+              </h2>
+              <div className="space-y-3 text-neutral-700 leading-relaxed">
+                <p>KVKK&apos;nın 11. maddesi uyarınca aşağıdaki haklara sahipsiniz:</p>
+                <ul className="list-disc list-inside ml-4 space-y-2">
+                  <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+                  <li>Kişisel verileriniz işlenmişse buna ilişkin bilgi talep etme</li>
+                  <li>Kişisel verilerinizin işlenme amacını ve bunların amacına uygun kullanılıp kullanılmadığını öğrenme</li>
+                  <li>Yurt içinde veya yurt dışında kişisel verilerinizin aktarıldığı üçüncü kişileri bilme</li>
+                  <li>Kişisel verilerinizin eksik veya yanlış işlenmiş olması hâlinde bunların düzeltilmesini isteme</li>
+                  <li>KVKK&apos;nın 7. maddesinde öngörülen şartlar çerçevesinde kişisel verilerinizin silinmesini veya yok edilmesini isteme</li>
+                  <li>İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme</li>
+                  <li>Kişisel verilerinizin kanuna aykırı olarak işlenmesi sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>
+                </ul>
+              </div>
+            </section>
+
+            {/* Section 8 */}
+            <section>
+              <h2 className="text-2xl font-bold text-black mb-4 border-b-2 border-[#ff7a00] pb-2">
+                8. Başvuru Yöntemi
+              </h2>
+              <div className="space-y-3 text-neutral-700 leading-relaxed">
+                <p>
+                  Yukarıda belirtilen haklarınızı kullanmak için aşağıdaki kanallardan bize başvurabilirsiniz:
+                </p>
+                <ul className="list-none ml-4 space-y-2">
+                  <li><strong>E-posta:</strong> destek@paketservisci.com</li>
+                  <li><strong>İletişim Formu:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">paketservisci.com/iletisim</Link></li>
+                </ul>
+                <p>
+                  Başvurunuz en geç 30 gün içinde sonuçlandırılacaktır.
+                </p>
+              </div>
+            </section>
+
+            {/* Related Policies */}
+            <section className="bg-neutral-50 rounded-xl p-6 border-2 border-neutral-200">
+              <h3 className="text-lg font-bold text-black mb-4">İlgili Politikalar</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Link href="/kullanim-sartlari" className="text-[#ff7a00] hover:underline font-semibold flex items-center gap-1.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  Kullanıcı Sözleşmesi
+                </Link>
+                <Link href="/gizlilik-politikasi" className="text-[#ff7a00] hover:underline font-semibold flex items-center gap-1.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                   Gizlilik Politikası
                 </Link>
                 <Link href="/ticari-ileti-izni" className="text-[#ff7a00] hover:underline font-semibold flex items-center gap-1.5">
