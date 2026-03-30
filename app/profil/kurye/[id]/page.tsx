@@ -92,9 +92,11 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
     return district;
   };
 
-  // Info cards data structure - Telefon bilgisi ContactButtons'da gösteriliyor (premium kontrolü için)
+  // Info cards data structure
   const infoCards = [
     { label: 'İsim', value: maskedName, fullValue: fullName, isName: true, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+    // Telefon bilgisi sadece contact_preference 'in_app' değilse gösterilir
+    ...(courier.contact_preference !== 'in_app' && courier.phone ? [{ label: 'Telefon', value: courier.phone, icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z' }] : []),
     { label: 'Yaş', value: courier.age, icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
     { label: 'Cinsiyet', value: courier.gender === 'ERKEK' ? 'Erkek' : courier.gender === 'KADIN' ? 'Kadın' : courier.gender, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     { label: 'Uyruk', value: courier.nationality, icon: 'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9' },
@@ -213,7 +215,7 @@ export default async function KuryeProfilPage({ params }: CourierProfileProps) {
           ))}
         </div>
 
-        {(courier.contact_preference === "in_app" || courier.contact_preference === "both" || courier.phone) && (
+        {(courier.contact_preference === "in_app" || courier.contact_preference === "phone" || courier.contact_preference === "both" || courier.phone) && (
           <div className="mt-8 bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl border border-orange-200 p-6 sm:p-8">
             <h3 className="text-xl font-bold text-neutral-800 mb-4">İletişim</h3>
             <ContactButtons
