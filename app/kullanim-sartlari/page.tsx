@@ -45,7 +45,7 @@ export default function KullanimSartlariPage() {
                   <strong>1.2.</strong> Platformu kullanarak bu Kullanım Şartlarını ("Şartlar") kabul etmiş sayılırsınız. Şartları kabul etmiyorsanız platformu kullanmayınız.
                 </p>
                 <p>
-                  <strong>1.3.</strong> Platform üzerinden sunulan hizmetler, kuryeler ile işletmeler arasında iletişim kurmayı kolaylaştırmak amacıyla sağlanmaktadır. PaketServisçi, taraflar arasında yapılan sözleşmelerde taraf değildir ve bu ilişkilerden doğan sorumluluğu kabul etmez.
+                  <strong>1.3.</strong> Platform üzerinden sunulan hizmetler, Motorsikletli kurye arayan işletmeler ile İş arayan motorsikletli kuryelerin birbirlerini bulmalarını ve iletişime geçmelerini sağlayan bir aracılık platformudur.PaketServisçi , kurye istihdamı sağlamaz ,işveren değildir.Taraflar arasında yapılan sözleşmelerde taraf değildir ve bu ilişkilerden doğan sorumluluğu kabul etmez.
                 </p>
                 <p>
                   <strong>1.4.</strong> Bu Şartlar, önceden bildirimde bulunmaksızın güncellenebilir. Güncellemeler platform üzerinde yayınlandığı anda yürürlüğe girer. Kullanıcıların güncel Şartları düzenli olarak gözden geçirmesi önerilir.
