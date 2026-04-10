@@ -16,12 +16,13 @@ export default function KayitOlPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [role, setRole] = useState<RoleType>("kurye");
-  const [stage, setStage] = useState<"role-select" | "auth" | "profile">("role-select");
+  const [stage, setStage] = useState<"role-select" | "auth" | "profile" | "success">("role-select");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [sessionUserId, setSessionUserId] = useState<string | null>(null);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [isGoogleUser, setIsGoogleUser] = useState(false);
+  const [showPreLaunchModal, setShowPreLaunchModal] = useState(false);
 
   // On mount check if already authenticated (Google dönüşü vs.)
   useEffect(() => {
@@ -54,11 +55,11 @@ export default function KayitOlPage() {
         const typeParam = urlParams.get('type');
         const googleParam = urlParams.get('google');
 
-        // Rol parametresi varsa hemen ayarla
+        // Rol parametresi varsa hemen ayarla + pre-launch popup göster
         const incomingRole = roleParam || typeParam;
         if (incomingRole && (incomingRole === 'kurye' || incomingRole === 'isletme')) {
           setRole(incomingRole as RoleType);
-          setStage(prev => prev === "role-select" ? "auth" : prev);
+          setShowPreLaunchModal(true);
         }
 
         if (data.session?.user) {
@@ -389,7 +390,7 @@ export default function KayitOlPage() {
       };
       const { error } = await supabase.from("couriers").insert(insert);
       if (error) throw error;
-      router.push("/hosgeldiniz");
+      setStage("success");
     } catch (err: any) {
       setMessage("Kurye kaydı başarısız: " + (err.message || ""));
     } finally { setLoading(false); }
@@ -477,7 +478,7 @@ export default function KayitOlPage() {
         console.error('Otomatik ilan oluşturulamadı:', adError);
       }
       
-      router.push("/hosgeldiniz");
+      setStage("success");
     } catch (err: any) {
       setMessage("İşletme kaydı başarısız: " + (err.message || ""));
     } finally { setLoading(false); }
@@ -505,11 +506,13 @@ export default function KayitOlPage() {
             <h1 className="text-xl sm:text-2xl font-extrabold text-white">
               {stage === "role-select" ? "Kayıt Ol" :
                stage === "auth" ? (role === "kurye" ? "Kurye Kaydı" : "İşletme Kaydı") :
+               stage === "success" ? "" :
                isGoogleUser ? "Profil Tamamlama" : (role === "kurye" ? "Kurye Kaydı" : "İşletme Kaydı")}
             </h1>
             <p className="text-xs sm:text-sm text-white/85 text-center max-w-md">
               {stage === "role-select" ? "Nasıl kayıt olmak istediğini seç." :
                stage === "auth" ? "Hesabını oluştur, ardından profil bilgilerini doldur." : 
+               stage === "success" ? "" :
                isGoogleUser ? "Google ile giriş yaptın! Şimdi profil bilgilerini tamamla." :
                "Gerekli bilgileri doldurun."}
             </p>
@@ -532,7 +535,7 @@ export default function KayitOlPage() {
               <div className="grid grid-cols-2 gap-3 sm:gap-5">
                 {/* Kurye Card */}
                 <button
-                  onClick={() => { setRole("kurye"); setStage("auth"); }}
+                  onClick={() => { setRole("kurye"); setShowPreLaunchModal(true); }}
                   className="group relative overflow-hidden bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl border border-white/25 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:from-white/30 hover:to-white/10 hover:border-white/60 hover:scale-[1.03] hover:shadow-[0_8px_40px_rgba(255,255,255,0.15)] active:scale-[0.98]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -553,7 +556,7 @@ export default function KayitOlPage() {
 
                 {/* İşletme Card */}
                 <button
-                  onClick={() => { setRole("isletme"); setStage("auth"); }}
+                  onClick={() => { setRole("isletme"); setShowPreLaunchModal(true); }}
                   className="group relative overflow-hidden bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-xl border border-white/25 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:from-white/30 hover:to-white/10 hover:border-white/60 hover:scale-[1.03] hover:shadow-[0_8px_40px_rgba(255,255,255,0.15)] active:scale-[0.98]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -646,11 +649,140 @@ export default function KayitOlPage() {
             </div>
           )}
 
-          {message && <p className="mt-2 text-xs sm:text-sm text-center text-white/95">{message}</p>}
-          <p className="mt-6 text-xs sm:text-sm text-center text-white/90">Zaten hesabın var mı? <Link href="/giris" className="font-semibold underline-offset-4 hover:underline">Giriş Yap</Link></p>
-          <p className="mt-4 text-[10px] leading-relaxed text-white/50 text-center">Bilgileriniz Supabase üzerinde güvenle saklanır. RLS politikaları ile sadece size ait veriler kullanıcı kimliğiniz (auth.uid()) ile ilişkilendirilerek erişilebilir olmalıdır. Tablo şemalarınızı ve politikalarınızı uygun şekilde yapılandırın.</p>
+          {/* Stage: success */}
+          {stage === "success" && (
+            <div className="fade-up flex flex-col items-center text-center py-4">
+              {/* Animated check icon */}
+              <div className="relative mb-6">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/30 animate-[scale-in_0.5s_ease-out]">
+                  <svg className="w-12 h-12 sm:w-14 sm:h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                {/* Pulse ring */}
+                <div className="absolute inset-0 w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-green-400/50 animate-ping" />
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
+                Tebrikler!
+              </h2>
+              <p className="text-lg sm:text-xl font-bold text-white/95 mb-2">
+                Kayıt İşleminiz Başarıyla Tamamlandı
+              </p>
+              
+              <div className="w-full max-w-md bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-5 sm:p-6 mt-4 mb-6">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#ff7a00]/20 flex items-center justify-center mt-0.5">
+                    <svg className="w-4 h-4 text-[#ff7a00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm sm:text-base text-white/90 leading-relaxed text-left">
+                    Profiliniz başarıyla oluşturuldu. Platformumuz yeni yayına alınmış olup kurye ve işletme ağımız hızla genişlemektedir.
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center mt-0.5">
+                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                  </div>
+                  <p className="text-sm sm:text-base text-white/90 leading-relaxed text-left">
+                    En kısa sürede sizlere dönüş sağlanacaktır. <strong className="text-white">Öncelikli kullanıcılar</strong> arasında yerinizi aldınız!
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-[#ff7a00] font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm sm:text-base"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Ana Sayfaya Dön
+              </Link>
+            </div>
+          )}
+
+          {stage !== "success" && message && <p className="mt-2 text-xs sm:text-sm text-center text-white/95">{message}</p>}
+          {stage !== "success" && (
+            <p className="mt-4 text-[10px] leading-relaxed text-white/50 text-center">Bilgileriniz Supabase üzerinde güvenle saklanır. RLS politikaları ile sadece size ait veriler kullanıcı kimliğiniz (auth.uid()) ile ilişkilendirilerek erişilebilir olmalıdır. Tablo şemalarınızı ve politikalarınızı uygun şekilde yapılandırın.</p>
+          )}
         </div>
       </div>
+
+      {/* Pre-Launch Modal */}
+      {showPreLaunchModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowPreLaunchModal(false)}
+          />
+          
+          {/* Modal */}
+          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden fade-up">
+            {/* Top accent */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-[#ff7a00] via-orange-400 to-[#ff7a00]" />
+            
+            {/* Close button */}
+            <button
+              onClick={() => setShowPreLaunchModal(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center transition-colors z-10"
+            >
+              <svg className="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="px-6 sm:px-8 py-8 sm:py-10">
+              {/* Icon */}
+              <div className="flex justify-center mb-5">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#ff7a00] to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/25">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Content */}
+              <h3 className="text-xl sm:text-2xl font-extrabold text-neutral-900 text-center mb-4">
+                Platformumuza Hoş Geldiniz!
+              </h3>
+              
+              <div className="space-y-4 text-sm sm:text-base text-neutral-600 leading-relaxed">
+                <p>
+                  Platformumuz <strong className="text-neutral-800">yeni yayına alınmıştır</strong> ve kayıt sürecimiz aktif olarak devam etmektedir.
+                </p>
+                <p>
+                  Kısa süre içerisinde kurye ve işletme ağımız hızla genişleyecek, size <strong className="text-neutral-800">en uygun eşleşmeler</strong> sunulacaktır.
+                </p>
+                <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                  <p className="text-neutral-700">
+                    Şu anda oluşturacağınız <strong className="text-[#ff7a00]">sınırlı süreli ücretsiz üyelik</strong> ile öncelikli kullanıcılar arasında yer alabilir ve eşleşmeler başladığında <strong className="text-neutral-800">ilk haberdar olanlardan biri</strong> olabilirsiniz.
+                  </p>
+                </div>
+                <p className="text-center font-semibold text-neutral-800">
+                  Bu fırsatı kaçırmayın!
+                </p>
+              </div>
+
+              {/* CTA Button */}
+              <button
+                onClick={() => { setShowPreLaunchModal(false); setStage("auth"); }}
+                className="mt-6 w-full py-3.5 bg-gradient-to-r from-[#ff7a00] to-orange-500 hover:from-[#e86e00] hover:to-orange-600 text-white font-bold text-base sm:text-lg rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all hover:-translate-y-0.5 active:translate-y-0"
+              >
+                KAYIT OL
+              </button>
+              
+              <p className="mt-3 text-xs text-neutral-400 text-center">
+                Kayıt tamamen ücretsizdir • Kredi kartı gerekmez
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

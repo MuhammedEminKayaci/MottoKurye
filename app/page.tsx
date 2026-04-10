@@ -92,19 +92,13 @@ export default function Page() {
                   Kurye ve işletmeleri buluşturan profesyonel platform.
                   Mesaj gruplarının trafiğinde kaybolmayın, doğru eşleşmeyi doğrudan yapın.
                 </p>
-                {!isLoggedIn && !isLoading && (
+                {!isLoading && (
                   <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                     <Link
                       href="/kayit-ol"
                       className="inline-flex items-center justify-center px-7 py-3 bg-[#ff7a00] text-white font-semibold rounded-full shadow-lg shadow-orange-500/25 hover:bg-[#e86e00] hover:shadow-orange-500/40 transition-all hover:-translate-y-0.5"
                     >
                       Hemen Kayıt Ol
-                    </Link>
-                    <Link
-                      href="/giris"
-                      className="inline-flex items-center justify-center px-7 py-3 border-2 border-white/40 text-white font-semibold rounded-full hover:bg-white/10 hover:border-white/60 transition-all"
-                    >
-                      Giriş Yap
                     </Link>
                   </div>
                 )}
@@ -115,11 +109,7 @@ export default function Page() {
                 {/* Kurye Card */}
                 <button
                   onClick={() => {
-                    if (userRole === "isletme") {
-                      router.push("/ilanlar?view=isletme");
-                    } else {
-                      router.push("/kurye-bul");
-                    }
+                    router.push("/kayit-ol?role=kurye");
                   }}
                   disabled={isLoading}
                   className="group relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:bg-white/[0.18] hover:border-white/40 hover:shadow-[0_8px_40px_rgba(255,122,0,0.15)] hover:-translate-y-1 disabled:opacity-50 cursor-pointer"
@@ -133,22 +123,18 @@ export default function Page() {
                     </svg>
                   </div>
                   <h3 className="text-base sm:text-lg font-bold text-white mb-1.5">
-                    {userRole === "kurye" ? "Kuryelere Göz At" : "Kurye Bul"}
+                    Kurye Bul
                   </h3>
 
                   <div className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-white/25 text-white text-xs sm:text-sm font-semibold whitespace-nowrap group-hover:bg-white/10 group-hover:border-white/40 transition-all">
-                    {userRole === "kurye" ? "Kuryeleri Gör" : "Hemen Başla"}
+                    Hemen Başla
                   </div>
                 </button>
 
                 {/* İşletme Card */}
                 <button
                   onClick={() => {
-                    if (userRole === "kurye") {
-                      router.push("/ilanlar?view=kurye");
-                    } else {
-                      router.push("/isletme-bul");
-                    }
+                    router.push("/kayit-ol?role=isletme");
                   }}
                   disabled={isLoading}
                   className="group relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 sm:p-7 text-center transition-all duration-300 hover:bg-white/[0.18] hover:border-white/40 hover:shadow-[0_8px_40px_rgba(255,122,0,0.15)] hover:-translate-y-1 disabled:opacity-50 cursor-pointer"
@@ -160,11 +146,11 @@ export default function Page() {
                     </svg>
                   </div>
                   <h3 className="text-base sm:text-lg font-bold text-white mb-1.5">
-                    {userRole === "isletme" ? "İşletmelere Göz At" : "İşletme Bul"}
+                    İşletme Bul
                   </h3>
 
                   <div className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#ff7a00] text-white text-xs sm:text-sm font-semibold whitespace-nowrap group-hover:bg-[#e86e00] transition-all">
-                    {userRole === "kurye" ? "İşletmeleri Gör" : "İş Ortağı Ol"}
+                    İş Ortağı Ol
                   </div>
                 </button>
               </div>

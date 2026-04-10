@@ -15,6 +15,11 @@ function GirisContent() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  // Pre-launch: Giriş sayfası geçici olarak kayıt-ol'a yönlendirildi
+  useEffect(() => {
+    router.replace("/kayit-ol");
+  }, [router]);
+
   // URL'deki hata parametresini kontrol et
   useEffect(() => {
     const error = searchParams.get("error");
