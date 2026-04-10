@@ -390,6 +390,8 @@ export default function KayitOlPage() {
       };
       const { error } = await supabase.from("couriers").insert(insert);
       if (error) throw error;
+      // Pre-launch: Kayıt sonrası oturumu kapat (menü değişmesin)
+      await supabase.auth.signOut({ scope: 'local' });
       setStage("success");
     } catch (err: any) {
       setMessage("Kurye kaydı başarısız: " + (err.message || ""));
@@ -478,6 +480,8 @@ export default function KayitOlPage() {
         console.error('Otomatik ilan oluşturulamadı:', adError);
       }
       
+      // Pre-launch: Kayıt sonrası oturumu kapat (menü değişmesin)
+      await supabase.auth.signOut({ scope: 'local' });
       setStage("success");
     } catch (err: any) {
       setMessage("İşletme kaydı başarısız: " + (err.message || ""));
