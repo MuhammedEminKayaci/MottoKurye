@@ -57,13 +57,19 @@ export default function KayitOlPage() {
 
         // Rol parametresi varsa hemen ayarla + pre-launch popup göster
         const incomingRole = roleParam || typeParam;
-        if (incomingRole && (incomingRole === 'kurye' || incomingRole === 'isletme')) {
+        const isPreLaunchRedirect = !!(incomingRole && (incomingRole === 'kurye' || incomingRole === 'isletme'));
+        if (isPreLaunchRedirect) {
           setRole(incomingRole as RoleType);
           setShowPreLaunchModal(true);
         }
 
         if (data.session?.user) {
           const userId = data.session.user.id;
+
+          // Pre-launch: role parametresiyle geldiyse profil kontrolü yapma, popup göster
+          if (isPreLaunchRedirect) {
+            return;
+          }
 
           const hasProfile = await checkProfileExists(userId);
           if (!isMounted) return;
@@ -477,7 +483,7 @@ export default function KayitOlPage() {
         <div className="w-full max-w-2xl glass-card rounded-3xl p-6 sm:p-8 shadow-2xl fade-up">
           <div className="flex flex-col items-center gap-2 mb-6">
             <Link href="/" className="cursor-pointer">
-              <Image src="/images/paketservisci.png" alt="PaketServisçi Logo" width={160} height={50} priority className="drop-shadow-lg hover:opacity-90 transition-opacity" />
+              <Image src="/images/paketservisci.png" alt="PaketServisci Logo" width={160} height={50} priority className="drop-shadow-lg hover:opacity-90 transition-opacity" />
             </Link>
             <h1 className="text-xl sm:text-2xl font-extrabold text-white">
               {stage === "role-select" ? "Kayıt Ol" :
@@ -654,7 +660,7 @@ export default function KayitOlPage() {
                     </svg>
                   </div>
                   <p className="text-sm sm:text-base text-white/90 leading-relaxed text-left">
-                    Profiliniz başarıyla oluşturuldu. PaketServisçi yeni yayına alınmış olup kurye ve işletme ağımız hızla genişlemektedir.
+                    Profiliniz başarıyla oluşturuldu. PaketServisci yeni yayına alınmış olup kurye ve işletme ağımız hızla genişlemektedir.
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
@@ -724,12 +730,12 @@ export default function KayitOlPage() {
 
               {/* Content */}
               <h3 className="text-xl sm:text-2xl font-extrabold text-neutral-900 text-center mb-4">
-                PaketServisçi&apos;ye Hoş Geldiniz!
+                PaketServisci&apos;ye Hoş Geldiniz!
               </h3>
               
               <div className="space-y-4 text-sm sm:text-base text-neutral-600 leading-relaxed">
                 <p>
-                  PaketServisçi <strong className="text-neutral-800">yeni yayına alınmıştır</strong> ve kayıt sürecimiz aktif olarak devam etmektedir.
+                  PaketServisci <strong className="text-neutral-800">yeni yayına alınmıştır</strong> ve kayıt sürecimiz aktif olarak devam etmektedir.
                 </p>
                 <p>
                   Kısa süre içerisinde kurye ve işletme ağımız hızla genişleyecek, size <strong className="text-neutral-800">en uygun eşleşmeler</strong> sunulacaktır.

@@ -39,7 +39,7 @@ export default function KVKKAydinlatmaPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) uyarınca, kişisel verilerinizin veri sorumlusu <strong>PaketServisçi</strong>&apos;dir.
+                  6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) uyarınca, kişisel verilerinizin veri sorumlusu <strong>PaketServisci</strong>&apos;dir.
                 </p>
                 <p>
                   <strong>E-posta:</strong> destek@paketservisci.com

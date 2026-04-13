@@ -176,7 +176,7 @@ function EmailDogrulamaContent() {
           <Link href="/" className="inline-block mb-6">
             <Image
               src="/images/paketservisci.png"
-              alt="PaketServisçi Logo"
+              alt="PaketServisci Logo"
               width={160}
               height={50}
               priority

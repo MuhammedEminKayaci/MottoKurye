@@ -12,7 +12,7 @@ test.describe('Ana Sayfa Navigasyon', () => {
   });
 
   test('ana sayfa yüklenmeli', async ({ page }) => {
-    await expect(page).toHaveTitle(/PaketServisçi|Kurye|Next/i);
+    await expect(page).toHaveTitle(/PaketServisci|Kurye|Next/i);
   });
 
   test('logo görünür olmalı', async ({ page }) => {

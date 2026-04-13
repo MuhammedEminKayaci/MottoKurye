@@ -8,7 +8,7 @@ import { Footer } from "../_components/Footer";
 
 export default function IletisimPage() {
   const whatsappNumber = "905551234567"; // Numaranızı buraya ekleyin (ülke kodu dahil, + işareti olmadan)
-  const whatsappMessage = encodeURIComponent("Merhaba, PaketServisçi hakkında bilgi almak istiyorum.");
+  const whatsappMessage = encodeURIComponent("Merhaba, PaketServisci hakkında bilgi almak istiyorum.");
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   return (
@@ -190,7 +190,7 @@ export default function IletisimPage() {
               Sık Sorulan Sorular
             </h2>
             <p className="text-neutral-600 max-w-2xl mx-auto text-sm md:text-base">
-              Paketservisçi.com hakkında merak ettikleriniz
+              Paketservisci.com hakkında merak ettikleriniz
             </p>
           </div>
 
@@ -204,10 +204,10 @@ export default function IletisimPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    Paketservisçi.com üzerinden anlık kurye çağırabilir miyim?
+                    Paketservisci.com üzerinden anlık kurye çağırabilir miyim?
                   </h3>
                   <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Hayır. Paketservisçi.com, anlık veya tek seferlik kurye çağırma hizmeti sunmaz. Platformumuz, işletmelerin uzun süreli çalışabilecek motokuryeler bulmasını sağlamak amacıyla kurulmuştur. İşletmeler, ihtiyaç duydukları kuryeleri ilan oluşturarak veya kurye profillerini inceleyerek bulabilir ve uzun vadeli çalışma için iletişime geçebilir.
+                    Hayır. Paketservisci.com, anlık veya tek seferlik kurye çağırma hizmeti sunmaz. Platformumuz, işletmelerin uzun süreli çalışabilecek motokuryeler bulmasını sağlamak amacıyla kurulmuştur. İşletmeler, ihtiyaç duydukları kuryeleri ilan oluşturarak veya kurye profillerini inceleyerek bulabilir ve uzun vadeli çalışma için iletişime geçebilir.
                   </p>
                 </div>
               </div>
@@ -222,10 +222,10 @@ export default function IletisimPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    Paketservisçi.com kuryeler için ücretli mi?
+                    Paketservisci.com kuryeler için ücretli mi?
                   </h3>
                   <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Hayır, Paketservisçi.com kuryeler için tamamen ücretsizdir.
+                    Hayır, Paketservisci.com kuryeler için tamamen ücretsizdir.
                   </p>
                 </div>
               </div>
@@ -240,10 +240,10 @@ export default function IletisimPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    Paketservisçi.com işletmeler için üyelik paketleri ücretli mi?
+                    Paketservisci.com işletmeler için üyelik paketleri ücretli mi?
                   </h3>
                   <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Paketservisçi.com&apos;da 3 farklı üyelik paketi bulunmaktadır. Bunlardan 1. Paket sınırlı kullanım imkanları ile tamamen ücretsizdir. 2. ve 3. Paket üyelikleri ücretlidir.
+                    Paketservisci.com&apos;da 3 farklı üyelik paketi bulunmaktadır. Bunlardan 1. Paket sınırlı kullanım imkanları ile tamamen ücretsizdir. 2. ve 3. Paket üyelikleri ücretlidir.
                   </p>
                 </div>
               </div>
@@ -258,10 +258,10 @@ export default function IletisimPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-base md:text-lg font-bold text-black mb-2 md:mb-3">
-                    Paketservisçi.com&apos;u kimler kullanabilir?
+                    Paketservisci.com&apos;u kimler kullanabilir?
                   </h3>
                   <p className="text-neutral-600 leading-relaxed text-sm md:text-base">
-                    Uzun süreli motorsikletli kurye istihdamı yapmak isteyen her firma ile tüm motorsikletli kuryeler Paketservisçi.com&apos;u kullanabilir.
+                    Uzun süreli motorsikletli kurye istihdamı yapmak isteyen her firma ile tüm motorsikletli kuryeler Paketservisci.com&apos;u kullanabilir.
                   </p>
                 </div>
               </div>

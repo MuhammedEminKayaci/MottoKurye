@@ -84,7 +84,7 @@ export default function Page() {
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold leading-tight text-white">
                   Doğru İş Ortağını
                   <br />
-                  <span className="text-[#ff7a00]">PaketServisçi</span> ile
+                  <span className="text-[#ff7a00]">PaketServisci</span> ile
                   <br />
                   Bul
                 </h1>

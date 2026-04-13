@@ -8,7 +8,7 @@ export function AuthHeader() {
       <Link href="/" className="flex items-center justify-center">
         <Image
           src="/images/paketservisci.png"
-          alt="PaketServisçi Logo"
+          alt="PaketServisci Logo"
           width={200}
           height={60}
           priority

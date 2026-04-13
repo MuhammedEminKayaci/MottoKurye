@@ -23,7 +23,7 @@ export default function KullanimSartlariPage() {
               Kullanım Şartları
             </h1>
             <p className="text-neutral-600 max-w-2xl mx-auto">
-              PaketServisçi platformunu kullanarak aşağıdaki şartları kabul etmiş sayılırsınız.
+              PaketServisci platformunu kullanarak aşağıdaki şartları kabul etmiş sayılırsınız.
             </p>
             <p className="text-sm text-neutral-500 mt-2">
               Son Güncellenme: 17 Aralık 2025 | Versiyon: 1.0
@@ -39,13 +39,13 @@ export default function KullanimSartlariPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>1.1.</strong> PaketServisçi ("Platform", "Biz", "Hizmet"), kurye ve işletmeleri bir araya getiren çevrimiçi bir eşleştirme platformudur. Platform, PaketServisçi tarafından işletilmektedir.
+                  <strong>1.1.</strong> PaketServisci ("Platform", "Biz", "Hizmet"), kurye ve işletmeleri bir araya getiren çevrimiçi bir eşleştirme platformudur. Platform, PaketServisci tarafından işletilmektedir.
                 </p>
                 <p>
                   <strong>1.2.</strong> Platformu kullanarak bu Kullanım Şartlarını ("Şartlar") kabul etmiş sayılırsınız. Şartları kabul etmiyorsanız platformu kullanmayınız.
                 </p>
                 <p>
-                  <strong>1.3.</strong> Platform üzerinden sunulan hizmetler, Motorsikletli kurye arayan işletmeler ile İş arayan motorsikletli kuryelerin birbirlerini bulmalarını ve iletişime geçmelerini sağlayan bir aracılık platformudur.PaketServisçi , kurye istihdamı sağlamaz ,işveren değildir.Taraflar arasında yapılan sözleşmelerde taraf değildir ve bu ilişkilerden doğan sorumluluğu kabul etmez.
+                  <strong>1.3.</strong> Platform üzerinden sunulan hizmetler, Motorsikletli kurye arayan işletmeler ile İş arayan motorsikletli kuryelerin birbirlerini bulmalarını ve iletişime geçmelerini sağlayan bir aracılık platformudur.PaketServisci , kurye istihdamı sağlamaz ,işveren değildir.Taraflar arasında yapılan sözleşmelerde taraf değildir ve bu ilişkilerden doğan sorumluluğu kabul etmez.
                 </p>
                 <p>
                   <strong>1.4.</strong> Bu Şartlar, önceden bildirimde bulunmaksızın güncellenebilir. Güncellemeler platform üzerinde yayınlandığı anda yürürlüğe girer. Kullanıcıların güncel Şartları düzenli olarak gözden geçirmesi önerilir.
@@ -72,7 +72,7 @@ export default function KullanimSartlariPage() {
                   <strong>2.4.</strong> Tek bir kullanıcı birden fazla hesap oluşturamaz. Sahte veya yanıltıcı hesaplar tespit edildiğinde derhal kapatılır.
                 </p>
                 <p>
-                  <strong>2.5.</strong> PaketServisçi, uygun görmediği kullanıcıların hesaplarını gerekçe göstermeksizin askıya alma veya silme hakkına sahiptir.
+                  <strong>2.5.</strong> PaketServisci, uygun görmediği kullanıcıların hesaplarını gerekçe göstermeksizin askıya alma veya silme hakkına sahiptir.
                 </p>
               </div>
             </section>
@@ -98,10 +98,10 @@ export default function KullanimSartlariPage() {
                   <li>Platform hizmetlerini ticari amaçla izinsiz kullanma veya alt lisanslama</li>
                 </ul>
                 <p>
-                  <strong>3.3.</strong> Kullanıcılar, platform üzerinde paylaştıkları içeriklerden tamamen sorumludur. PaketServisçi, kullanıcı içeriklerinin doğruluğunu, yasallığını veya güvenilirliğini garanti etmez.
+                  <strong>3.3.</strong> Kullanıcılar, platform üzerinde paylaştıkları içeriklerden tamamen sorumludur. PaketServisci, kullanıcı içeriklerinin doğruluğunu, yasallığını veya güvenilirliğini garanti etmez.
                 </p>
                 <p>
-                  <strong>3.4.</strong> Platform üzerinden yapılan tüm iletişim ve anlaşmalar kullanıcılar arasındadır. PaketServisçi, taraflar arasında yapılan anlaşmaların ifasından sorumlu değildir.
+                  <strong>3.4.</strong> Platform üzerinden yapılan tüm iletişim ve anlaşmalar kullanıcılar arasındadır. PaketServisci, taraflar arasında yapılan anlaşmaların ifasından sorumlu değildir.
                 </p>
               </div>
             </section>
@@ -113,13 +113,13 @@ export default function KullanimSartlariPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>4.1.</strong> Platform üzerindeki tüm içerik, tasarım, logo, yazılım ve materyaller PaketServisçi'nin mülkiyetindedir ve fikri mülkiyet hakları ile korunmaktadır.
+                  <strong>4.1.</strong> Platform üzerindeki tüm içerik, tasarım, logo, yazılım ve materyaller PaketServisci'nin mülkiyetindedir ve fikri mülkiyet hakları ile korunmaktadır.
                 </p>
                 <p>
                   <strong>4.2.</strong> Platform içeriklerini izinsiz kopyalayamaz, çoğaltamaz, dağıtamaz veya ticari amaçlarla kullanamazsınız.
                 </p>
                 <p>
-                  <strong>4.3.</strong> Kullanıcılar, platforma yükledikleri içerikler (profil fotoğrafı, ilan açıklamaları vb.) üzerinde PaketServisçi'ye sınırlı, münhasır olmayan, dünya çapında, telif ücreti ödemeksizin kullanım hakkı tanırlar.
+                  <strong>4.3.</strong> Kullanıcılar, platforma yükledikleri içerikler (profil fotoğrafı, ilan açıklamaları vb.) üzerinde PaketServisci'ye sınırlı, münhasır olmayan, dünya çapında, telif ücreti ödemeksizin kullanım hakkı tanırlar.
                 </p>
               </div>
             </section>
@@ -131,19 +131,19 @@ export default function KullanimSartlariPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>5.1.</strong> Platform "olduğu gibi" sunulmaktadır. PaketServisçi, hizmetin kesintisiz, hatasız veya güvenli olacağına dair herhangi bir garanti vermez.
+                  <strong>5.1.</strong> Platform "olduğu gibi" sunulmaktadır. PaketServisci, hizmetin kesintisiz, hatasız veya güvenli olacağına dair herhangi bir garanti vermez.
                 </p>
                 <p>
-                  <strong>5.2.</strong> PaketServisçi, kullanıcılar arasındaki anlaşmalardan, iletişimlerden veya işlemlerden kaynaklanan hiçbir zarardan sorumlu değildir.
+                  <strong>5.2.</strong> PaketServisci, kullanıcılar arasındaki anlaşmalardan, iletişimlerden veya işlemlerden kaynaklanan hiçbir zarardan sorumlu değildir.
                 </p>
                 <p>
-                  <strong>5.3.</strong> Platform üzerinden erişilen üçüncü taraf bağlantılarından doğan sorumluluk PaketServisçi'ye ait değildir.
+                  <strong>5.3.</strong> Platform üzerinden erişilen üçüncü taraf bağlantılarından doğan sorumluluk PaketServisci'ye ait değildir.
                 </p>
                 <p>
-                  <strong>5.4.</strong> Kullanıcılar, platform kullanımından kaynaklanan tüm riskleri kabul eder. PaketServisçi, dolaylı, arızi veya cezai zararlardan sorumlu tutulamaz.
+                  <strong>5.4.</strong> Kullanıcılar, platform kullanımından kaynaklanan tüm riskleri kabul eder. PaketServisci, dolaylı, arızi veya cezai zararlardan sorumlu tutulamaz.
                 </p>
                 <p>
-                  <strong>5.5.</strong> Kanunların izin verdiği ölçüde, PaketServisçi'nin toplam sorumluluğu kullanıcının son 12 ayda platforma ödediği ücretle sınırlıdır.
+                  <strong>5.5.</strong> Kanunların izin verdiği ölçüde, PaketServisci'nin toplam sorumluluğu kullanıcının son 12 ayda platforma ödediği ücretle sınırlıdır.
                 </p>
               </div>
             </section>
@@ -161,7 +161,7 @@ export default function KullanimSartlariPage() {
                   <strong>6.2.</strong> Ücretler önceden bildirimde bulunularak değiştirilebilir. Mevcut üyelikler için değişiklikler yenileme döneminde geçerli olur.
                 </p>
                 <p>
-                  <strong>6.3.</strong> Ödemeler güvenli ödeme sistemleri aracılığıyla yapılır. PaketServisçi, ödeme bilgilerinizi saklamaz.
+                  <strong>6.3.</strong> Ödemeler güvenli ödeme sistemleri aracılığıyla yapılır. PaketServisci, ödeme bilgilerinizi saklamaz.
                 </p>
                 <p>
                   <strong>6.4.</strong> İade politikası, Türk Tüketici Hakları mevzuatına uygun olarak belirlenir ve <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">iletişim</Link> sayfasından detaylı bilgi alınabilir.
@@ -179,7 +179,7 @@ export default function KullanimSartlariPage() {
                   <strong>7.1.</strong> Hesabınızı istediğiniz zaman kapatabilirsiniz. Hesap kapatma talebi için <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">bizimle iletişime</Link> geçebilirsiniz.
                 </p>
                 <p>
-                  <strong>7.2.</strong> PaketServisçi, bu Şartları ihlal eden kullanıcıların hesaplarını önceden bildirimde bulunmaksızın askıya alma veya silme hakkını saklı tutar.
+                  <strong>7.2.</strong> PaketServisci, bu Şartları ihlal eden kullanıcıların hesaplarını önceden bildirimde bulunmaksızın askıya alma veya silme hakkını saklı tutar.
                 </p>
                 <p>
                   <strong>7.3.</strong> Hesap kapatıldığında, kullanıcı verileri <Link href="/gizlilik-politikasi" className="text-[#ff7a00] underline hover:text-[#ff6a00]">Gizlilik Politikası</Link> ve <Link href="/kvkk-aydinlatma" className="text-[#ff7a00] underline hover:text-[#ff6a00]">KVKK Aydınlatma Metni</Link>'nde belirtilen sürelerde ve şekillerde saklanır veya silinir.

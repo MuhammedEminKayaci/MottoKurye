@@ -39,13 +39,13 @@ export default function TicariIletiIzniPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>1.1.</strong> PaketServisçi ("Şirket", "Platform"), <strong>6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun</strong> ve <strong>Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik</strong> hükümlerine uygun olarak ticari elektronik ileti göndermektedir.
+                  <strong>1.1.</strong> PaketServisci ("Şirket", "Platform"), <strong>6563 sayılı Elektronik Ticaretin Düzenlenmesi Hakkında Kanun</strong> ve <strong>Ticari İletişim ve Ticari Elektronik İletiler Hakkında Yönetmelik</strong> hükümlerine uygun olarak ticari elektronik ileti göndermektedir.
                 </p>
                 <p>
                   <strong>1.2.</strong> Ticari elektronik ileti, telefon, çağrı merkezleri, faks, otomatik arama makineleri, akıllı ses kaydedici sistemler, elektronik posta, kısa mesaj hizmeti gibi vasıtalar kullanılarak elektronik ortamda gerçekleştirilen ve ticari amaçlarla gönderilen veri, ses ve görüntü içerikli iletilerdir.
                 </p>
                 <p>
-                  <strong>1.3.</strong> PaketServisçi, ticari elektronik ileti göndermek için alıcıların <strong>önceden onayını</strong> (açık rızasını) almaktadır.
+                  <strong>1.3.</strong> PaketServisci, ticari elektronik ileti göndermek için alıcıların <strong>önceden onayını</strong> (açık rızasını) almaktadır.
                 </p>
               </div>
             </section>
@@ -102,7 +102,7 @@ export default function TicariIletiIzniPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>4.1.</strong> PaketServisçi, <strong>İleti Yönetim Sistemi (İYS)</strong>'ne kayıtlıdır ve ticari elektronik ileti izinlerinizi İYS üzerinde yönetmektedir.
+                  <strong>4.1.</strong> PaketServisci, <strong>İleti Yönetim Sistemi (İYS)</strong>'ne kayıtlıdır ve ticari elektronik ileti izinlerinizi İYS üzerinde yönetmektedir.
                 </p>
                 <p>
                   <strong>4.2.</strong> İYS, alıcıların ticari elektronik ileti tercihlerini merkezi olarak yönetebilmelerine olanak tanıyan resmi bir sistemdir.
@@ -224,7 +224,7 @@ export default function TicariIletiIzniPage() {
               </h2>
               <div className="space-y-3 text-neutral-700 leading-relaxed">
                 <p>
-                  <strong>8.1.</strong> PaketServisçi, ticari elektronik ileti gönderiminde 6563 sayılı Kanun ve ilgili mevzuata uygun hareket etmeyi taahhüt eder.
+                  <strong>8.1.</strong> PaketServisci, ticari elektronik ileti gönderiminde 6563 sayılı Kanun ve ilgili mevzuata uygun hareket etmeyi taahhüt eder.
                 </p>
                 <p>
                   <strong>8.2.</strong> Hukuka aykırı ticari elektronik ileti gönderildiğini düşünüyorsanız:

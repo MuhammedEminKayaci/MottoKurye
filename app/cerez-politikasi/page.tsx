@@ -23,7 +23,7 @@ export default function CerezPolitikasiPage() {
               Çerez Politikası
             </h1>
             <p className="text-neutral-600 max-w-2xl mx-auto">
-              Paketservisçi.com kullanıcı deneyimini geliştirmek amacıyla çerezler kullanır.
+              Paketservisci.com kullanıcı deneyimini geliştirmek amacıyla çerezler kullanır.
             </p>
             <p className="text-sm text-neutral-500 mt-2">
               Son Güncellenme: 27 Mart 2026 | Versiyon: 1.0

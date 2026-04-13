@@ -212,7 +212,7 @@ export function UnifiedHeader() {
         >
           <Image
             src="/images/paketservisci.png"
-            alt="PaketServisçi Logo"
+            alt="PaketServisci Logo"
             width={300}
             height={80}
             priority
