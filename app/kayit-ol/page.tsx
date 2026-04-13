@@ -654,7 +654,7 @@ export default function KayitOlPage() {
                     </svg>
                   </div>
                   <p className="text-sm sm:text-base text-white/90 leading-relaxed text-left">
-                    Profiliniz başarıyla oluşturuldu. Platformumuz yeni yayına alınmış olup kurye ve işletme ağımız hızla genişlemektedir.
+                    Profiliniz başarıyla oluşturuldu. PaketServisçi yeni yayına alınmış olup kurye ve işletme ağımız hızla genişlemektedir.
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
@@ -724,12 +724,12 @@ export default function KayitOlPage() {
 
               {/* Content */}
               <h3 className="text-xl sm:text-2xl font-extrabold text-neutral-900 text-center mb-4">
-                Platformumuza Hoş Geldiniz!
+                PaketServisçi&apos;ye Hoş Geldiniz!
               </h3>
               
               <div className="space-y-4 text-sm sm:text-base text-neutral-600 leading-relaxed">
                 <p>
-                  Platformumuz <strong className="text-neutral-800">yeni yayına alınmıştır</strong> ve kayıt sürecimiz aktif olarak devam etmektedir.
+                  PaketServisçi <strong className="text-neutral-800">yeni yayına alınmıştır</strong> ve kayıt sürecimiz aktif olarak devam etmektedir.
                 </p>
                 <p>
                   Kısa süre içerisinde kurye ve işletme ağımız hızla genişleyecek, size <strong className="text-neutral-800">en uygun eşleşmeler</strong> sunulacaktır.
