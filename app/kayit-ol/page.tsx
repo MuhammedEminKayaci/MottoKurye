@@ -158,23 +158,13 @@ export default function KayitOlPage() {
     const candidates = Array.from(new Set([phone, cleaned].filter(Boolean))) as string[];
     if (candidates.length === 0) return;
 
-    const { data: courierHit, error: courierErr } = await supabase
-      .from("couriers")
-      .select("id")
-      .in("phone", candidates)
-      .limit(1);
-    if (courierErr) throw courierErr;
-    if (courierHit && courierHit.length > 0) {
-      throw new Error("Bu telefon numarasıyla kayıt zaten var.");
-    }
-
-    const { data: businessHit, error: businessErr } = await supabase
-      .from("businesses")
-      .select("id")
-      .in("manager_contact", candidates)
-      .limit(1);
-    if (businessErr) throw businessErr;
-    if (businessHit && businessHit.length > 0) {
+    const [courierResult, businessResult] = await Promise.all([
+      supabase.from("couriers").select("id").in("phone", candidates).limit(1),
+      supabase.from("businesses").select("id").in("manager_contact", candidates).limit(1),
+    ]);
+    if (courierResult.error) throw courierResult.error;
+    if (businessResult.error) throw businessResult.error;
+    if ((courierResult.data && courierResult.data.length > 0) || (businessResult.data && businessResult.data.length > 0)) {
       throw new Error("Bu telefon numarasıyla kayıt zaten var.");
     }
   };
@@ -340,19 +330,11 @@ export default function KayitOlPage() {
         }
       }
 
-      const p1Url = await uploadDocument(data.p1CertificateFile, "p1");
-      const srcUrl = await uploadDocument(data.srcCertificateFile, "src");
-      const criminalUrl = await uploadDocument(data.criminalRecordFile, "sabka");
-      
-      // Capture IP address for KVKK compliance
-      let ipAddress = null;
-      try {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        ipAddress = ipData.ip;
-      } catch (e) {
-        // IP capture failed silently
-      }
+      const [p1Url, srcUrl, criminalUrl] = await Promise.all([
+        uploadDocument(data.p1CertificateFile, "p1"),
+        uploadDocument(data.srcCertificateFile, "src"),
+        uploadDocument(data.criminalRecordFile, "sabka"),
+      ]);
       
       const insert = {
         user_id: sessionUserId,
@@ -426,16 +408,6 @@ export default function KayitOlPage() {
             };
             finalAvatarUrl = sectorAvatarMap[data.businessSector] || "/images/avatars/isletme/diger.png";
           }
-      }
-      
-      // Capture IP address for KVKK compliance
-      let ipAddress = null;
-      try {
-        const ipResponse = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipResponse.json();
-        ipAddress = ipData.ip;
-      } catch (e) {
-        // IP capture failed silently
       }
       
       const insert = {
