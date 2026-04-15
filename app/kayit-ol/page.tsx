@@ -55,19 +55,34 @@ export default function KayitOlPage() {
         const typeParam = urlParams.get('type');
         const googleParam = urlParams.get('google');
 
-        // Rol parametresi varsa hemen ayarla + pre-launch popup göster
+        // Rol parametresi varsa hemen ayarla
         const incomingRole = roleParam || typeParam;
         const isPreLaunchRedirect = !!(incomingRole && (incomingRole === 'kurye' || incomingRole === 'isletme'));
         if (isPreLaunchRedirect) {
           setRole(incomingRole as RoleType);
-          setShowPreLaunchModal(true);
         }
 
         if (data.session?.user) {
           const userId = data.session.user.id;
 
+          // Google OAuth dönüşü: popup atlayarak direkt profil formuna geç
+          if (googleParam === 'true' && isPreLaunchRedirect) {
+            const hasProfile = await checkProfileExists(userId);
+            if (!isMounted) return;
+            if (hasProfile) {
+              router.push("/profil");
+              return;
+            }
+            setSessionUserId(userId);
+            setSessionEmail(data.session.user.email ?? null);
+            setIsGoogleUser(true);
+            setStage("profile");
+            return;
+          }
+
           // Pre-launch: role parametresiyle geldiyse profil kontrolü yapma, popup göster
           if (isPreLaunchRedirect) {
+            setShowPreLaunchModal(true);
             return;
           }
 
@@ -86,6 +101,11 @@ export default function KayitOlPage() {
 
           if (googleParam === 'true') {
             setIsGoogleUser(true);
+          }
+        } else {
+          // Session yok — pre-launch redirect ise popup göster
+          if (isPreLaunchRedirect) {
+            setShowPreLaunchModal(true);
           }
         }
       } catch (err) {
@@ -232,7 +252,7 @@ export default function KayitOlPage() {
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${baseUrl}/rol-sec` }, // Rol seçimi sayfasına yönlendir
+        options: { redirectTo: `${baseUrl}/kayit-ol?role=${role}&google=true` },
       });
       if (error) throw error;
       if (data?.url) window.location.href = data.url;
@@ -378,8 +398,6 @@ export default function KayitOlPage() {
       };
       const { error } = await supabase.from("couriers").insert(insert);
       if (error) throw error;
-      // Pre-launch: Kayıt sonrası oturumu kapat (menü değişmesin)
-      await supabase.auth.signOut({ scope: 'local' });
       setStage("success");
     } catch (err: any) {
       setMessage("Kurye kaydı başarısız: " + (err.message || ""));
@@ -458,8 +476,6 @@ export default function KayitOlPage() {
         console.error('Otomatik ilan oluşturulamadı:', adError);
       }
       
-      // Pre-launch: Kayıt sonrası oturumu kapat (menü değişmesin)
-      await supabase.auth.signOut({ scope: 'local' });
       setStage("success");
     } catch (err: any) {
       setMessage("İşletme kaydı başarısız: " + (err.message || ""));
@@ -676,13 +692,13 @@ export default function KayitOlPage() {
               </div>
 
               <Link
-                href="/"
+                href="/profil"
                 className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-[#ff7a00] font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm sm:text-base"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Ana Sayfaya Dön
+                Profilime Git
               </Link>
             </div>
           )}

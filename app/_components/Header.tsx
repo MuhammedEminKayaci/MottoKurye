@@ -117,15 +117,10 @@ export function Header() {
     }
   };
 
-  // Navigation items - İlanlarım şuanlık devre dışı
+  // Navigation items - Pre-launch: sadece Ana Sayfa ve Profil
   const navItems = [
     { label: "Ana Sayfa", href: "/" },
     { label: "Profil", href: "/profil" },
-    { label: "Mesajlar", href: "/mesajlar" },
-    { label: "İlanlar", href: "/ilanlar" },
-    ...(userRole === "isletme" ? [
-      { label: "Ücret Planları", href: "/ucret-planlari" },
-    ] : []),
     ...(isAdmin ? [
       { label: "⚙ Yönetim", href: "/admin" },
     ] : []),

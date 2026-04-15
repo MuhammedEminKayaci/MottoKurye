@@ -177,17 +177,12 @@ export function UnifiedHeader() {
   const courierNavItems = [
     { label: "Ana Sayfa", href: "/" },
     { label: "Profilim", href: "/profil" },
-    { label: "İlanlar", href: "/ilanlar" },
-    { label: "Mesajlar", href: "/mesajlar" },
     ...(isAdmin ? [{ label: "⚙ Yönetim", href: "/admin" }] : []),
   ];
 
   const businessNavItems = [
     { label: "Ana Sayfa", href: "/" },
     { label: "Profilim", href: "/profil" },
-    { label: "İlanlar", href: "/ilanlar" },
-    { label: "Mesajlar", href: "/mesajlar" },
-    { label: "Ücret Planları", href: "/ucret-planlari" },
     ...(isAdmin ? [{ label: "⚙ Yönetim", href: "/admin" }] : []),
   ];
 

@@ -14,10 +14,22 @@ function GirisContent() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [showPreLaunchModal, setShowPreLaunchModal] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // Pre-launch: Giriş sayfası geçici olarak kayıt-ol'a yönlendirildi
+  // Zaten giriş yapılmışsa /profil'e yönlendir
   useEffect(() => {
-    router.replace("/kayit-ol");
+    const checkExistingSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data.session?.user) {
+          router.replace("/profil");
+          return;
+        }
+      } catch {}
+      setCheckingAuth(false);
+    };
+    checkExistingSession();
   }, [router]);
 
   // URL'deki hata parametresini kontrol et
@@ -58,21 +70,7 @@ function GirisContent() {
                     const { data: sessionData } = await supabase.auth.getSession();
                     const user = sessionData.session?.user;
                     const uid = user?.id;
-                    let target = "/ilanlar";
-                    if (uid) {
-                      const [courierResult, businessResult] = await Promise.all([
-                        supabase.from("couriers").select("id").eq("user_id", uid).limit(1),
-                        supabase.from("businesses").select("id").eq("user_id", uid).limit(1),
-                      ]);
-                      if (courierResult.data?.length || businessResult.data?.length) {
-                        target = "/profil";
-                      } else {
-                        const userRole = user?.user_metadata?.role || "kurye";
-                        target = `/kayit-ol?role=${userRole}`;
-                      }
-                    }
-                    setMessage("Giriş başarılı! Yönlendiriliyorsunuz...");
-                    setTimeout(() => { router.push(target); }, 400);
+                    setShowPreLaunchModal(true);
                     return;
                   }
                 }
@@ -85,25 +83,7 @@ function GirisContent() {
         }
         throw error;
       }
-      // Profile check for redirect logic (paralel sorgu)
-      const { data: sessionData } = await supabase.auth.getSession();
-      const user = sessionData.session?.user;
-      const uid = user?.id;
-      let target = "/ilanlar";
-      if (uid) {
-        const [courierResult, businessResult] = await Promise.all([
-          supabase.from("couriers").select("id").eq("user_id", uid).limit(1),
-          supabase.from("businesses").select("id").eq("user_id", uid).limit(1),
-        ]);
-        if (courierResult.data?.length || businessResult.data?.length) {
-          target = "/profil";
-        } else {
-          const userRole = user?.user_metadata?.role || "kurye";
-          target = `/kayit-ol?role=${userRole}`;
-        }
-      }
-      setMessage("Giriş başarılı! Yönlendiriliyorsunuz...");
-      setTimeout(() => { router.push(target); }, 400);
+      setShowPreLaunchModal(true);
     } catch (err: any) {
       setMessage(err?.message ?? "Bir hata oluştu. Lütfen tekrar deneyin.");
     } finally {
@@ -114,7 +94,7 @@ function GirisContent() {
   const handleGoogleLogin = async () => {
     setMessage(null);
     try {
-      const redirectTo = `${baseUrl}/rol-sec`; // Google OAuth sonrası rol seçimi sayfasına yönlendir
+      const redirectTo = `${baseUrl}/profil`;
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo },
@@ -131,6 +111,19 @@ function GirisContent() {
       );
     }
   };
+  if (checkingAuth) {
+    return (
+      <main className="relative min-h-dvh flex items-center justify-center overflow-hidden">
+        <div className="fixed inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/kayit-bg.jpeg')" }} />
+        <div className="fixed inset-0 bg-[#ff7a00]/60 backdrop-blur-[2px]" />
+        <div className="relative z-10 flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+          <p className="text-white/80 text-sm">Kontrol ediliyor...</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="relative min-h-dvh w-full overflow-hidden">
       {/* Background Image + Overlay */}
@@ -194,6 +187,32 @@ function GirisContent() {
           </p>
         </div>
       </div>
+
+      {/* Pre-launch Modal */}
+      {showPreLaunchModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative w-full max-w-sm bg-white rounded-3xl p-8 shadow-2xl text-center">
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Hoş Geldiniz!</h3>
+            <p className="text-gray-600 text-sm leading-relaxed mb-6">
+              Giriş başarılı! Profiliniz hazır.<br/>
+              <span className="text-[#ff7a00] font-semibold">Uygulamamız en kısa sürede hizmete açılacaktır.</span><br/>
+              Şu an profilinizi görüntüleyebilirsiniz.
+            </p>
+            <button
+              onClick={() => router.push("/profil")}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#ff7a00] to-orange-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25 hover:from-[#e86e00] hover:to-orange-600 transition-all"
+            >
+              Profilime Git
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
