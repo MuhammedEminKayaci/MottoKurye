@@ -7,7 +7,7 @@ import { UnifiedHeader } from "../_components/UnifiedHeader";
 import { Footer } from "../_components/Footer";
 
 export default function IletisimPage() {
-  const whatsappNumber = "905551234567"; // Numaranızı buraya ekleyin (ülke kodu dahil, + işareti olmadan)
+  const whatsappNumber = "905427470582";
   const whatsappMessage = encodeURIComponent("Merhaba, PaketServisci hakkında bilgi almak istiyorum.");
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
@@ -54,8 +54,8 @@ export default function IletisimPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-neutral-900 mb-1">Telefon</h3>
-                  <a href="tel:+905551234567" className="text-neutral-600 hover:text-[#ff7a00] transition-colors">
-                    +90 555 123 45 67
+                  <a href="tel:+905427470582" className="text-neutral-600 hover:text-[#ff7a00] transition-colors">
+                    +90 542 747 05 82
                   </a>
                 </div>
               </div>

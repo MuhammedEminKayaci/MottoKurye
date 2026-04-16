@@ -42,7 +42,7 @@ export default function GizlilikPolitikasiPage() {
                   <strong>1.1.</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel verilerinizin veri sorumlusu <strong>PaketServisci</strong>'dir.
                 </p>
                 <p>
-                  <strong>E-posta:</strong> destek@paketservisci.com
+                  <strong>E-posta:</strong> info@paketservisci.com
                 </p>
                 <p>
                   <strong>1.2.</strong> Kişisel verileriniz, KVKK ve ilgili mevzuat kapsamında işlenmekte ve korunmaktadır.
@@ -236,7 +236,7 @@ export default function GizlilikPolitikasiPage() {
                   <li><strong>Otomatik Karar Alma İtiraz:</strong> Tamamen otomatik sistemlerle verilen kararlara itiraz etme</li>
                 </ul>
                 <p>
-                  <strong>Başvuru Yöntemi:</strong> Haklarınızı kullanmak için destek@paketservisci.com adresine yazılı veya <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">iletişim formu</Link> ile başvurabilirsiniz. Başvurularınız 30 gün içinde ücretsiz olarak yanıtlanır.
+                  <strong>Başvuru Yöntemi:</strong> Haklarınızı kullanmak için info@paketservisci.com adresine yazılı veya <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">iletişim formu</Link> ile başvurabilirsiniz. Başvurularınız 30 gün içinde ücretsiz olarak yanıtlanır.
                 </p>
               </div>
             </section>
@@ -285,8 +285,8 @@ export default function GizlilikPolitikasiPage() {
                 </p>
                 <ul className="list-none ml-4 space-y-2">
                   <li><strong>Veri Sorumlusu:</strong> PaketServisci</li>
-                  <li><strong>E-posta:</strong> destek@paketservisci.com</li>
-                  <li><strong>Telefon:</strong> +90 555 123 45 67</li>
+                  <li><strong>E-posta:</strong> info@paketservisci.com</li>
+                  <li><strong>Telefon:</strong> +90 542 747 05 82</li>
                   <li><strong>İletişim:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">paketservisci.com/iletisim</Link></li>
                 </ul>
               </div>

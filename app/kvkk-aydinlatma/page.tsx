@@ -42,7 +42,7 @@ export default function KVKKAydinlatmaPage() {
                   6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) uyarınca, kişisel verilerinizin veri sorumlusu <strong>PaketServisci</strong>&apos;dir.
                 </p>
                 <p>
-                  <strong>E-posta:</strong> destek@paketservisci.com
+                  <strong>E-posta:</strong> info@paketservisci.com
                 </p>
               </div>
             </section>
@@ -155,7 +155,7 @@ export default function KVKKAydinlatmaPage() {
                   Yukarıda belirtilen haklarınızı kullanmak için aşağıdaki kanallardan bize başvurabilirsiniz:
                 </p>
                 <ul className="list-none ml-4 space-y-2">
-                  <li><strong>E-posta:</strong> destek@paketservisci.com</li>
+                  <li><strong>E-posta:</strong> info@paketservisci.com</li>
                   <li><strong>İletişim Formu:</strong> <Link href="/iletisim" className="text-[#ff7a00] underline hover:text-[#ff6a00]">paketservisci.com/iletisim</Link></li>
                 </ul>
                 <p>
