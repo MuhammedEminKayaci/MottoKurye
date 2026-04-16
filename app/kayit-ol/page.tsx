@@ -24,6 +24,16 @@ export default function KayitOlPage() {
   const [isGoogleUser, setIsGoogleUser] = useState(false);
   const [showPreLaunchModal, setShowPreLaunchModal] = useState(false);
 
+  // Safety: auto-reset loading after 45s to prevent permanent stuck state
+  useEffect(() => {
+    if (!loading) return;
+    const timer = setTimeout(() => {
+      setLoading(false);
+      setMessage("İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.");
+    }, 45000);
+    return () => clearTimeout(timer);
+  }, [loading]);
+
   // On mount check if already authenticated (Google dönüşü vs.)
   useEffect(() => {
     let isMounted = true;
@@ -177,6 +187,15 @@ export default function KayitOlPage() {
     return brand.trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
   };
 
+  // Timeout wrapper for async operations
+  const withTimeout = <T,>(promise: Promise<T>, ms: number, label = "İşlem"): Promise<T> =>
+    Promise.race([
+      promise,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`${label} zaman aşımına uğradı.`)), ms)
+      ),
+    ]);
+
   const normalizePhone = (p?: string | null) => p ? p.replace(/\D/g, "") : null;
 
   const assertPhoneUnique = async (phone: string) => {
@@ -206,11 +225,15 @@ export default function KayitOlPage() {
       setLoading(true);
 
       // Sunucu tarafında kayıt — admin API kullanır, rate limit sorunu olmaz
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role }),
-      });
+      const res = await withTimeout(
+        fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, role }),
+        }),
+        15000,
+        "Hesap oluşturma"
+      );
 
       const result = await res.json();
 
@@ -338,7 +361,7 @@ export default function KayitOlPage() {
     setLoading(true); setMessage(null);
     try {
       if (data.phone) {
-        await assertPhoneUnique(data.phone);
+        await withTimeout(assertPhoneUnique(data.phone), 10000, "Telefon kontrolü");
       }
       
       let finalAvatarUrl = await uploadAvatar(data.avatarFile);
@@ -356,11 +379,15 @@ export default function KayitOlPage() {
         }
       }
 
-      const [p1Url, srcUrl, criminalUrl] = await Promise.all([
-        uploadDocument(data.p1CertificateFile, "p1"),
-        uploadDocument(data.srcCertificateFile, "src"),
-        uploadDocument(data.criminalRecordFile, "sabka"),
-      ]);
+      const [p1Url, srcUrl, criminalUrl] = await withTimeout(
+        Promise.all([
+          uploadDocument(data.p1CertificateFile, "p1"),
+          uploadDocument(data.srcCertificateFile, "src"),
+          uploadDocument(data.criminalRecordFile, "sabka"),
+        ]),
+        30000,
+        "Belge yükleme"
+      );
       
       const insert = {
         user_id: sessionUserId,
@@ -396,7 +423,11 @@ export default function KayitOlPage() {
         accept_commercial: data.acceptCommercial,
         avatar_url: finalAvatarUrl,
       };
-      const { error } = await supabase.from("couriers").insert(insert);
+      const { error } = await withTimeout(
+        Promise.resolve(supabase.from("couriers").insert(insert)),
+        15000,
+        "Kayıt"
+      );
       if (error) throw error;
       setStage("success");
     } catch (err: any) {
@@ -409,7 +440,7 @@ export default function KayitOlPage() {
     setLoading(true); setMessage(null);
     try {
       if (data.managerContact) {
-        await assertPhoneUnique(data.managerContact);
+        await withTimeout(assertPhoneUnique(data.managerContact), 10000, "Telefon kontrolü");
       }
       let finalAvatarUrl = await uploadAvatar(data.avatarFile);
       if (!finalAvatarUrl) {
@@ -455,25 +486,34 @@ export default function KayitOlPage() {
         accept_commercial: data.acceptCommercial,
         avatar_url: finalAvatarUrl,
       };
-      const { error } = await supabase.from("businesses").insert(insert);
+      const { error } = await withTimeout(
+        Promise.resolve(supabase.from("businesses").insert(insert)),
+        15000,
+        "Kayıt"
+      );
       if (error) throw error;
       
       // İşletme için otomatik bir başlangıç ilanı oluştur
-      const adInsert = {
-        user_id: sessionUserId,
-        title: `${data.businessName} - Kurye Aranıyor`,
-        description: `${data.businessSector} sektöründe çalışacak kurye aranıyor. Detaylar için iletişime geçin.`,
-        province: data.province,
-        district: ensureStringArray(data.district),
-        working_type: data.workingType,
-        earning_model: data.earningModel,
-        working_days: [data.workingDays],
-        daily_package_estimate: data.dailyPackageEstimate,
-        working_hours: data.workingType === "Full Time" ? "08:00-17:00" : "Esnek",
-      };
-      const { data: adData, error: adError } = await supabase.from("business_ads").insert(adInsert).select();
-      if (adError) {
-        console.error('Otomatik ilan oluşturulamadı:', adError);
+      try {
+        const adInsert = {
+          user_id: sessionUserId,
+          title: `${data.businessName} - Kurye Aranıyor`,
+          description: `${data.businessSector} sektöründe çalışacak kurye aranıyor. Detaylar için iletişime geçin.`,
+          province: data.province,
+          district: ensureStringArray(data.district),
+          working_type: data.workingType,
+          earning_model: data.earningModel,
+          working_days: [data.workingDays],
+          daily_package_estimate: data.dailyPackageEstimate,
+          working_hours: data.workingType === "Full Time" ? "08:00-17:00" : "Esnek",
+        };
+        await withTimeout(
+          Promise.resolve(supabase.from("business_ads").insert(adInsert).select()),
+          10000,
+          "İlan oluşturma"
+        );
+      } catch (adErr) {
+        console.error('Otomatik ilan oluşturulamadı:', adErr);
       }
       
       setStage("success");
