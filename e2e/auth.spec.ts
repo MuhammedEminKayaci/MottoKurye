@@ -71,11 +71,15 @@ test.describe('Kayıt Ol Sayfası', () => {
   test('kayıt formu görünür olmalı', async ({ page }) => {
     // Rol seçim ekranında Kurye kartına tıkla
     await page.getByRole('button', { name: /kurye/i }).first().click();
-    await page.waitForLoadState('networkidle');
+    
+    // Pre-launch hoş geldiniz modalında KAYIT OL butonuna tıkla
+    const kayitOlBtn = page.getByRole('button', { name: /kayit ol/i });
+    await expect(kayitOlBtn).toBeVisible({ timeout: 5000 });
+    await kayitOlBtn.click();
     
     // E-posta input alanı
     const emailInput = page.locator('input[type="email"]');
-    await expect(emailInput).toBeVisible();
+    await expect(emailInput).toBeVisible({ timeout: 5000 });
   });
 
   test('rol seçim butonları görünür olmalı', async ({ page }) => {

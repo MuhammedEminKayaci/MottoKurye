@@ -196,22 +196,16 @@ export default function KayitOlPage() {
       ),
     ]);
 
-  const normalizePhone = (p?: string | null) => p ? p.replace(/\D/g, "") : null;
-
   const assertPhoneUnique = async (phone: string) => {
-    const cleaned = normalizePhone(phone);
-    const candidates = Array.from(new Set([phone, cleaned].filter(Boolean))) as string[];
-    if (candidates.length === 0) return;
-
-    const [courierResult, businessResult] = await Promise.all([
-      supabase.from("couriers").select("id").in("phone", candidates).limit(1),
-      supabase.from("businesses").select("id").in("manager_contact", candidates).limit(1),
-    ]);
-    if (courierResult.error) throw courierResult.error;
-    if (businessResult.error) throw businessResult.error;
-    if ((courierResult.data && courierResult.data.length > 0) || (businessResult.data && businessResult.data.length > 0)) {
-      throw new Error("Bu telefon numarasıyla kayıt zaten var.");
-    }
+    if (!phone) return;
+    const res = await fetch("/api/check-phone", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone }),
+    });
+    if (!res.ok) throw new Error("Telefon kontrolü başarısız.");
+    const { exists } = await res.json();
+    if (exists) throw new Error("Bu telefon numarasıyla kayıt zaten var.");
   };
 
   const handleAuthSignup = async (e: React.FormEvent) => {
@@ -361,7 +355,7 @@ export default function KayitOlPage() {
     setLoading(true); setMessage(null);
     try {
       if (data.phone) {
-        await withTimeout(assertPhoneUnique(data.phone), 10000, "Telefon kontrolü");
+        await withTimeout(assertPhoneUnique(data.phone), 20000, "Telefon kontrolü");
       }
       
       let finalAvatarUrl = await uploadAvatar(data.avatarFile);
@@ -440,7 +434,7 @@ export default function KayitOlPage() {
     setLoading(true); setMessage(null);
     try {
       if (data.managerContact) {
-        await withTimeout(assertPhoneUnique(data.managerContact), 10000, "Telefon kontrolü");
+        await withTimeout(assertPhoneUnique(data.managerContact), 20000, "Telefon kontrolü");
       }
       let finalAvatarUrl = await uploadAvatar(data.avatarFile);
       if (!finalAvatarUrl) {

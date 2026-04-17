@@ -31,12 +31,5 @@ export async function createSupabaseServerClient() {
   });
 }
 
-// Geriye uyumluluk için basit server client (eski kullanımlar için)
-export const supabaseServer = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  cookies: {
-    getAll() {
-      return [];
-    },
-    setAll() {},
-  },
-});
+// Not: Eski `supabaseServer` singleton export'u kaldırıldı.
+// Cookie tabanlı auth için her zaman `createSupabaseServerClient()` kullanın.

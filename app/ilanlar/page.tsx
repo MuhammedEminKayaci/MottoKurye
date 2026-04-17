@@ -165,48 +165,32 @@ function IlanlarContent() {
           }
           if (error) throw error;
           
-          // Get business info for each ad and filter by seeking_couriers
-          const adsWithBusinessInfo = await Promise.all(
-            (data || []).map(async (ad: any) => {
-              if (!ad.user_id) return null; // No user_id, skip this ad
-              try {
-                const { data: business, error: bizError } = await supabase
-                  .from("businesses")
-                  .select("id,business_name,avatar_url,user_id,seeking_couriers,business_sector,plan,manager_contact,contact_preference")
-                  .eq("user_id", ad.user_id)
-                  .maybeSingle();
-                
-                // İşletme bulunamadıysa ilanı gösterme
-                if (bizError || !business) {
-                  return null;
-                }
-                
-                // seeking_couriers false ise (açıkça false ayarlanmışsa) gösterme, null veya true ise göster
-                if (business.seeking_couriers === false) {
-                  return null;
-                }
-                
-                // Filter by business_sector if specified
-                if (filters.business_sector && business.business_sector !== filters.business_sector) {
-                  return null;
-                }
-                
-                const bizContactPref = business.contact_preference || 'in_app';
-                return {
-                  ...ad,
-                  businesses: [business],
-                  businessPlan: business.plan || 'free',
-                  businessPhone: bizContactPref === 'in_app' ? null : business.manager_contact,
-                  businessContactPreference: bizContactPref
-                };
-              } catch {
-                return null;
-              }
-            })
-          );
-          
-          // Filter out null values (ads from businesses not seeking couriers)
-          const filteredAds = adsWithBusinessInfo.filter(ad => ad !== null);
+          // Batch: Tüm işletme bilgilerini tek sorguda çek
+          const userIds = [...new Set((data || []).map((a: any) => a.user_id).filter(Boolean))];
+          let bizMap: Record<string, any> = {};
+          if (userIds.length > 0) {
+            const { data: businesses } = await supabase
+              .from("businesses")
+              .select("id,business_name,avatar_url,user_id,seeking_couriers,business_sector,plan,manager_contact,contact_preference")
+              .in("user_id", userIds);
+            (businesses || []).forEach((b: any) => { bizMap[b.user_id] = b; });
+          }
+
+          const filteredAds = (data || []).map((ad: any) => {
+            if (!ad.user_id) return null;
+            const business = bizMap[ad.user_id];
+            if (!business) return null;
+            if (business.seeking_couriers === false) return null;
+            if (filters.business_sector && business.business_sector !== filters.business_sector) return null;
+            const bizContactPref = business.contact_preference || 'in_app';
+            return {
+              ...ad,
+              businesses: [business],
+              businessPlan: business.plan || 'free',
+              businessPhone: bizContactPref === 'in_app' ? null : business.manager_contact,
+              businessContactPreference: bizContactPref
+            };
+          }).filter(Boolean);
           setItems(filteredAds); setPage(1);
         } else {
           // Show couriers for business perspective

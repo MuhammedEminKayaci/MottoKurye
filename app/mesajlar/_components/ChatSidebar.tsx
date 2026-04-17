@@ -91,60 +91,32 @@ export function ChatSidebar({ userId, userRole }: { userId: string; userRole: st
         cData?.forEach((c: any) => { couriersMap[c.user_id] = c; });
       }
 
-      // 4. Fetch last message for each conversation & unread counts
-      // cleared_at: kullanıcı sohbeti sildiyse, silme tarihinden sonraki mesajları göster
+      // 4. Batch: Tüm mesajları tek sorguda çek, JS'de grupla
       const clearedAtCol = userRole === 'isletme' ? 'business_cleared_at' : 'courier_cleared_at';
-      
-      const lastMessagesPromises = convIds.map((convId: string) => {
-        const conv = rawConvs.find((c: any) => c.id === convId);
-        const clearedAt = conv?.[clearedAtCol];
-        
-        let query = supabase
-          .from('messages')
-          .select('content, created_at, sender_id')
-          .eq('conversation_id', convId);
-        
-        if (clearedAt) {
-          query = query.gt('created_at', clearedAt);
-        }
-        
-        return query
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .then(({ data }: { data: any }) => ({ convId, message: data?.[0] || null }));
-      });
 
-      const unreadCountsPromises = convIds.map((convId: string) => {
-        const conv = rawConvs.find((c: any) => c.id === convId);
-        const clearedAt = conv?.[clearedAtCol];
-        
-        let query = supabase
-          .from('messages')
-          .select('id', { count: 'exact', head: true })
-          .eq('conversation_id', convId)
-          .eq('is_read', false)
-          .neq('sender_id', userId);
-        
-        if (clearedAt) {
-          query = query.gt('created_at', clearedAt);
-        }
-        
-        return query.then(({ count }: { count: any }) => ({ convId, count: count || 0 }));
-      });
-
-      const [lastMessagesResults, unreadCountsResults] = await Promise.all([
-        Promise.all(lastMessagesPromises),
-        Promise.all(unreadCountsPromises)
-      ]);
+      const { data: allMessages } = await supabase
+        .from('messages')
+        .select('conversation_id, content, created_at, sender_id, is_read')
+        .in('conversation_id', convIds)
+        .order('created_at', { ascending: false });
 
       const lastMessagesMap: Record<string, any> = {};
-      lastMessagesResults.forEach(({ convId, message }) => {
-        lastMessagesMap[convId] = message;
-      });
-
       const unreadCountsMap: Record<string, number> = {};
-      unreadCountsResults.forEach(({ convId, count }) => {
-        unreadCountsMap[convId] = count;
+
+      (allMessages || []).forEach((m: any) => {
+        const conv = rawConvs.find((c: any) => c.id === m.conversation_id);
+        const clearedAt = conv?.[clearedAtCol];
+        // cleared_at filtresi: silme tarihinden önceki mesajları atla
+        if (clearedAt && m.created_at <= clearedAt) return;
+
+        // Son mesaj (ilk karşılaşılan = en yeni, çünkü DESC sıralı)
+        if (!lastMessagesMap[m.conversation_id]) {
+          lastMessagesMap[m.conversation_id] = { content: m.content, created_at: m.created_at, sender_id: m.sender_id };
+        }
+        // Okunmamış sayısı
+        if (!m.is_read && m.sender_id !== userId) {
+          unreadCountsMap[m.conversation_id] = (unreadCountsMap[m.conversation_id] || 0) + 1;
+        }
       });
 
       // 5. Merge data

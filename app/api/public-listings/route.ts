@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { rateLimit, getRateLimitKey } from "@/lib/rateLimit";
 
 // Güvenli alanlar — hassas bilgiler (telefon, belge URL'leri vb.) dahil edilmez
 const COURIER_SAFE_FIELDS =
@@ -17,6 +18,11 @@ export async function GET(request: NextRequest) {
 
   if (type !== "couriers" && type !== "business_ads") {
     return NextResponse.json({ error: "Geçersiz tip." }, { status: 400 });
+  }
+
+  const ip = getRateLimitKey(request);
+  if (!rateLimit(`public-listings:${ip}`, 30, 60000)) {
+    return NextResponse.json({ error: "Çok fazla istek. Lütfen 1 dakika bekleyin." }, { status: 429 });
   }
 
   try {
@@ -85,34 +91,25 @@ export async function GET(request: NextRequest) {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Her ilan için işletme bilgisini al
-      const adsWithBusiness = await Promise.all(
-        (data || []).map(async (ad: any) => {
-          if (!ad.user_id) return null;
-          try {
-            const { data: business, error: bizError } = await supabaseAdmin
-              .from("businesses")
-              .select(BUSINESS_SAFE_FIELDS)
-              .eq("user_id", ad.user_id)
-              .maybeSingle();
+      // Batch: Tüm işletme bilgilerini tek sorguda çek
+      const userIds = [...new Set((data || []).map((a: any) => a.user_id).filter(Boolean))];
+      let bizMap: Record<string, any> = {};
+      if (userIds.length > 0) {
+        const { data: businesses } = await supabaseAdmin
+          .from("businesses")
+          .select(BUSINESS_SAFE_FIELDS)
+          .in("user_id", userIds);
+        (businesses || []).forEach((b: any) => { bizMap[b.user_id] = b; });
+      }
 
-            if (bizError || !business) return null;
-            if (business.seeking_couriers === false) return null;
-
-            if (filters.business_sector && business.business_sector !== filters.business_sector) {
-              return null;
-            }
-
-            return {
-              ...ad,
-              businesses: [business],
-              businessPlan: business.plan || "free",
-            };
-          } catch {
-            return null;
-          }
-        })
-      );
+      const adsWithBusiness = (data || []).map((ad: any) => {
+        if (!ad.user_id) return null;
+        const business = bizMap[ad.user_id];
+        if (!business) return null;
+        if (business.seeking_couriers === false) return null;
+        if (filters.business_sector && business.business_sector !== filters.business_sector) return null;
+        return { ...ad, businesses: [business], businessPlan: business.plan || "free" };
+      }).filter(Boolean);
 
       return NextResponse.json({ data: adsWithBusiness.filter(Boolean) });
     }

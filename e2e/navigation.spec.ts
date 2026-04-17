@@ -16,7 +16,7 @@ test.describe('Ana Sayfa Navigasyon', () => {
   });
 
   test('logo görünür olmalı', async ({ page }) => {
-    const logo = page.locator('img[alt="PaketServisi Logo"], img[alt*="kurye"]').first();
+    const logo = page.locator('img[alt="PaketServisci Logo"]').first();
     await expect(logo).toBeVisible();
   });
 
@@ -26,7 +26,7 @@ test.describe('Ana Sayfa Navigasyon', () => {
     const kuryeBulBtn = page.getByRole('button', { name: /Kurye Bul/i });
     await expect(kuryeBulBtn).toBeVisible();
     await kuryeBulBtn.click();
-    await expect(page).toHaveURL('/kurye-bul');
+    await expect(page).toHaveURL('/kayit-ol?role=kurye');
   });
 
   test('İşletme Bul butonu çalışmalı', async ({ page, isMobile }) => {
@@ -35,11 +35,11 @@ test.describe('Ana Sayfa Navigasyon', () => {
     const isletmeBulBtn = page.getByRole('button', { name: /İşletme Bul/i });
     await expect(isletmeBulBtn).toBeVisible();
     await isletmeBulBtn.click();
-    await expect(page).toHaveURL('/isletme-bul');
+    await expect(page).toHaveURL('/kayit-ol?role=isletme');
   });
 
   test('Hemen Kayıt Ol linki çalışmalı', async ({ page }) => {
-    const kayitOlLink = page.getByRole('link', { name: /Hemen Kayıt Ol/i });
+    const kayitOlLink = page.getByRole('link', { name: /Hemen Kayıt Ol/i }).first();
     await expect(kayitOlLink).toBeVisible();
     await kayitOlLink.click();
     await expect(page).toHaveURL('/kayit-ol');
@@ -87,8 +87,8 @@ test.describe('Footer Navigasyon', () => {
     await expect(footer).toBeVisible();
   });
 
-  test('Kullanım Şartları linki çalışmalı', async ({ page }) => {
-    const link = page.getByRole('link', { name: /Kullanım Şartları/i });
+  test('Kullanıcı Sözleşmesi linki çalışmalı', async ({ page }) => {
+    const link = page.getByRole('link', { name: /Kullanıcı Sözleşmesi/i });
     await link.click();
     await expect(page).toHaveURL('/kullanim-sartlari');
   });

@@ -78,7 +78,7 @@ describe('Home Page Integration', () => {
       const kuryeCard = kuryeBulHeading.closest('button')!;
       await user.click(kuryeCard);
       
-      expect(mockPush).toHaveBeenCalledWith('/kurye-bul');
+      expect(mockPush).toHaveBeenCalledWith('/kayit-ol?role=kurye');
     });
 
     it('İşletme Bul kartı tıklanabilir olmalı', async () => {
@@ -89,7 +89,7 @@ describe('Home Page Integration', () => {
       const isletmeCard = isletmeBulHeading.closest('button')!;
       await user.click(isletmeCard);
       
-      expect(mockPush).toHaveBeenCalledWith('/isletme-bul');
+      expect(mockPush).toHaveBeenCalledWith('/kayit-ol?role=isletme');
     });
   });
 
@@ -189,10 +189,11 @@ describe('Home Page - Logged In User', () => {
     supabase.from.mockReturnValue(mockQueryBuilder);
   });
 
-  it('kurye kullanıcısı için Kuryelere Göz At butonu görünmeli', async () => {
+  it('kurye kullanıcısı için hero kartları görünmeli', async () => {
     render(<Page />);
     await waitFor(() => {
-      expect(screen.getByText('Kuryelere Göz At')).toBeInTheDocument();
+      expect(screen.getByText('Kurye Bul')).toBeInTheDocument();
+      expect(screen.getByText('İşletme Bul')).toBeInTheDocument();
     }, { timeout: 3000 });
   });
 });

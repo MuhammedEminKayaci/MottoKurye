@@ -88,79 +88,68 @@ export async function GET(req: NextRequest) {
           db.from("courier_ads").select("*", { count: "exact", head: true }),
         ]);
 
-        // Plan dağılımı
-        const { data: planData } = await db.from("businesses").select("plan");
-        const planDistribution = { free: 0, standard: 0, premium: 0 };
-        (planData || []).forEach((b: any) => {
-          const p = b.plan || "free";
-          if (p in planDistribution) planDistribution[p as keyof typeof planDistribution]++;
-        });
+        // Plan dağılımı — 3 paralel count sorgusu (full table scan yerine)
+        const [{ count: freeCount }, { count: standardCount }, { count: premiumCount }] = await Promise.all([
+          db.from("businesses").select("*", { count: "exact", head: true }).eq("plan", "free"),
+          db.from("businesses").select("*", { count: "exact", head: true }).eq("plan", "standard"),
+          db.from("businesses").select("*", { count: "exact", head: true }).eq("plan", "premium"),
+        ]);
+        const planDistribution = { free: freeCount || 0, standard: standardCount || 0, premium: premiumCount || 0 };
 
-        // Son 7 günlük kayıt trendi
+        // Son 7 günlük trend — 3 tek sorgu ile (21 döngü sorgusu yerine)
         const now = new Date();
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 6);
+        const weekStart = weekAgo.toISOString().split("T")[0] + "T00:00:00";
+
+        const [{ data: recentCourierDates }, { data: recentBusinessDates }, { data: recentMsgDates }] = await Promise.all([
+          db.from("couriers").select("created_at").gte("created_at", weekStart),
+          db.from("businesses").select("created_at").gte("created_at", weekStart),
+          db.from("messages").select("created_at").gte("created_at", weekStart),
+        ]);
+
+        // JS'de günlere göre grupla
+        const couriersByDay: Record<string, number> = {};
+        const businessesByDay: Record<string, number> = {};
+        const messagesByDay: Record<string, number> = {};
+        (recentCourierDates || []).forEach((r: any) => { const d = r.created_at?.split("T")[0]; if (d) couriersByDay[d] = (couriersByDay[d] || 0) + 1; });
+        (recentBusinessDates || []).forEach((r: any) => { const d = r.created_at?.split("T")[0]; if (d) businessesByDay[d] = (businessesByDay[d] || 0) + 1; });
+        (recentMsgDates || []).forEach((r: any) => { const d = r.created_at?.split("T")[0]; if (d) messagesByDay[d] = (messagesByDay[d] || 0) + 1; });
+
         const registrationTrend: { date: string; couriers: number; businesses: number }[] = [];
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date(now);
-          d.setDate(d.getDate() - i);
-          const dayStart = d.toISOString().split("T")[0] + "T00:00:00";
-          const dayEnd = d.toISOString().split("T")[0] + "T23:59:59";
-
-          const [{ count: cCount }, { count: bCount }] = await Promise.all([
-            db.from("couriers").select("*", { count: "exact", head: true })
-              .gte("created_at", dayStart).lte("created_at", dayEnd),
-            db.from("businesses").select("*", { count: "exact", head: true })
-              .gte("created_at", dayStart).lte("created_at", dayEnd),
-          ]);
-
-          registrationTrend.push({
-            date: d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" }),
-            couriers: cCount || 0,
-            businesses: bCount || 0,
-          });
-        }
-
-        // Son 7 günlük mesaj trendi
         const messageTrend: { date: string; messages: number }[] = [];
         for (let i = 6; i >= 0; i--) {
           const d = new Date(now);
           d.setDate(d.getDate() - i);
-          const dayStart = d.toISOString().split("T")[0] + "T00:00:00";
-          const dayEnd = d.toISOString().split("T")[0] + "T23:59:59";
-
-          const { count } = await db.from("messages").select("*", { count: "exact", head: true })
-            .gte("created_at", dayStart).lte("created_at", dayEnd);
-
-          messageTrend.push({
-            date: d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" }),
-            messages: count || 0,
-          });
+          const key = d.toISOString().split("T")[0];
+          const label = d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" });
+          registrationTrend.push({ date: label, couriers: couriersByDay[key] || 0, businesses: businessesByDay[key] || 0 });
+          messageTrend.push({ date: label, messages: messagesByDay[key] || 0 });
         }
 
-        // Sektör dağılımı
-        const { data: sectorData } = await db.from("businesses").select("business_sector");
+        // Sektör + İl dağılımı — tek sorgu ile her iki bilgiyi çek
+        const [{ data: bizDistData }, { data: courierProvData }] = await Promise.all([
+          db.from("businesses").select("business_sector, province"),
+          db.from("couriers").select("province"),
+        ]);
+
         const sectorMap: Record<string, number> = {};
-        (sectorData || []).forEach((b: any) => {
+        const provinceMap: Record<string, { couriers: number; businesses: number }> = {};
+        (bizDistData || []).forEach((b: any) => {
           const s = b.business_sector || "Diğer";
           sectorMap[s] = (sectorMap[s] || 0) + 1;
-        });
-        const sectorDistribution = Object.entries(sectorMap)
-          .map(([name, value]) => ({ name: name.length > 20 ? name.slice(0, 20) + "…" : name, value, fullName: name }))
-          .sort((a, b) => b.value - a.value);
-
-        // İl bazlı dağılım
-        const { data: courierProvinces } = await db.from("couriers").select("province");
-        const { data: businessProvinces } = await db.from("businesses").select("province");
-        const provinceMap: Record<string, { couriers: number; businesses: number }> = {};
-        (courierProvinces || []).forEach((c: any) => {
-          const p = c.province || "Belirtilmemiş";
-          if (!provinceMap[p]) provinceMap[p] = { couriers: 0, businesses: 0 };
-          provinceMap[p].couriers++;
-        });
-        (businessProvinces || []).forEach((b: any) => {
           const p = b.province || "Belirtilmemiş";
           if (!provinceMap[p]) provinceMap[p] = { couriers: 0, businesses: 0 };
           provinceMap[p].businesses++;
         });
+        (courierProvData || []).forEach((c: any) => {
+          const p = c.province || "Belirtilmemiş";
+          if (!provinceMap[p]) provinceMap[p] = { couriers: 0, businesses: 0 };
+          provinceMap[p].couriers++;
+        });
+        const sectorDistribution = Object.entries(sectorMap)
+          .map(([name, value]) => ({ name: name.length > 20 ? name.slice(0, 20) + "…" : name, value, fullName: name }))
+          .sort((a, b) => b.value - a.value);
 
         // Son 5 kayıt
         const { data: recentCouriers } = await db.from("couriers")
@@ -269,25 +258,48 @@ export async function GET(req: NextRequest) {
           .order("updated_at", { ascending: false })
           .range(offset, offset + limit - 1);
 
-        // Her konuşma için katılımcı adlarını çek
-        const enriched = await Promise.all((conversations || []).map(async (conv: any) => {
-          const [{ data: biz }, { data: cur }, { count: msgCount }, { count: unreadCount }] = await Promise.all([
-            db.from("businesses").select("business_name, avatar_url").eq("user_id", conv.business_id).single(),
-            db.from("couriers").select("first_name, last_name, avatar_url").eq("user_id", conv.courier_id).single(),
-            db.from("messages").select("*", { count: "exact", head: true }).eq("conversation_id", conv.id),
-            db.from("messages").select("*", { count: "exact", head: true }).eq("conversation_id", conv.id).eq("is_read", false),
-          ]);
+        // Batch: Tüm katılımcı bilgilerini tek sorguda çek
+        const businessIds = [...new Set((conversations || []).map((c: any) => c.business_id).filter(Boolean))];
+        const courierIds = [...new Set((conversations || []).map((c: any) => c.courier_id).filter(Boolean))];
+        const convIds = (conversations || []).map((c: any) => c.id);
 
+        const [{ data: bizList }, { data: curList }, { data: msgCounts }] = await Promise.all([
+          businessIds.length > 0
+            ? db.from("businesses").select("user_id, business_name, avatar_url").in("user_id", businessIds)
+            : Promise.resolve({ data: [] }),
+          courierIds.length > 0
+            ? db.from("couriers").select("user_id, first_name, last_name, avatar_url").in("user_id", courierIds)
+            : Promise.resolve({ data: [] }),
+          convIds.length > 0
+            ? db.from("messages").select("conversation_id, is_read")
+                .in("conversation_id", convIds)
+            : Promise.resolve({ data: [] }),
+        ]);
+
+        const bizMap = Object.fromEntries((bizList || []).map((b: any) => [b.user_id, b]));
+        const curMap = Object.fromEntries((curList || []).map((c: any) => [c.user_id, c]));
+
+        // Mesaj sayılarını JS'de hesapla
+        const msgCountMap: Record<string, number> = {};
+        const unreadCountMap: Record<string, number> = {};
+        (msgCounts || []).forEach((m: any) => {
+          msgCountMap[m.conversation_id] = (msgCountMap[m.conversation_id] || 0) + 1;
+          if (!m.is_read) unreadCountMap[m.conversation_id] = (unreadCountMap[m.conversation_id] || 0) + 1;
+        });
+
+        const enriched = (conversations || []).map((conv: any) => {
+          const biz = bizMap[conv.business_id];
+          const cur = curMap[conv.courier_id];
           return {
             ...conv,
             business_name: biz?.business_name || "Bilinmiyor",
             business_avatar: biz?.avatar_url,
             courier_name: cur ? `${cur.first_name || ""} ${cur.last_name || ""}`.trim() : "Bilinmiyor",
             courier_avatar: cur?.avatar_url,
-            message_count: msgCount || 0,
-            unread_count: unreadCount || 0,
+            message_count: msgCountMap[conv.id] || 0,
+            unread_count: unreadCountMap[conv.id] || 0,
           };
-        }));
+        });
 
         return NextResponse.json({ data: enriched, total: count || 0, page, limit });
       }
@@ -339,26 +351,32 @@ export async function GET(req: NextRequest) {
 
         const { data, count } = await query.range(offset, offset + limit - 1);
 
-        // İstatistikler
-        const { data: allCouriers } = await db.from("couriers")
-          .select("p1_certificate, src_certificate, criminal_record, p1_certificate_file_url, src_certificate_file_url, criminal_record_file_url");
+        // İstatistikler — paralel COUNT sorguları (full table scan yerine)
+        const [
+          { count: totalCount },
+          { count: withFilesCount },
+          { count: pendingCount },
+          { count: approvedCount },
+          { count: rejectedCount },
+        ] = await Promise.all([
+          db.from("couriers").select("*", { count: "exact", head: true }),
+          db.from("couriers").select("*", { count: "exact", head: true })
+            .or("p1_certificate_file_url.neq.,src_certificate_file_url.neq.,criminal_record_file_url.neq."),
+          db.from("couriers").select("*", { count: "exact", head: true })
+            .or("p1_certificate.eq.Beklemede,src_certificate.eq.Beklemede,criminal_record.eq.Beklemede"),
+          db.from("couriers").select("*", { count: "exact", head: true })
+            .or("p1_certificate.eq.Onaylandı,src_certificate.eq.Onaylandı,criminal_record.eq.Onaylandı"),
+          db.from("couriers").select("*", { count: "exact", head: true })
+            .or("p1_certificate.eq.Reddedildi,src_certificate.eq.Reddedildi,criminal_record.eq.Reddedildi"),
+        ]);
 
         const stats = {
-          total: allCouriers?.length || 0,
-          withFiles: 0,
-          pendingReview: 0,
-          approved: 0,
-          rejected: 0,
+          total: totalCount || 0,
+          withFiles: withFilesCount || 0,
+          pendingReview: pendingCount || 0,
+          approved: approvedCount || 0,
+          rejected: rejectedCount || 0,
         };
-
-        (allCouriers || []).forEach((c: any) => {
-          if (c.p1_certificate_file_url || c.src_certificate_file_url || c.criminal_record_file_url) stats.withFiles++;
-          [c.p1_certificate, c.src_certificate, c.criminal_record].forEach((val: string | null) => {
-            if (val === "Beklemede") stats.pendingReview++;
-            if (val === "Onaylandı") stats.approved++;
-            if (val === "Reddedildi") stats.rejected++;
-          });
-        });
 
         return NextResponse.json({ data: data || [], total: count || 0, page, limit, stats });
       }
@@ -405,12 +423,9 @@ export async function GET(req: NextRequest) {
       }
 
       case "system": {
-        // Sistem sağlığı kontrolleri
-        const { data: authUsers, error: authError } = await db.auth.admin.listUsers({ perPage: 1 });
-        const totalAuthUsers = authUsers?.users?.length !== undefined ? (await db.auth.admin.listUsers({ perPage: 1000 })).data?.users?.length || 0 : 0;
-
-        // Orphan kontrolü — auth'ta olan ama profil tablosunda olmayan
-        const { data: allAuthUsers } = await db.auth.admin.listUsers({ perPage: 1000 });
+        // Sistem sağlığı kontrolleri — tek listUsers çağrısı
+        const { data: allAuthUsers, error: authError } = await db.auth.admin.listUsers({ perPage: 1000 });
+        const totalAuthUsers = allAuthUsers?.users?.length || 0;
         const authUserIds = new Set((allAuthUsers?.users || []).map((u: any) => u.id));
         
         const { data: allCouriers } = await db.from("couriers").select("user_id");

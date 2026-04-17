@@ -18,6 +18,10 @@ test.describe('Kurye Kayıt Akışı', () => {
     
     // Rol seçim ekranında Kurye kartına tıkla
     await page.getByRole('button', { name: /kurye/i }).first().click();
+    
+    // Pre-launch modalında KAYIT OL butonuna tıkla
+    const kayitOlBtn = page.getByRole('button', { name: /kayit ol/i });
+    await kayitOlBtn.click();
     await waitForPageLoad(page);
     
     // Email ve şifre gir
@@ -40,6 +44,10 @@ test.describe('Kurye Kayıt Akışı', () => {
     
     // Rol seçim ekranında Kurye kartına tıkla
     await page.getByRole('button', { name: /kurye/i }).first().click();
+    
+    // Pre-launch modalında KAYIT OL butonuna tıkla
+    const kayitOlBtn = page.getByRole('button', { name: /kayit ol/i });
+    await kayitOlBtn.click();
     await waitForPageLoad(page);
     
     // Temel alanlar
@@ -53,8 +61,15 @@ test.describe('Kurye Kayıt Akışı', () => {
 
 test.describe('İşletme Kayıt Akışı', () => {
   test('işletme olarak kayıt ol sayfası görünür', async ({ page }) => {
-    // İşletme kayıt sayfasına URL parametresiyle git (otomatik auth stage'e geçer)
-    await page.goto('/kayit-ol?role=isletme');
+    await page.goto('/kayit-ol');
+    await waitForPageLoad(page);
+    
+    // İşletme kartına tıkla
+    await page.locator('button', { hasText: 'İşletme' }).first().click();
+    
+    // Pre-launch modalında KAYIT OL butonuna tıkla
+    const kayitOlBtn = page.getByRole('button', { name: /kayit ol/i });
+    await kayitOlBtn.click();
     await waitForPageLoad(page);
     
     // Kayıt sayfası yüklendi - email input görünür olmalı

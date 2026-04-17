@@ -12,6 +12,9 @@ test.describe('Kurye Kayıt Formu Validasyonları', () => {
     await page.waitForLoadState('networkidle');
     // Rol seçim ekranında Kurye kartına tıkla
     await page.getByRole('button', { name: /kurye/i }).first().click();
+    // Pre-launch hoş geldiniz modalında KAYIT OL butonuna tıkla
+    const kayitOlBtn = page.getByRole('button', { name: /kayit ol/i });
+    await kayitOlBtn.click();
     await page.waitForLoadState('networkidle');
   });
 

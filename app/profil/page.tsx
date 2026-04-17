@@ -72,22 +72,17 @@ export default function ProfilPage() {
         return;
       }
       
-      // Her sohbet için okunmamış mesaj var mı kontrol et
-      let unreadConversations = 0;
-      for (const conv of convs) {
-        const { count } = await supabase
-          .from('messages')
-          .select('*', { count: 'exact', head: true })
-          .eq('conversation_id', conv.id)
-          .neq('sender_id', userId)
-          .eq('is_read', false);
-        
-        if (count && count > 0) {
-          unreadConversations++;
-        }
-      }
+      // Tek sorgu ile tüm okunmamış mesajları çek, JS'de grupla
+      const convIds = convs.map(c => c.id);
+      const { data: unreadMsgs } = await supabase
+        .from('messages')
+        .select('conversation_id')
+        .in('conversation_id', convIds)
+        .neq('sender_id', userId)
+        .eq('is_read', false);
       
-      setUnreadCount(unreadConversations);
+      const unreadConvIds = new Set((unreadMsgs || []).map(m => m.conversation_id));
+      setUnreadCount(unreadConvIds.size);
     } catch (err) {
       console.error('Error fetching unread count:', err);
     }

@@ -31,23 +31,29 @@ async function verifyAdmin() {
 }
 
 // GET — Admin: Hata bildirimlerini listele
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const admin = await verifyAdmin();
     if (!admin) return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
 
     const db = getAdminClient();
-    const { data, error } = await db
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
+    const limit = 50;
+    const offset = (page - 1) * limit;
+
+    const { data, error, count } = await db
       .from("bug_reports")
-      .select("*")
-      .order("created_at", { ascending: false });
+      .select("*", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error("Bug reports fetch error:", error);
       return NextResponse.json({ error: "Veriler alınamadı." }, { status: 500 });
     }
 
-    return NextResponse.json({ reports: data });
+    return NextResponse.json({ reports: data, total: count || 0, page, limit });
   } catch (err) {
     console.error("Bug reports GET error:", err);
     return NextResponse.json({ error: "Sunucu hatası." }, { status: 500 });
@@ -85,9 +91,15 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// POST — Hata bildirimi gönder (public)
+// POST — Hata bildirimi gönder (public, rate limited)
 export async function POST(req: NextRequest) {
   try {
+    const { rateLimit, getRateLimitKey } = await import("@/lib/rateLimit");
+    const ip = getRateLimitKey(req);
+    if (!rateLimit(`bug-report:${ip}`, 5, 60000)) {
+      return NextResponse.json({ error: "Çok fazla istek. Lütfen 1 dakika bekleyin." }, { status: 429 });
+    }
+
     const body = await req.json();
     const { firstName, lastName, email, message } = body;
 
