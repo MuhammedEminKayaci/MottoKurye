@@ -185,6 +185,32 @@ export async function GET(req: NextRequest) {
         const offset = (page - 1) * limit;
         const search = (searchParams.get("search") || "").replace(/[%_\\]/g, "").slice(0, 100);
 
+        if (type === "auth") {
+          const [{ data: courierUsers }, { data: businessUsers }] = await Promise.all([
+            db.from("couriers").select("user_id"),
+            db.from("businesses").select("user_id"),
+          ]);
+
+          const profileIds = new Set([
+            ...(courierUsers || []).map((c: any) => c.user_id),
+            ...(businessUsers || []).map((b: any) => b.user_id),
+          ].filter(Boolean));
+
+          const authQuery: any = { page: 1, perPage: Math.max(limit, 1000) };
+          if (search) authQuery.query = search;
+
+          const { data: authData, error: authError } = await db.auth.admin.listUsers(authQuery);
+          if (authError) {
+            console.error("Admin API auth users error:", authError.message);
+            return NextResponse.json({ error: authError.message }, { status: 500 });
+          }
+
+          const authUsers = (authData?.users || []).filter((user: any) => !profileIds.has(user.id));
+          const pagedUsers = authUsers.slice(offset, offset + limit);
+
+          return NextResponse.json({ data: pagedUsers, total: authUsers.length, page, limit });
+        }
+
         if (type === "couriers") {
           let query = db.from("couriers")
             .select("*", { count: "exact" })
@@ -197,19 +223,19 @@ export async function GET(req: NextRequest) {
 
           const { data, count } = await query;
           return NextResponse.json({ data: data || [], total: count || 0, page, limit });
-        } else {
-          let query = db.from("businesses")
-            .select("*", { count: "exact" })
-            .order("created_at", { ascending: false })
-            .range(offset, offset + limit - 1);
-
-          if (search) {
-            query = query.or(`business_name.ilike.%${search}%,business_sector.ilike.%${search}%,province.ilike.%${search}%`);
-          }
-
-          const { data, count } = await query;
-          return NextResponse.json({ data: data || [], total: count || 0, page, limit });
         }
+
+        let query = db.from("businesses")
+          .select("*", { count: "exact" })
+          .order("created_at", { ascending: false })
+          .range(offset, offset + limit - 1);
+
+        if (search) {
+          query = query.or(`business_name.ilike.%${search}%,business_sector.ilike.%${search}%,province.ilike.%${search}%`);
+        }
+
+        const { data, count } = await query;
+        return NextResponse.json({ data: data || [], total: count || 0, page, limit });
       }
 
       case "messages": {
@@ -481,13 +507,12 @@ export async function POST(req: NextRequest) {
       case "delete_user": {
         const { userId, role } = body;
         if (!userId) return NextResponse.json({ error: "userId gerekli" }, { status: 400 });
-        if (role !== "kurye" && role !== "isletme") return NextResponse.json({ error: "Geçersiz rol" }, { status: 400 });
+        if (role !== "kurye" && role !== "isletme" && role !== "auth") return NextResponse.json({ error: "Geçersiz rol" }, { status: 400 });
 
-        // Profil tablosundan sil
         if (role === "kurye") {
           await db.from("courier_ads").delete().eq("user_id", userId);
           await db.from("couriers").delete().eq("user_id", userId);
-        } else {
+        } else if (role === "isletme") {
           await db.from("business_ads").delete().eq("user_id", userId);
           await db.from("businesses").delete().eq("user_id", userId);
         }

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 
-type TabType = "couriers" | "businesses";
+type TabType = "couriers" | "businesses" | "auth";
 
 export default function UsersPage() {
   const [tab, setTab] = useState<TabType>("couriers");
@@ -12,27 +12,33 @@ export default function UsersPage() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
+    setErrorMessage(null);
     try {
       const params = new URLSearchParams({ action: "users", type: tab, page: page.toString(), search });
       const res = await fetch(`/api/admin?${params}`);
+      const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        console.error("Users API error:", errData.error || res.statusText);
+        const message = json.error || `API Hatası: ${res.status} ${res.statusText}`;
+        console.error("Users API error:", message);
+        setErrorMessage(message);
         setData([]);
+        setTotal(0);
         return;
       }
-      const json = await res.json();
       setData(json.data || []);
       setTotal(json.total || 0);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Users fetch error:", err);
+      setErrorMessage(err?.message || "Sunucu hatası");
       setData([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -57,10 +63,11 @@ export default function UsersPage() {
     if (!confirm("Bu kullanıcıyı silmek istediğinize emin misiniz? Bu işlem geri alınamaz!")) return;
     setActionLoading(true);
     try {
+      const roleValue = role === "couriers" ? "kurye" : role === "businesses" ? "isletme" : "auth";
       const res = await fetch("/api/admin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete_user", userId, role: role === "couriers" ? "kurye" : "isletme" }),
+        body: JSON.stringify({ action: "delete_user", userId, role: roleValue }),
       });
       const json = await res.json();
       if (json.success) {
@@ -117,7 +124,9 @@ export default function UsersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Kullanıcı Yönetimi</h1>
-          <p className="text-gray-500 text-sm mt-1">Toplam {total} {tab === "couriers" ? "kurye" : "işletme"}</p>
+          <p className="text-gray-500 text-sm mt-1">
+            Toplam {total} {tab === "couriers" ? "kurye" : tab === "businesses" ? "işletme" : "profilsiz kayıt"}
+          </p>
         </div>
         <form onSubmit={handleSearch} className="flex gap-2">
           <input
@@ -137,6 +146,7 @@ export default function UsersPage() {
         {[
           { key: "couriers" as TabType, label: "Kuryeler", icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" },
           { key: "businesses" as TabType, label: "İşletmeler", icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" },
+          { key: "auth" as TabType, label: "Profilsiz Kayıtlar", icon: "M16 12H8m4 0l-4 4m4-4l-4-4" },
         ].map(({ key, label, icon }) => (
           <button
             key={key}
@@ -159,6 +169,13 @@ export default function UsersPage() {
           <div className="p-12 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ff7a00] mx-auto" />
           </div>
+        ) : errorMessage ? (
+          <div className="p-12 text-center text-red-500">
+            <p className="font-semibold mb-3">{errorMessage}</p>
+            <button onClick={fetchUsers} className="px-4 py-2 rounded-xl bg-[#ff7a00]/10 text-[#ff7a00] hover:bg-[#ff7a00]/20 transition-colors text-sm">
+              Tekrar Dene
+            </button>
+          </div>
         ) : data.length === 0 ? (
           <div className="p-12 text-center text-gray-400">Sonuç bulunamadı</div>
         ) : (
@@ -175,12 +192,20 @@ export default function UsersPage() {
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Kayıt</th>
                       <th className="text-right text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İşlem</th>
                     </>
-                  ) : (
+                  ) : tab === "businesses" ? (
                     <>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İşletme</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Sektör</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Konum</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Plan</th>
+                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Kayıt</th>
+                      <th className="text-right text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İşlem</th>
+                    </>
+                  ) : (
+                    <>
+                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">E-posta</th>
+                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Rol</th>
+                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Telefon</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Kayıt</th>
                       <th className="text-right text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İşlem</th>
                     </>
@@ -217,7 +242,7 @@ export default function UsersPage() {
                           </button>
                         </td>
                       </>
-                    ) : (
+                    ) : tab === "businesses" ? (
                       <>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
@@ -245,6 +270,18 @@ export default function UsersPage() {
                         <td className="px-5 py-4 text-gray-400 text-xs">{item.created_at ? new Date(item.created_at).toLocaleDateString("tr-TR") : "-"}</td>
                         <td className="px-5 py-4 text-right">
                           <button onClick={() => setSelectedUser({ ...item, _type: "businesses" })} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
+                            Detay
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="px-5 py-4 text-gray-900">{item.email}</td>
+                        <td className="px-5 py-4 text-gray-600">{item.user_metadata?.role || "-"}</td>
+                        <td className="px-5 py-4 text-gray-600">{item.phone || "-"}</td>
+                        <td className="px-5 py-4 text-gray-400 text-xs">{item.created_at ? new Date(item.created_at).toLocaleDateString("tr-TR") : "-"}</td>
+                        <td className="px-5 py-4 text-right">
+                          <button onClick={() => setSelectedUser({ ...item, _type: "auth" })} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
                             Detay
                           </button>
                         </td>
@@ -280,7 +317,7 @@ export default function UsersPage() {
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-gray-900 font-semibold text-lg">
-                {selectedUser._type === "couriers" ? "Kurye Detayı" : "İşletme Detayı"}
+                {selectedUser._type === "couriers" ? "Kurye Detayı" : selectedUser._type === "businesses" ? "İşletme Detayı" : "Profilsiz Kayıt Detayı"}
               </h3>
               <button onClick={() => setSelectedUser(null)} className="text-gray-400 hover:text-gray-900 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -294,7 +331,9 @@ export default function UsersPage() {
               {/* Avatar + Name */}
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#ff7a00]/20">
-                  {selectedUser.avatar_url ? (
+                  {selectedUser._type === "auth" ? (
+                    <div className="w-full h-full flex items-center justify-center text-[#ff7a00] text-2xl font-bold">@</div>
+                  ) : selectedUser.avatar_url ? (
                     <img src={selectedUser.avatar_url} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[#ff7a00] text-2xl font-bold">
@@ -304,9 +343,15 @@ export default function UsersPage() {
                 </div>
                 <div>
                   <h4 className="text-gray-900 font-bold text-lg">
-                    {selectedUser._type === "couriers" ? `${selectedUser.first_name || ""} ${selectedUser.last_name || ""}` : selectedUser.business_name}
+                    {selectedUser._type === "couriers"
+                      ? `${selectedUser.first_name || ""} ${selectedUser.last_name || ""}`
+                      : selectedUser._type === "businesses"
+                        ? selectedUser.business_name
+                        : selectedUser.email}
                   </h4>
-                  <p className="text-gray-400 text-sm">{selectedUser.user_id}</p>
+                  <p className="text-gray-400 text-sm">
+                    {selectedUser._type === "auth" ? selectedUser.user_metadata?.role || "Profilsiz kayıt" : selectedUser.user_id}
+                  </p>
                 </div>
               </div>
 
@@ -327,7 +372,7 @@ export default function UsersPage() {
                     <DetailItem label="P1 Belgesi" value={selectedUser.p1_certificate ? "Var" : "Yok"} />
                     <DetailItem label="Kayıt Tarihi" value={selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleString("tr-TR") : "-"} />
                   </>
-                ) : (
+                ) : selectedUser._type === "businesses" ? (
                   <>
                     <DetailItem label="Sektör" value={selectedUser.business_sector} />
                     <DetailItem label="Yetkili" value={selectedUser.manager_name} />
@@ -361,6 +406,15 @@ export default function UsersPage() {
                       </div>
                     </div>
                   </>
+                ) : (
+                  <>
+                    <DetailItem label="Rol" value={selectedUser.user_metadata?.role || "Bilinmiyor"} />
+                    <DetailItem label="E-posta" value={selectedUser.email} />
+                    <DetailItem label="Telefon" value={selectedUser.phone || "-"} />
+                    <DetailItem label="Kayıt Tarihi" value={selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleDateString("tr-TR") : "-"} />
+                    <DetailItem label="Durum" value="Profil tamamlanmamış" />
+                    <DetailItem label="Not" value="Bu kullanıcı henüz kurye veya işletme profilini oluşturmadı." />
+                  </>
                 )}
               </div>
             </div>
@@ -369,7 +423,7 @@ export default function UsersPage() {
             <div className="flex items-center justify-between p-6 border-t border-gray-200">
               <button
                 disabled={actionLoading}
-                onClick={() => handleDeleteUser(selectedUser.user_id, selectedUser._type)}
+                onClick={() => handleDeleteUser(selectedUser._type === "auth" ? selectedUser.id : selectedUser.user_id, selectedUser._type)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-red-500/10 text-red-400 rounded-xl hover:bg-red-500/20 transition-colors text-sm font-medium border border-red-500/20 disabled:opacity-50"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
