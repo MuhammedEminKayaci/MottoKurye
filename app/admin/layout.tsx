@@ -216,10 +216,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const sessionUser = session?.user;
+      if (sessionUser && ADMIN_EMAILS.includes(sessionUser.email || "")) {
+        const email = sessionUser.email || "";
+        setAdminEmail(email);
+        setAuthorized(true);
+        setChecking(false);
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (user && ADMIN_EMAILS.includes(user.email || "")) {
-        setAdminEmail(user.email || "");
+        const email = user.email || "";
+        setAdminEmail(email);
         setAuthorized(true);
+      } else {
+        setAuthorized(false);
       }
       setChecking(false);
     };

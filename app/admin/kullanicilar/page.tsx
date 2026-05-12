@@ -4,6 +4,38 @@ import React, { useEffect, useState, useCallback } from "react";
 
 type TabType = "couriers" | "businesses" | "auth";
 
+const formatList = (value: any, separator = ", ") => {
+  if (!value) return "-";
+  if (Array.isArray(value)) return value.length ? value.join(separator) : "-";
+  if (typeof value === "string") return value.trim() || "-";
+  return String(value);
+};
+
+const formatWorkingDays = (value: any) => formatList(
+  typeof value === "string" ? value.split(",").map((day) => day.trim()).filter(Boolean) : value,
+  " - "
+);
+
+const formatBoolLike = (value: any) => {
+  if (value === true || value === "VAR") return "Var";
+  if (value === false || value === "YOK") return "Yok";
+  return value || "-";
+};
+
+const formatContactPreference = (value: any) => {
+  if (value === "phone") return "Telefon";
+  if (value === "in_app") return "Uygulama içi";
+  if (value === "both") return "Telefon + uygulama içi";
+  return value || "-";
+};
+
+const formatDateTime = (value: any) => value ? new Date(value).toLocaleString("tr-TR") : "-";
+
+const getProfilelessReason = (user: any) => {
+  if (!user?.email_confirmed_at) return "E-posta doğrulaması bekliyor";
+  return "Profil formu tamamlanmamış";
+};
+
 export default function UsersPage() {
   const [tab, setTab] = useState<TabType>("couriers");
   const [data, setData] = useState<any[]>([]);
@@ -205,7 +237,7 @@ export default function UsersPage() {
                     <>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">E-posta</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Rol</th>
-                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Telefon</th>
+                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Durum</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Kayıt</th>
                       <th className="text-right text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İşlem</th>
                     </>
@@ -214,7 +246,11 @@ export default function UsersPage() {
               </thead>
               <tbody>
                 {data.map((item: any) => (
-                  <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                  <tr
+                    key={item.id}
+                    onClick={() => setSelectedUser({ ...item, _type: tab })}
+                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
                     {tab === "couriers" ? (
                       <>
                         <td className="px-5 py-4">
@@ -237,7 +273,7 @@ export default function UsersPage() {
                         <td className="px-5 py-4 text-gray-600">{item.working_type || "-"}</td>
                         <td className="px-5 py-4 text-gray-400 text-xs">{item.created_at ? new Date(item.created_at).toLocaleDateString("tr-TR") : "-"}</td>
                         <td className="px-5 py-4 text-right">
-                          <button onClick={() => setSelectedUser({ ...item, _type: "couriers" })} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
+                          <button onClick={(e) => { e.stopPropagation(); setSelectedUser({ ...item, _type: "couriers" }); }} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
                             Detay
                           </button>
                         </td>
@@ -269,7 +305,7 @@ export default function UsersPage() {
                         </td>
                         <td className="px-5 py-4 text-gray-400 text-xs">{item.created_at ? new Date(item.created_at).toLocaleDateString("tr-TR") : "-"}</td>
                         <td className="px-5 py-4 text-right">
-                          <button onClick={() => setSelectedUser({ ...item, _type: "businesses" })} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
+                          <button onClick={(e) => { e.stopPropagation(); setSelectedUser({ ...item, _type: "businesses" }); }} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
                             Detay
                           </button>
                         </td>
@@ -278,10 +314,10 @@ export default function UsersPage() {
                       <>
                         <td className="px-5 py-4 text-gray-900">{item.email}</td>
                         <td className="px-5 py-4 text-gray-600">{item.user_metadata?.role || "-"}</td>
-                        <td className="px-5 py-4 text-gray-600">{item.phone || "-"}</td>
+                        <td className="px-5 py-4 text-gray-600">{getProfilelessReason(item)}</td>
                         <td className="px-5 py-4 text-gray-400 text-xs">{item.created_at ? new Date(item.created_at).toLocaleDateString("tr-TR") : "-"}</td>
                         <td className="px-5 py-4 text-right">
-                          <button onClick={() => setSelectedUser({ ...item, _type: "auth" })} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
+                          <button onClick={(e) => { e.stopPropagation(); setSelectedUser({ ...item, _type: "auth" }); }} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
                             Detay
                           </button>
                         </td>
@@ -313,7 +349,7 @@ export default function UsersPage() {
       {/* User Detail Modal */}
       {selectedUser && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedUser(null)}>
-          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-5xl max-h-[88vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-gray-900 font-semibold text-lg">
@@ -355,38 +391,76 @@ export default function UsersPage() {
                 </div>
               </div>
 
-              {/* Detail Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {selectedUser._type === "couriers" ? (
-                  <>
+              {selectedUser._type === "couriers" ? (
+                <div className="space-y-5">
+                  <DetailSection title="Kimlik ve İletişim">
+                    <DetailItem label="Ad Soyad" value={`${selectedUser.first_name || ""} ${selectedUser.last_name || ""}`.trim()} />
+                    <DetailItem label="Telefon" value={selectedUser.phone} />
+                    <DetailItem label="İletişim Tercihi" value={formatContactPreference(selectedUser.contact_preference)} />
                     <DetailItem label="Cinsiyet" value={selectedUser.gender} />
                     <DetailItem label="Yaş" value={selectedUser.age} />
+                    <DetailItem label="Uyruk" value={selectedUser.nationality} />
+                  </DetailSection>
+                  <DetailSection title="Çalışma Profili">
                     <DetailItem label="İl" value={selectedUser.province} />
-                    <DetailItem label="İlçe" value={Array.isArray(selectedUser.district) ? selectedUser.district.join(", ") : selectedUser.district} />
-                    <DetailItem label="Araç" value={selectedUser.vehicle_type} />
+                    <DetailItem label="İlçe" value={formatList(selectedUser.district)} />
                     <DetailItem label="Çalışma Tipi" value={selectedUser.working_type} />
                     <DetailItem label="Kazanç Modeli" value={selectedUser.earning_model} />
+                    <DetailItem label="Günlük Paket Tahmini" value={selectedUser.daily_package_estimate} />
+                    <DetailItem label="Çalışma Günleri" value={formatWorkingDays(selectedUser.working_days)} />
                     <DetailItem label="Deneyim" value={selectedUser.experience} />
-                    <DetailItem label="Çanta" value={selectedUser.has_bag ? "Var" : "Yok"} />
-                    <DetailItem label="SRC Belgesi" value={selectedUser.src_certificate ? "Var" : "Yok"} />
-                    <DetailItem label="P1 Belgesi" value={selectedUser.p1_certificate ? "Var" : "Yok"} />
-                    <DetailItem label="Kayıt Tarihi" value={selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleString("tr-TR") : "-"} />
-                  </>
-                ) : selectedUser._type === "businesses" ? (
-                  <>
+                    <DetailItem label="Teklif Durumu" value={selectedUser.is_accepting_offers === false ? "Kapalı" : "Açık"} />
+                  </DetailSection>
+                  <DetailSection title="Araç ve Belgeler">
+                    <DetailItem label="Araç" value={selectedUser.vehicle_type} />
+                    <DetailItem label="Ehliyet Türü" value={selectedUser.license_type} />
+                    <DetailItem label="Motorsiklet" value={formatBoolLike(selectedUser.has_motorcycle)} />
+                    <DetailItem label="Marka" value={selectedUser.moto_brand} />
+                    <DetailItem label="Motor CC" value={selectedUser.moto_cc} />
+                    <DetailItem label="Taşıma Çantası" value={formatBoolLike(selectedUser.has_bag)} />
+                    <DetailItem label="P1 Yetki Belgesi" value={formatBoolLike(selectedUser.p1_certificate)} />
+                    <DetailItem label="SRC Belgesi" value={formatBoolLike(selectedUser.src_certificate)} />
+                    <DetailItem label="Sabıka Kaydı" value={formatBoolLike(selectedUser.criminal_record)} />
+                    <DetailItem label="Ehliyet Dosyası" value={selectedUser.license_file_url} isLink />
+                    <DetailItem label="P1 Dosyası" value={selectedUser.p1_certificate_file_url} isLink />
+                    <DetailItem label="SRC Dosyası" value={selectedUser.src_certificate_file_url} isLink />
+                    <DetailItem label="Sabıka Kaydı Dosyası" value={selectedUser.criminal_record_file_url} isLink />
+                  </DetailSection>
+                  <DetailSection title="Sistem">
+                    <DetailItem label="Profil ID" value={selectedUser.id} />
+                    <DetailItem label="Kullanıcı ID" value={selectedUser.user_id} />
+                    <DetailItem label="Kayıt Tarihi" value={formatDateTime(selectedUser.created_at)} />
+                    <DetailItem label="Güncelleme Tarihi" value={formatDateTime(selectedUser.updated_at)} />
+                  </DetailSection>
+                </div>
+              ) : selectedUser._type === "businesses" ? (
+                <div className="space-y-5">
+                  <DetailSection title="İşletme Bilgileri">
+                    <DetailItem label="İşletme Adı" value={selectedUser.business_name} />
                     <DetailItem label="Sektör" value={selectedUser.business_sector} />
                     <DetailItem label="Yetkili" value={selectedUser.manager_name} />
+                    <DetailItem label="Yetkili Telefonu" value={selectedUser.manager_contact} />
+                    <DetailItem label="İletişim Tercihi" value={formatContactPreference(selectedUser.contact_preference)} />
+                    <DetailItem label="Kurye Arayışı" value={selectedUser.seeking_couriers === false ? "Kapalı" : "Açık"} />
+                  </DetailSection>
+                  <DetailSection title="Çalışma Profili">
                     <DetailItem label="İl" value={selectedUser.province} />
-                    <DetailItem label="İlçe" value={Array.isArray(selectedUser.district) ? selectedUser.district.join(", ") : selectedUser.district} />
+                    <DetailItem label="İlçe" value={formatList(selectedUser.district)} />
                     <DetailItem label="Çalışma Tipi" value={selectedUser.working_type} />
                     <DetailItem label="Kazanç Modeli" value={selectedUser.earning_model} />
-                    <DetailItem label="Paket Tahmini" value={selectedUser.daily_package_estimate} />
-                    <DetailItem label="İletişim" value={selectedUser.contact_preference} />
-                    <DetailItem label="Kayıt Tarihi" value={selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleString("tr-TR") : "-"} />
-                    {/* Plan Management */}
-                    <div className="col-span-2 bg-gray-100 rounded-xl p-4">
+                    <DetailItem label="Günlük Paket Tahmini" value={selectedUser.daily_package_estimate} />
+                    <DetailItem label="Çalışma Günleri" value={formatWorkingDays(selectedUser.working_days)} />
+                    <DetailItem label="Hizmet Tipi" value={selectedUser.service_type} />
+                  </DetailSection>
+                  <DetailSection title="Plan ve Kullanım">
+                    <DetailItem label="Plan" value={selectedUser.plan || "free"} />
+                    <DetailItem label="Toplam Mesaj" value={selectedUser.messages_sent_total} />
+                    <DetailItem label="Bugünkü Onay" value={selectedUser.approvals_today} />
+                    <DetailItem label="Son Sıfırlama" value={formatDateTime(selectedUser.last_usage_reset)} />
+                    <DetailItem label="Plan Güncelleme" value={formatDateTime(selectedUser.plan_updated_at)} />
+                    <div className="bg-gray-100 rounded-xl p-4 sm:col-span-2 lg:col-span-3">
                       <p className="text-gray-400 text-xs font-medium mb-2">Plan Yönetimi</p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         {["free", "standard", "premium"].map((plan) => (
                           <button
                             key={plan}
@@ -397,7 +471,7 @@ export default function UsersPage() {
                                 ? plan === "premium" ? "bg-amber-500 text-white" :
                                   plan === "standard" ? "bg-blue-500 text-white" :
                                   "bg-slate-500 text-white"
-                                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                                : "bg-white text-gray-500 hover:bg-gray-200 border border-gray-200"
                             }`}
                           >
                             {plan === "free" ? "Ücretsiz" : plan === "standard" ? "Standart" : "Premium"}
@@ -405,18 +479,26 @@ export default function UsersPage() {
                         ))}
                       </div>
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <DetailItem label="Rol" value={selectedUser.user_metadata?.role || "Bilinmiyor"} />
-                    <DetailItem label="E-posta" value={selectedUser.email} />
-                    <DetailItem label="Telefon" value={selectedUser.phone || "-"} />
-                    <DetailItem label="Kayıt Tarihi" value={selectedUser.created_at ? new Date(selectedUser.created_at).toLocaleDateString("tr-TR") : "-"} />
-                    <DetailItem label="Durum" value="Profil tamamlanmamış" />
-                    <DetailItem label="Not" value="Bu kullanıcı henüz kurye veya işletme profilini oluşturmadı." />
-                  </>
-                )}
-              </div>
+                  </DetailSection>
+                  <DetailSection title="Sistem">
+                    <DetailItem label="Profil ID" value={selectedUser.id} />
+                    <DetailItem label="Kullanıcı ID" value={selectedUser.user_id} />
+                    <DetailItem label="Kayıt Tarihi" value={formatDateTime(selectedUser.created_at)} />
+                    <DetailItem label="Güncelleme Tarihi" value={formatDateTime(selectedUser.updated_at)} />
+                  </DetailSection>
+                </div>
+              ) : (
+                <DetailSection title="Profilsiz Kayıt">
+                  <DetailItem label="Rol" value={selectedUser.user_metadata?.role || "Bilinmiyor"} />
+                  <DetailItem label="E-posta" value={selectedUser.email} />
+                  <DetailItem label="Telefon" value={selectedUser.phone || "-"} />
+                  <DetailItem label="E-posta Durumu" value={selectedUser.email_confirmed_at ? "Doğrulandı" : "Doğrulama bekliyor"} />
+                  <DetailItem label="Kayıt Tarihi" value={formatDateTime(selectedUser.created_at)} />
+                  <DetailItem label="Son Giriş" value={formatDateTime(selectedUser.last_sign_in_at)} />
+                  <DetailItem label="Durum" value={getProfilelessReason(selectedUser)} />
+                  <DetailItem label="Not" value="Bu kullanıcı auth sisteminde var ancak couriers veya businesses tablosunda profil satırı yok." />
+                </DetailSection>
+              )}
             </div>
 
             {/* Modal Footer */}
@@ -442,11 +524,27 @@ export default function UsersPage() {
   );
 }
 
-function DetailItem({ label, value }: { label: string; value: any }) {
+function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h5 className="text-gray-900 font-semibold text-sm mb-3">{title}</h5>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{children}</div>
+    </section>
+  );
+}
+
+function DetailItem({ label, value, isLink = false }: { label: string; value: any; isLink?: boolean }) {
+  const displayValue = value || "-";
   return (
     <div className="bg-gray-50 rounded-xl p-3">
       <p className="text-gray-400 text-[10px] uppercase tracking-wider font-medium mb-1">{label}</p>
-      <p className="text-gray-900 text-sm font-medium truncate">{value || "-"}</p>
+      {isLink && value ? (
+        <a href={value} target="_blank" rel="noreferrer" className="text-[#ff7a00] text-sm font-medium break-all hover:underline">
+          Dosyayı aç
+        </a>
+      ) : (
+        <p className="text-gray-900 text-sm font-medium break-words">{displayValue}</p>
+      )}
     </div>
   );
 }

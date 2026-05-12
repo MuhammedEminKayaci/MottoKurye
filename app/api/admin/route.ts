@@ -60,6 +60,30 @@ function getAdminClient() {
   });
 }
 
+async function listAllAuthUsers(db: ReturnType<typeof getAdminClient>, query?: string) {
+  const perPage = 1000;
+  const users: any[] = [];
+  let page = 1;
+
+  while (true) {
+    const { data, error } = await db.auth.admin.listUsers({
+      page,
+      perPage,
+      ...(query ? { query } : {}),
+    });
+
+    if (error) throw error;
+
+    const batch = data?.users || [];
+    users.push(...batch);
+
+    if (batch.length < perPage) break;
+    page += 1;
+  }
+
+  return users;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const admin = await verifyAdmin();
@@ -196,16 +220,8 @@ export async function GET(req: NextRequest) {
             ...(businessUsers || []).map((b: any) => b.user_id),
           ].filter(Boolean));
 
-          const authQuery: any = { page: 1, perPage: Math.max(limit, 1000) };
-          if (search) authQuery.query = search;
-
-          const { data: authData, error: authError } = await db.auth.admin.listUsers(authQuery);
-          if (authError) {
-            console.error("Admin API auth users error:", authError.message);
-            return NextResponse.json({ error: authError.message }, { status: 500 });
-          }
-
-          const authUsers = (authData?.users || []).filter((user: any) => !profileIds.has(user.id));
+          const allUsers = await listAllAuthUsers(db, search || undefined);
+          const authUsers = allUsers.filter((user: any) => !profileIds.has(user.id));
           const pagedUsers = authUsers.slice(offset, offset + limit);
 
           return NextResponse.json({ data: pagedUsers, total: authUsers.length, page, limit });
@@ -449,10 +465,10 @@ export async function GET(req: NextRequest) {
       }
 
       case "system": {
-        // Sistem sağlığı kontrolleri — tek listUsers çağrısı
-        const { data: allAuthUsers, error: authError } = await db.auth.admin.listUsers({ perPage: 1000 });
-        const totalAuthUsers = allAuthUsers?.users?.length || 0;
-        const authUserIds = new Set((allAuthUsers?.users || []).map((u: any) => u.id));
+        // Sistem sağlığı kontrolleri — auth kullanıcılarını sayfalı çek
+        const allAuthUsers = await listAllAuthUsers(db);
+        const totalAuthUsers = allAuthUsers.length;
+        const authUserIds = new Set(allAuthUsers.map((u: any) => u.id));
         
         const { data: allCouriers } = await db.from("couriers").select("user_id");
         const { data: allBusinesses } = await db.from("businesses").select("user_id");
@@ -465,8 +481,8 @@ export async function GET(req: NextRequest) {
         const orphanProfiles = [...profileUserIds].filter(id => !authUserIds.has(id));
 
         // Confirmed / unconfirmed email
-        const confirmedCount = (allAuthUsers?.users || []).filter((u: any) => u.email_confirmed_at).length;
-        const unconfirmedCount = (allAuthUsers?.users || []).filter((u: any) => !u.email_confirmed_at).length;
+        const confirmedCount = allAuthUsers.filter((u: any) => u.email_confirmed_at).length;
+        const unconfirmedCount = allAuthUsers.filter((u: any) => !u.email_confirmed_at).length;
 
         // Silinen hesaplar
         const { count: deletedCount } = await db.from("deleted_users_archive")
@@ -480,7 +496,7 @@ export async function GET(req: NextRequest) {
           orphanProfileCount: orphanProfiles.length,
           deletedUsersCount: deletedCount || 0,
           orphanAuthIds: orphanAuth.slice(0, 10),
-          authError: authError?.message || null,
+          authError: null,
         });
       }
 
