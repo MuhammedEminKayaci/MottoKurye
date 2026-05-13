@@ -218,18 +218,20 @@ export default function UsersPage() {
                   {tab === "couriers" ? (
                     <>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Kurye</th>
+                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İletişim</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Konum</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Araç</th>
-                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Çalışma</th>
+                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Telefon Tercihi</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Kayıt</th>
                       <th className="text-right text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İşlem</th>
                     </>
                   ) : tab === "businesses" ? (
                     <>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İşletme</th>
+                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İletişim</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Sektör</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Konum</th>
-                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Plan</th>
+                      <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Telefon Tercihi</th>
                       <th className="text-left text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">Kayıt</th>
                       <th className="text-right text-gray-400 font-medium px-5 py-4 text-xs uppercase tracking-wider">İşlem</th>
                     </>
@@ -268,9 +270,10 @@ export default function UsersPage() {
                             </div>
                           </div>
                         </td>
+                        <td className="px-5 py-4 text-gray-600 text-xs max-w-[220px] truncate">{item.email || "-"}</td>
                         <td className="px-5 py-4 text-gray-600">{item.province || "-"}</td>
                         <td className="px-5 py-4 text-gray-600">{item.vehicle_type || "-"}</td>
-                        <td className="px-5 py-4 text-gray-600">{item.working_type || "-"}</td>
+                        <td className="px-5 py-4 text-gray-600">{formatContactPreference(item.contact_preference)}</td>
                         <td className="px-5 py-4 text-gray-400 text-xs">{item.created_at ? new Date(item.created_at).toLocaleDateString("tr-TR") : "-"}</td>
                         <td className="px-5 py-4 text-right">
                           <button onClick={(e) => { e.stopPropagation(); setSelectedUser({ ...item, _type: "couriers" }); }} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
@@ -292,17 +295,10 @@ export default function UsersPage() {
                             <p className="text-gray-900 font-medium truncate max-w-[200px]">{item.business_name}</p>
                           </div>
                         </td>
+                        <td className="px-5 py-4 text-gray-600 text-xs max-w-[220px] truncate">{item.email || "-"}</td>
                         <td className="px-5 py-4 text-gray-600 truncate max-w-[160px]">{item.business_sector || "-"}</td>
                         <td className="px-5 py-4 text-gray-600">{item.province || "-"}</td>
-                        <td className="px-5 py-4">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            item.plan === "premium" ? "bg-amber-500/20 text-amber-400" :
-                            item.plan === "standard" ? "bg-blue-500/20 text-blue-400" :
-                            "bg-slate-500/20 text-slate-400"
-                          }`}>
-                            {item.plan || "free"}
-                          </span>
-                        </td>
+                        <td className="px-5 py-4 text-gray-600">{formatContactPreference(item.contact_preference)}</td>
                         <td className="px-5 py-4 text-gray-400 text-xs">{item.created_at ? new Date(item.created_at).toLocaleDateString("tr-TR") : "-"}</td>
                         <td className="px-5 py-4 text-right">
                           <button onClick={(e) => { e.stopPropagation(); setSelectedUser({ ...item, _type: "businesses" }); }} className="text-[#ff7a00] hover:text-[#ff7a00] text-xs font-medium">
@@ -348,13 +344,16 @@ export default function UsersPage() {
 
       {/* User Detail Modal */}
       {selectedUser && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedUser(null)}>
-          <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-5xl max-h-[88vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedUser(null)}>
+          <div className="bg-white rounded-3xl border border-gray-200 w-full max-w-5xl max-h-[88vh] overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-gray-900 font-semibold text-lg">
-                {selectedUser._type === "couriers" ? "Kurye Detayı" : selectedUser._type === "businesses" ? "İşletme Detayı" : "Profilsiz Kayıt Detayı"}
-              </h3>
+            <div className="flex items-center justify-between p-6 border-b border-[#ff7a00]/20 bg-gradient-to-r from-[#fff7ef] to-white">
+              <div>
+                <h3 className="text-gray-900 font-semibold text-lg">
+                  {selectedUser._type === "couriers" ? "Kurye Detayı" : selectedUser._type === "businesses" ? "İşletme Detayı" : "Profilsiz Kayıt Detayı"}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">Kullanıcı bilgileri ve profil doğrulama detayları</p>
+              </div>
               <button onClick={() => setSelectedUser(null)} className="text-gray-400 hover:text-gray-900 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -365,8 +364,8 @@ export default function UsersPage() {
             {/* Modal Body */}
             <div className="p-6 space-y-4">
               {/* Avatar + Name */}
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#ff7a00]/20">
+              <div className="flex items-center gap-4 bg-[#ff7a00]/5 border border-[#ff7a00]/15 rounded-2xl p-4">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#ff7a00]/20 border border-[#ff7a00]/20">
                   {selectedUser._type === "auth" ? (
                     <div className="w-full h-full flex items-center justify-center text-[#ff7a00] text-2xl font-bold">@</div>
                   ) : selectedUser.avatar_url ? (
@@ -377,7 +376,7 @@ export default function UsersPage() {
                     </div>
                   )}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h4 className="text-gray-900 font-bold text-lg">
                     {selectedUser._type === "couriers"
                       ? `${selectedUser.first_name || ""} ${selectedUser.last_name || ""}`
@@ -388,6 +387,14 @@ export default function UsersPage() {
                   <p className="text-gray-400 text-sm">
                     {selectedUser._type === "auth" ? selectedUser.user_metadata?.role || "Profilsiz kayıt" : selectedUser.user_id}
                   </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
+                      {selectedUser._type === "couriers" ? "Kurye" : selectedUser._type === "businesses" ? "İşletme" : "Auth"}
+                    </span>
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#ff7a00]/10 text-[#ff7a00] border border-[#ff7a00]/20">
+                      {formatContactPreference(selectedUser.contact_preference)}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -395,6 +402,7 @@ export default function UsersPage() {
                 <div className="space-y-5">
                   <DetailSection title="Kimlik ve İletişim">
                     <DetailItem label="Ad Soyad" value={`${selectedUser.first_name || ""} ${selectedUser.last_name || ""}`.trim()} />
+                    <DetailItem label="E-posta" value={selectedUser.email} />
                     <DetailItem label="Telefon" value={selectedUser.phone} />
                     <DetailItem label="İletişim Tercihi" value={formatContactPreference(selectedUser.contact_preference)} />
                     <DetailItem label="Cinsiyet" value={selectedUser.gender} />
@@ -437,6 +445,7 @@ export default function UsersPage() {
                 <div className="space-y-5">
                   <DetailSection title="İşletme Bilgileri">
                     <DetailItem label="İşletme Adı" value={selectedUser.business_name} />
+                    <DetailItem label="E-posta" value={selectedUser.email} />
                     <DetailItem label="Sektör" value={selectedUser.business_sector} />
                     <DetailItem label="Yetkili" value={selectedUser.manager_name} />
                     <DetailItem label="Yetkili Telefonu" value={selectedUser.manager_contact} />
@@ -458,7 +467,7 @@ export default function UsersPage() {
                     <DetailItem label="Bugünkü Onay" value={selectedUser.approvals_today} />
                     <DetailItem label="Son Sıfırlama" value={formatDateTime(selectedUser.last_usage_reset)} />
                     <DetailItem label="Plan Güncelleme" value={formatDateTime(selectedUser.plan_updated_at)} />
-                    <div className="bg-gray-100 rounded-xl p-4 sm:col-span-2 lg:col-span-3">
+                    <div className="bg-gray-100 rounded-xl p-4 sm:col-span-2 lg:col-span-3 border border-gray-200">
                       <p className="text-gray-400 text-xs font-medium mb-2">Plan Yönetimi</p>
                       <div className="flex flex-wrap items-center gap-2">
                         {["free", "standard", "premium"].map((plan) => (
@@ -502,7 +511,7 @@ export default function UsersPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex items-center justify-between p-6 border-t border-gray-200">
+            <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50/70">
               <button
                 disabled={actionLoading}
                 onClick={() => handleDeleteUser(selectedUser._type === "auth" ? selectedUser.id : selectedUser.user_id, selectedUser._type)}
@@ -526,7 +535,7 @@ export default function UsersPage() {
 
 function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section>
+    <section className="bg-white border border-gray-200 rounded-2xl p-4">
       <h5 className="text-gray-900 font-semibold text-sm mb-3">{title}</h5>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{children}</div>
     </section>
@@ -536,7 +545,7 @@ function DetailSection({ title, children }: { title: string; children: React.Rea
 function DetailItem({ label, value, isLink = false }: { label: string; value: any; isLink?: boolean }) {
   const displayValue = value || "-";
   return (
-    <div className="bg-gray-50 rounded-xl p-3">
+    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
       <p className="text-gray-400 text-[10px] uppercase tracking-wider font-medium mb-1">{label}</p>
       {isLink && value ? (
         <a href={value} target="_blank" rel="noreferrer" className="text-[#ff7a00] text-sm font-medium break-all hover:underline">

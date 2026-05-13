@@ -84,6 +84,32 @@ async function listAllAuthUsers(db: ReturnType<typeof getAdminClient>, query?: s
   return users;
 }
 
+async function getAuthUsersByIds(db: ReturnType<typeof getAdminClient>, userIds: string[]) {
+  const targetIds = new Set((userIds || []).filter(Boolean));
+  if (targetIds.size === 0) return new Map<string, any>();
+
+  const perPage = 1000;
+  const authMap = new Map<string, any>();
+  let page = 1;
+
+  while (true) {
+    const { data, error } = await db.auth.admin.listUsers({ page, perPage });
+    if (error) throw error;
+
+    const batch = data?.users || [];
+    for (const user of batch) {
+      if (targetIds.has(user.id)) {
+        authMap.set(user.id, user);
+      }
+    }
+
+    if (authMap.size === targetIds.size || batch.length < perPage) break;
+    page += 1;
+  }
+
+  return authMap;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const admin = await verifyAdmin();
@@ -238,7 +264,17 @@ export async function GET(req: NextRequest) {
           }
 
           const { data, count } = await query;
-          return NextResponse.json({ data: data || [], total: count || 0, page, limit });
+          const rows = data || [];
+          const authMap = await getAuthUsersByIds(db, rows.map((r: any) => r.user_id));
+          const enriched = rows.map((row: any) => {
+            const authUser = authMap.get(row.user_id);
+            return {
+              ...row,
+              email: authUser?.email || null,
+              auth_phone: authUser?.phone || null,
+            };
+          });
+          return NextResponse.json({ data: enriched, total: count || 0, page, limit });
         }
 
         let query = db.from("businesses")
@@ -251,7 +287,17 @@ export async function GET(req: NextRequest) {
         }
 
         const { data, count } = await query;
-        return NextResponse.json({ data: data || [], total: count || 0, page, limit });
+        const rows = data || [];
+        const authMap = await getAuthUsersByIds(db, rows.map((r: any) => r.user_id));
+        const enriched = rows.map((row: any) => {
+          const authUser = authMap.get(row.user_id);
+          return {
+            ...row,
+            email: authUser?.email || null,
+            auth_phone: authUser?.phone || null,
+          };
+        });
+        return NextResponse.json({ data: enriched, total: count || 0, page, limit });
       }
 
       case "messages": {
